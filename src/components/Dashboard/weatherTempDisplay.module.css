@@ -1,0 +1,35 @@
+.weatherBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weatherIcon {
+  width: 40px;
+  height: 40px;
+}
+
+.weatherTemp {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.currentTemp {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.minMaxTemp {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+}
+
+.weatherIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}

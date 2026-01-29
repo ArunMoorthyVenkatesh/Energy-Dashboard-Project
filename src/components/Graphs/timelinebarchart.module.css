@@ -1,0 +1,115 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  gap: 5px;
+}
+/* yaxis label */
+.topSection {
+  width: 100%;
+}
+.yAxisLabel {
+  font-size: 0.7rem;
+  color: var(--secondary-gray);
+}
+/* axis + yaxis + bars */
+.bottomSection {
+  display: flex;
+  gap: 5px;
+  height: 100%;
+}
+/* bottom left, yaxis tick labels */
+.leftSection {
+  display: flex;
+  flex-direction: column;
+}
+.yAxis {
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.yTickWrapper {
+  position: relative;
+  height: 1px;
+}
+.yLabel {
+  display: inline-block;
+  font-size: 0.6rem;
+  transform: translateY(-100%);
+  color: var(--secondary-gray);
+}
+/* bottom right, xaxis + bars */
+.rightSection {
+  height: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.chartArea {
+  position: relative;
+  height: 90%;
+}
+.gridLines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.gridLine {
+  width: 100%;
+  height: 1px;
+  background-color: #dbdbdb;
+}
+.gridLine:first-of-type {
+  height: 2px;
+}
+.bars {
+  height: 100%;
+  display: grid;
+  align-items: flex-end;
+  /* grid-template-columns: repeat(24, 1fr); 24 bars */
+}
+.bar {
+  width: 70%;
+  margin: 0 auto;
+  /* height: 50%; */
+  /* flex: 1; */
+  background-color: var(--primary-blue);
+  z-index: 2;
+}
+.xAxis {
+  display: grid;
+  /* grid-template-columns: repeat(24, 1fr); 24 labels */
+  border-bottom: 2px solid #dbdbdb;
+  width: 100%;
+  height: 0;
+  overflow: visible;
+}
+.tickWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tick {
+  align-self: center;
+  position: absolute;
+  width: 2px;
+  height: 5px;
+  background-color: #b4b4b4;
+}
+.label {
+  position: absolute;
+  font-size: 0.6rem;
+  font-weight: 300;
+  color: var(--secondary-gray);
+  margin-top: 6px;
+}

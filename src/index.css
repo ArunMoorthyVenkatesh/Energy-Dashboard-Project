@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root color system (for JS variables and CSS overrides) */
+:root {
+  --primary-blue: #1f6eff;
+  --primary-orange: #f09c37;
+  --primary-green: #67ae5b;
+  --primary-gray: #606060;
+  --secondary-gray: #808080;
+  
+  /* Add responsive spacing variables */
+  --spacing-mobile: 1rem;
+  --spacing-tablet: 1.5rem;
+  --spacing-desktop: 2rem;
+}
+
+/* Global reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: "Inter", sans-serif;
+  background-color: #ffffff;
+  color: var(--primary-gray);
+  /* Add smooth font scaling */
+  font-size: 16px;
+}
+
+/* Responsive font sizing */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1440px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+}
+
+/* SVG icon baseline color */
+svg {
+  fill: var(--primary-gray);
+  /* Make SVGs responsive */
+  max-width: 100%;
+  height: auto;
+}
+
+/* Add responsive image utility */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Responsive container utility classes */
+.container-responsive {
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-mobile);
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    padding: var(--spacing-tablet);
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    padding: var(--spacing-desktop);
+    max-width: 1400px;
+  }
+}
+
+/* Responsive grid utilities */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Responsive flex utilities */
+.flex-responsive {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .flex-responsive {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+}
+
+/* Hide/show utilities for different screen sizes */
+.mobile-only {
+  display: block;
+}
+
+.tablet-up {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+  
+  .tablet-up {
+    display: block;
+  }
+}
+
+/* Dark mode (system preference) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-gray: #e6edf3;
+    background-color: #0d1117;
+    color: #e6edf3;
+  }
+  
+  svg {
+    fill: #d0d0d0;
+  }
+  
+  body {
+    background-color: #0d1117;
+    color: #e6edf3;
+  }
+}
+
+/* Reusable animation class */
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive text utilities */
+.text-responsive-sm {
+  font-size: 0.875rem;
+}
+
+.text-responsive-base {
+  font-size: 1rem;
+}
+
+.text-responsive-lg {
+  font-size: 1.125rem;
+}
+
+.text-responsive-xl {
+  font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .text-responsive-sm {
+    font-size: 1rem;
+  }
+  
+  .text-responsive-base {
+    font-size: 1.125rem;
+  }
+  
+  .text-responsive-lg {
+    font-size: 1.25rem;
+  }
+  
+  .text-responsive-xl {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive-xl {
+    font-size: 1.875rem;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+body {
+  overflow-x: hidden;
+}
+
+/* Touch-friendly sizing for mobile */
+@media (max-width: 767px) {
+  button, a, input, select {
+    min-height: 44px; /* Apple's recommended touch target */
+    min-width: 44px;
+  }
+}

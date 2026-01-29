@@ -1,0 +1,32 @@
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.titleSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+}
+
+.title {
+  color: var(--primary-gray);
+  font-weight: 500;
+  /* font-size: 80%; */
+  font-size: 1.4cqh;
+}
+
+.dropdowns {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.graphSection {
+  flex: 1;
+  min-height: 0;
+}

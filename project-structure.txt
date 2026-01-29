@@ -1,0 +1,151 @@
+.
+├── .env
+├── .gitignore
+├── agents.iot-portal.md
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── project-structure.txt
+├── public
+│   ├── essco-logo.png
+│   ├── favicon.ico
+│   ├── fonts
+│   │   ├── Inter-Black.otf
+│   │   ├── Inter-BlackItalic.otf
+│   │   ├── Inter-Bold.otf
+│   │   ├── Inter-BoldItalic.otf
+│   │   ├── Inter-ExtraBold.otf
+│   │   ├── Inter-ExtraBoldItalic.otf
+│   │   ├── Inter-ExtraLight.otf
+│   │   ├── Inter-ExtraLightItalic.otf
+│   │   ├── Inter-Italic.otf
+│   │   ├── Inter-Light.otf
+│   │   ├── Inter-LightItalic.otf
+│   │   ├── Inter-Medium.otf
+│   │   ├── Inter-MediumItalic.otf
+│   │   ├── Inter-Regular.otf
+│   │   ├── Inter-SemiBold.otf
+│   │   ├── Inter-SemiBoldItalic.otf
+│   │   ├── Inter-Thin.otf
+│   │   └── Inter-ThinItalic.otf
+│   ├── index.css
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo512.png
+│   ├── manifest.json
+│   ├── robots.txt
+│   ├── runtime-config.json
+│   ├── semply-logo.jpg
+│   ├── solar_panel.png
+│   ├── toyota_building.png
+│   └── toyota-logo.png
+├── README.md
+├── src
+│   ├── api
+│   │   ├── BaseAPI.js
+│   │   ├── DashboardAPI.js
+│   │   ├── ElectricUsageAPI.js
+│   │   ├── ganttApi.js
+│   │   ├── GroupData.js
+│   │   ├── index.js
+│   │   └── WeatherAPI.js
+│   ├── App.css
+│   ├── App.js
+│   ├── assets
+│   │   ├── svg
+│   │   │   ├── AirconSvg.jsx
+│   │   │   ├── AirSvg.jsx
+│   │   │   ├── BatterySvg.jsx
+│   │   │   ├── Co2Svg.jsx
+│   │   │   ├── ComputerSvg.jsx
+│   │   │   ├── DashedArrowSvg.jsx
+│   │   │   ├── ElectricMeterSvg.jsx
+│   │   │   ├── EvStationSvg.jsx
+│   │   │   ├── HomeWorkSvg.jsx
+│   │   │   ├── HumiditySvg.jsx
+│   │   │   ├── LinkedCameraSvg.jsx
+│   │   │   ├── OutletSvg.jsx
+│   │   │   ├── PowerSvg.jsx
+│   │   │   ├── RoundRightArrowSvg.jsx
+│   │   │   ├── SensorSvg.jsx
+│   │   │   ├── SolarSvg.jsx
+│   │   │   └── ThermostatSvg.jsx
+│   │   └── weather
+│   │       ├── clear.svg
+│   │       ├── clouds.svg
+│   │       ├── cloudy_day.svg
+│   │       ├── cloudy_night.svg
+│   │       ├── mist.svg
+│   │       ├── rain.svg
+│   │       ├── snow.svg
+│   │       ├── thunder.svg
+│   │       └── unknown.svg
+│   ├── components
+│   │   ├── Base
+│   │   │   ├── Card.jsx
+│   │   │   ├── card.module.css
+│   │   │   ├── Dropdown.jsx
+│   │   │   ├── dropdown.module.css
+│   │   │   ├── UserProfile.jsx
+│   │   │   └── userprofile.module.css
+│   │   ├── Dashboard
+│   │   │   ├── BatteryWidget.jsx
+│   │   │   ├── batterywidget.module.css
+│   │   │   ├── CarbonCreditWidget.jsx
+│   │   │   ├── carboncreditwidget.module.css
+│   │   │   ├── EnergyInOutWidget.jsx
+│   │   │   ├── energyinoutwidget.module.css
+│   │   │   ├── Expandbutton.jsx
+│   │   │   ├── GroupTimelineWidget.jsx
+│   │   │   ├── grouptimelinewidget.module.css
+│   │   │   ├── GroupUsageWidget.jsx
+│   │   │   ├── groupusagewidget.module.css
+│   │   │   ├── PowerSourceWidget.jsx
+│   │   │   ├── powersourcewidget.module.css
+│   │   │   ├── RealTimeWidget.jsx
+│   │   │   ├── realtimewidget.module.css
+│   │   │   ├── SolarBatteryWidget.jsx
+│   │   │   ├── solarbatterywidget.module.css
+│   │   │   ├── SolarPanelWidget.jsx
+│   │   │   ├── SolarPanelWidget.module.css
+│   │   │   ├── WeatherTempDisplay.jsx
+│   │   │   └── weatherTempDisplay.module.css
+│   │   └── Graphs
+│   │       ├── DoubleLineGraph.jsx
+│   │       ├── doublelinegraph.module.css
+│   │       ├── PieGraph.jsx
+│   │       ├── piegraph.module.css
+│   │       ├── TimelineBarchart.jsx
+│   │       ├── timelinebarchart.module.css
+│   │       ├── UsageGraph.jsx
+│   │       └── usagegraph.module.css
+│   ├── config
+│   │   └── RuntimeConfig.js
+│   ├── index.css
+│   ├── index.js
+│   ├── layouts
+│   │   ├── DashboardLayout.jsx
+│   │   └── dashboardlayout.module.css
+│   ├── logo.svg
+│   ├── mappers
+│   │   ├── ganttMapper.js
+│   │   ├── realtimeSiteMapper.js
+│   │   ├── restMappers.js
+│   │   └── viewModels.js
+│   ├── pages
+│   │   ├── HomePage.jsx
+│   │   ├── homepage.module.css
+│   │   ├── LandingPage.jsx
+│   │   └── LandingPage.module.css
+│   ├── reportWebVitals.js
+│   ├── runtime-config.json
+│   ├── setupTests.js
+│   └── utils
+│       ├── FormatUtil.js
+│       ├── GraphUtil.js
+│       ├── TimeUtil.js
+│       ├── WeatherIconMap.js
+│       └── WeatherUtil.js
+└── tailwind.config.js
+
+17 directories, 132 files

@@ -1,0 +1,168 @@
+.container {
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+
+  min-height: 0;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  border: 1px solid #e9e9e9;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* Optional expanded style (keeps it inside its grid cell) */
+.expanded {
+  /* Keep it visually “expanded” but NOT full screen */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* ===== Header bar (seamless embedded controls) ===== */
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 12px;
+  border-bottom: 1px solid #ededed;
+  background: #ffffff;
+}
+
+.headerTitle {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+/* Right side controls */
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The “embedded” dropdown container (pill) */
+.headerDropdown {
+  height: 32px;
+  display: flex;
+  align-items: center;
+
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #e6e6e6;
+  background: #fafafa;
+
+  /* prevent dropdown overflow weirdness */
+  min-width: 110px;
+}
+
+/* Make the expand button match the dropdown pill */
+.expandBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+
+  border: 1px solid #e6e6e6;
+  background: #fafafa;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  user-select: none;
+}
+
+.expandBtn:hover {
+  background: #f3f3f3;
+}
+
+/* ===== Body ===== */
+.body {
+  flex: 1;
+  min-height: 0;
+
+  padding: 12px;
+  overflow: auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+
+  border: 1px dashed #e0e0e0;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #9a9a9a;
+  font-size: 13px;
+  background: #fcfcfc;
+}
+
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.kpiBox {
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.kpiLabel {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.kpiValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.chartArea {
+  flex: 1;
+  min-height: 0;
+}
+
+.chartPlaceholder {
+  width: 100%;
+  height: 100%;
+
+  border: 1px dashed #e0e0e0;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #9a9a9a;
+  font-size: 13px;
+  background: #fcfcfc;
+}

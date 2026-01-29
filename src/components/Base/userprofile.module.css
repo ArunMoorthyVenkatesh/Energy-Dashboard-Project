@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profilePic {
+  background-color: #8099ff;
+  color: white;
+  font-weight: 600;
+  padding: 16px 18px;
+  border-radius: 50px;
+}
+
+.profileName {
+  color: var(--primary-gray);
+}

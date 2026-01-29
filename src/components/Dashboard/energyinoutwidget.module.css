@@ -1,0 +1,148 @@
+/* ===== Container ===== */
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+/* ===== Title ===== */
+.titleSection {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-right: 54px;
+}
+
+.title {
+  color: var(--primary-gray);
+  font-weight: 700;
+  font-size: 1.6cqh;
+}
+
+/* ===== Row layout ===== */
+.row {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ===== Value + Icon ===== */
+.infoWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.infoValue {
+  font-size: clamp(0.9rem, 1.6cqh, 1.1rem);
+  font-weight: 700;
+  color: #000;
+  line-height: 1.1;
+}
+
+.energySource {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: clamp(0.7rem, 1.3cqh, 0.85rem);
+  font-weight: 500;
+  color: #000;
+}
+
+.energySource svg {
+  width: clamp(14px, 1.5vw, 20px);
+  height: clamp(14px, 1.5vw, 20px);
+}
+
+/* ===== Building image ===== */
+.buildingImage {
+  flex: 0 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: clamp(0.5rem, 3vh, 1rem) 0;
+  padding: 0;
+}
+
+.buildingImage img {
+  width: auto;
+  height: auto;
+  max-width: 85%;
+  max-height: clamp(200px, 40vh, 380px);
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+/* ===== Expanded modal ===== */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 18px;
+}
+
+.modalContent {
+  width: min(980px, 94vw);
+  height: min(720px, 90vh);
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e9e9e9;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modalInner {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.expanded {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Expand button ===== */
+.expandBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.expandBtn:hover {
+  background: #fff;
+  transform: scale(1.05);
+}
