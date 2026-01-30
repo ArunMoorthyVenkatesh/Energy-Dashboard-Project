@@ -64,6 +64,7 @@ export default function DeviceManagementPage() {
       time: '09:00',
       days: [],
       scene: 'Comfort',
+      powerState: 'on',
       enabled: true
     });
     setShowScheduleModal(true);
@@ -454,11 +455,23 @@ export default function DeviceManagementPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <h4 className="font-semibold text-gray-900">{schedule.name}</h4>
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${
-                              SCENE_PRESETS[schedule.scene].color
-                            }`}>
-                              {schedule.scene}
-                            </span>
+                            {schedule.powerState && (
+                              <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                                schedule.powerState === 'on'
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}>
+                                <Power className="w-3 h-3" />
+                                {schedule.powerState.toUpperCase()}
+                              </span>
+                            )}
+                            {schedule.powerState === 'on' && schedule.scene && (
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                SCENE_PRESETS[schedule.scene].color
+                              }`}>
+                                {schedule.scene}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-4 text-sm text-gray-600">
                             <span className="flex items-center gap-1">
@@ -580,25 +593,59 @@ export default function DeviceManagementPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Scene Preset
+                  Power State *
                 </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.keys(SCENE_PRESETS).map(sceneName => (
-                    <button
-                      key={sceneName}
-                      type="button"
-                      onClick={() => setEditingSchedule({ ...editingSchedule, scene: sceneName })}
-                      className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                        editingSchedule?.scene === sceneName
-                          ? SCENE_PRESETS[sceneName].color
-                          : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      {sceneName}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingSchedule({ ...editingSchedule, powerState: 'on' })}
+                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                      editingSchedule?.powerState === 'on'
+                        ? 'bg-green-100 text-green-700 border-green-400'
+                        : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <Power className="w-4 h-4" />
+                    Turn ON
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingSchedule({ ...editingSchedule, powerState: 'off' })}
+                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                      editingSchedule?.powerState === 'off'
+                        ? 'bg-gray-200 text-gray-700 border-gray-400'
+                        : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <Power className="w-4 h-4" />
+                    Turn OFF
+                  </button>
                 </div>
               </div>
+
+              {editingSchedule?.powerState === 'on' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Scene Preset (when turning on)
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {Object.keys(SCENE_PRESETS).map(sceneName => (
+                      <button
+                        key={sceneName}
+                        type="button"
+                        onClick={() => setEditingSchedule({ ...editingSchedule, scene: sceneName })}
+                        className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                          editingSchedule?.scene === sceneName
+                            ? SCENE_PRESETS[sceneName].color
+                            : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        {sceneName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 mt-6">
