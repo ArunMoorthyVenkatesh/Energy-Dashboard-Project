@@ -342,7 +342,6 @@ export default function HomePage() {
     socketRef.current.onerror = (err) => {
       console.error('❌ Realtime websocket error', err);
       stopHeartbeat();
-      startPollingFallback();
     };
 
     socketRef.current.onmessage = (msg) => {
@@ -401,10 +400,9 @@ export default function HomePage() {
       console.warn('⚠️ Realtime websocket disconnected — falling back to polling');
       setIsConnected(false);
       stopHeartbeat();
-      startPollingFallback();
       setTimeout(initializeWebSocket, 15000);
     };
-  }, [siteId]);
+  }, );
 
   useEffect(() => {
     if (!configLoaded) return;

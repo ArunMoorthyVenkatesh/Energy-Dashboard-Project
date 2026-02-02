@@ -67,7 +67,6 @@ export default function DoubleLineGraph({
   }
 
   function handleBarHover(event, index) {
-    const rect = event.currentTarget.getBoundingClientRect();
     setHoveredIndex(index);
     setTooltipPosition({
       x: event.clientX,
