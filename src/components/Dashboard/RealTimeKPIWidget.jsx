@@ -20,6 +20,20 @@ function safeNumber(v, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
+// Auto-scale energy values (kW -> MW -> GW)
+function autoScaleEnergy(value) {
+  const numValue = parseFloat(value);
+  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
+  
+  const absValue = Math.abs(numValue);
+  if (absValue >= 1000000) {
+    return { value: formatWithCommas(numValue / 1000000), unit: 'GW' };
+  } else if (absValue >= 1000) {
+    return { value: formatWithCommas(numValue / 1000), unit: 'MW' };
+  }
+  return { value: formatWithCommas(numValue), unit: 'kW' };
+}
+
 /* ---------------------------
  * COMPONENT
  * --------------------------- */
@@ -35,11 +49,17 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
     return { lat, lon };
   }, [siteInfo?.latitude, siteInfo?.longitude]);
 
-  const summary = useMemo(() => ({
-    monthSaving: safeNumber(wsData?.summary?.saving_summary?.month_saving, 0),
-    avgSaving: safeNumber(wsData?.summary?.saving_summary?.today_saving, 0),
-    electricUsage: safeNumber(wsData?.houseLoad?.daily, 0),
-  }), [wsData]);
+  const summary = useMemo(() => {
+    const electricUsage = safeNumber(wsData?.houseLoad?.daily, 0);
+    const scaledUsage = autoScaleEnergy(electricUsage);
+    
+    return {
+      monthSaving: safeNumber(wsData?.summary?.saving_summary?.month_saving, 0),
+      avgSaving: safeNumber(wsData?.summary?.saving_summary?.today_saving, 0),
+      electricUsage,
+      scaledUsage,
+    };
+  }, [wsData]);
 
   /* ---------------------------
    * WEATHER FETCH
@@ -165,9 +185,9 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
           </div>
           <div className="flex items-baseline gap-1 flex-wrap">
             <span className="font-black text-slate-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
-              {formatWithCommas(summary.electricUsage)}
+              {summary.scaledUsage.value}
             </span>
-            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">kW</span>
+            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">{summary.scaledUsage.unit}</span>
           </div>
         </div>
       </div>

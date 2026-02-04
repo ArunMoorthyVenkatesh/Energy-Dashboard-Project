@@ -26,7 +26,6 @@ export default function DashboardLayout() {
         setIsCollapsed(true);
       }
     };
-
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -42,7 +41,7 @@ export default function DashboardLayout() {
       {/* Mobile Menu Button - Only visible on mobile */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-slate-700"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-slate-700 hover:bg-slate-50"
         aria-label="Toggle menu"
       >
         {isMobileMenuOpen ? (
@@ -110,6 +109,7 @@ export default function DashboardLayout() {
 
         {/* Refined Navigation */}
         <nav className="flex-1 p-3 lg:p-4 space-y-2 overflow-y-auto">
+          {/* Home Button */}
           <button
             onClick={() => onClickPage("/iot-dashboard")}
             className={`w-full flex items-center ${
@@ -122,9 +122,9 @@ export default function DashboardLayout() {
             title={isCollapsed ? "Home" : ""}
           >
             {/* Hover effect overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl ${
-              activePage === "/iot-dashboard" || activePage === "/iot-dashboard/" ? "hidden" : ""
-            }`}></div>
+            {!(activePage === "/iot-dashboard" || activePage === "/iot-dashboard/") && (
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+            )}
             
             <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
               <Home className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
@@ -140,6 +140,7 @@ export default function DashboardLayout() {
             </div>
           </button>
 
+          {/* Device Management Button */}
           <button
             onClick={() => onClickPage("/iot-dashboard/devices")}
             className={`w-full flex items-center ${
@@ -152,9 +153,9 @@ export default function DashboardLayout() {
             title={isCollapsed ? "Device Management" : ""}
           >
             {/* Hover effect overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl ${
-              activePage === "/iot-dashboard/devices" || activePage === "/iot-dashboard/devices/" ? "hidden" : ""
-            }`}></div>
+            {!(activePage === "/iot-dashboard/devices" || activePage === "/iot-dashboard/devices/") && (
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+            )}
             
             <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
               <Settings className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${

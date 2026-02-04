@@ -167,7 +167,10 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
       </div>
 
       {/* Time Range Selector */}
-      <div className="flex justify-center mb-4 flex-shrink-0">
+      <div 
+        className="flex justify-center mb-4 flex-shrink-0"
+        onClick={(e) => e.stopPropagation()} // Prevent expansion when clicking toggles
+      >
         <div
           className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
           style={{

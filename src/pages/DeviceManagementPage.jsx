@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Settings, Thermometer, Droplets, Wind, Clock, Plus, Edit2, Trash2, Power, ChevronDown, ChevronUp, Filter, Sunrise, Sun, Sunset, Moon, X } from 'lucide-react';
 import DeviceAPI from '../api/DeviceAPI';
 
-// Refined Scene Presets with sophisticated colors
+// Vibrant Scene Presets
 const SCENE_PRESETS = {
   Eco: {
     name: 'Eco',
@@ -10,7 +10,7 @@ const SCENE_PRESETS = {
     targetTemp: 26,
     fanSpeed: 'low',
     mode: 'cooling',
-    color: 'bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-emerald-800 border-emerald-200/60'
+    color: 'bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100 text-emerald-800 border-emerald-400/70'
   },
   Comfort: {
     name: 'Comfort',
@@ -18,7 +18,7 @@ const SCENE_PRESETS = {
     targetTemp: 23,
     fanSpeed: 'medium',
     mode: 'cooling',
-    color: 'bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50 text-blue-800 border-blue-200/60'
+    color: 'bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 text-blue-800 border-blue-400/70'
   },
   Cool: {
     name: 'Cool',
@@ -26,7 +26,7 @@ const SCENE_PRESETS = {
     targetTemp: 20,
     fanSpeed: 'high',
     mode: 'cooling',
-    color: 'bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 text-violet-800 border-violet-200/60'
+    color: 'bg-gradient-to-br from-violet-100 via-purple-100 to-fuchsia-100 text-violet-800 border-violet-400/70'
   }
 };
 
@@ -35,31 +35,31 @@ const STORAGE_KEYS = {
   SCHEDULES: 'device_management_schedules'
 };
 
-// Time period configuration
+// Time period configuration with vibrant gradients
 const TIME_PERIODS = {
   morning: { 
     icon: Sunrise, 
     label: 'Morning', 
     range: '5AM - 12PM',
-    gradient: 'from-amber-500 to-orange-500'
+    gradient: 'from-amber-400 to-orange-500'
   },
   afternoon: { 
     icon: Sun, 
     label: 'Afternoon', 
     range: '12PM - 5PM',
-    gradient: 'from-orange-500 to-red-500'
+    gradient: 'from-orange-400 to-red-500'
   },
   evening: { 
     icon: Sunset, 
     label: 'Evening', 
     range: '5PM - 9PM',
-    gradient: 'from-violet-500 to-purple-600'
+    gradient: 'from-violet-400 to-purple-600'
   },
   night: { 
     icon: Moon, 
     label: 'Night', 
     range: '9PM - 5AM',
-    gradient: 'from-indigo-600 to-blue-700'
+    gradient: 'from-indigo-500 to-blue-700'
   }
 };
 
@@ -328,13 +328,13 @@ export default function DeviceManagementPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-violet-50 via-blue-50 to-cyan-50">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="text-center">
           <div className="relative w-16 h-16 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full border-4 border-blue-200"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-indigo-200"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-indigo-600 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
           </div>
-          <p className="text-slate-600 font-medium tracking-wide">Loading devices</p>
+          <p className="text-indigo-900 font-bold">Loading devices...</p>
         </div>
       </div>
     );
@@ -345,171 +345,167 @@ export default function DeviceManagementPage() {
   const inactiveCount = devices.reduce((sum, d) => sum + (d.schedules?.filter(s => !s.enabled).length || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-blue-50 to-cyan-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Refined Header */}
-        <div className="mb-8">
-          <div className="bg-white/60 backdrop-blur-xl p-8 rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/50">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">
-                  Device Management
-                </h1>
-                <p className="text-slate-600 font-medium">Control and automate your connected devices</p>
-              </div>
-              
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex items-center gap-2.5 px-4 py-2 bg-emerald-50/80 backdrop-blur-sm border border-emerald-200/60 rounded-xl">
-                  <div className="relative">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                    <div className="absolute inset-0 w-2 h-2 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
-                  </div>
-                  <span className="text-sm font-semibold text-emerald-700 tracking-wide">Auto-saved</span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Vibrant Header */}
+        <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-2xl shadow-lg border-2 border-blue-300/60 p-6 hover:shadow-xl transition-shadow duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-black text-slate-900 mb-2">
+                Device Management
+              </h1>
+              <p className="text-slate-700 font-bold">Control and automate your connected devices</p>
+            </div>
+            
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-100 backdrop-blur-sm border-2 border-emerald-400/70 rounded-xl shadow-sm">
+                <div className="relative">
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full"></div>
+                  <div className="absolute inset-0 w-2 h-2 bg-emerald-600 rounded-full animate-ping opacity-75"></div>
                 </div>
-                {lastUpdated && (
-                  <p className="text-xs text-slate-500 font-medium">
-                    {lastUpdated.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                  </p>
-                )}
+                <span className="text-sm font-black text-emerald-800">Auto-saved</span>
               </div>
+              {lastUpdated && (
+                <p className="text-xs text-slate-700 font-bold">
+                  {lastUpdated.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                </p>
+              )}
             </div>
           </div>
         </div>
         
-        {/* Device List */}
-        <div className="mb-8">
-          <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/60">
-            <button
-              onClick={() => setIsDeviceListCollapsed(!isDeviceListCollapsed)}
-              className="w-full flex items-center justify-between p-6 hover:bg-slate-50/50 transition-all duration-300 rounded-t-3xl group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                  <Settings className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-left">
-                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">Your Devices</h2>
-                  <p className="text-sm text-slate-500 font-medium">{devices.length} connected</p>
-                </div>
-              </div>
-              {isDeviceListCollapsed ? (
-                <ChevronDown className="w-6 h-6 text-slate-400 group-hover:text-slate-600 transition-colors" />
-              ) : (
-                <ChevronUp className="w-6 h-6 text-slate-400 group-hover:text-slate-600 transition-colors" />
-              )}
-            </button>
-
-            {!isDeviceListCollapsed && (
-              <div className="p-6 pt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {devices.map(device => (
-                    <div
-                      key={device.id}
-                      onClick={() => handleDeviceClick(device)}
-                      className="group p-6 rounded-2xl border border-slate-200 bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 hover:border-blue-300 hover:shadow-xl transition-all duration-300 cursor-pointer"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="font-bold text-slate-900 group-hover:text-slate-800 transition-colors text-lg">{device.name}</span>
-                        <span className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-semibold ${
-                          device.status === 'online' 
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' 
-                            : 'bg-slate-100 text-slate-600 border border-slate-200'
-                        }`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${
-                            device.status === 'online' ? 'bg-emerald-500' : 'bg-slate-400'
-                          }`}></div>
-                          {device.status}
-                        </span>
-                      </div>
-                      {device.status === 'online' && device.currentTemp && (
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-200/60">
-                            <Thermometer className="w-4 h-4 text-slate-600" />
-                            <span className="font-semibold text-slate-800">{device.currentTemp}°C</span>
-                          </span>
-                          {device.humidity && (
-                            <span className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-200/60">
-                              <Droplets className="w-4 h-4 text-slate-600" />
-                              <span className="font-semibold text-slate-800">{device.humidity}%</span>
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      <div className="pt-4 border-t border-slate-200 group-hover:border-slate-300 transition-colors">
-                        <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                          <Clock className="w-4 h-4" />
-                          <span>{device.schedules?.length || 0} schedule{device.schedules?.length !== 1 ? 's' : ''}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* All Schedules - continuing in next part due to length */}
-        <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/60">
+        {/* Device List with Vibrant Cards */}
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-200/60">
           <button
-            onClick={() => setIsSchedulesCollapsed(!isSchedulesCollapsed)}
-            className="w-full flex items-center justify-between p-6 hover:bg-slate-50/50 transition-all duration-300 rounded-t-3xl group"
+            onClick={() => setIsDeviceListCollapsed(!isDeviceListCollapsed)}
+            className="w-full flex items-center justify-between p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 rounded-t-2xl group"
           >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                <Clock className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-blue-100 to-indigo-100 backdrop-blur-sm rounded-xl p-2.5 shadow-md border-2 border-blue-300/60">
+                <Settings className="w-5 h-5 text-blue-600" />
               </div>
               <div className="text-left">
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">All Schedules</h2>
-                <p className="text-sm text-slate-500 font-medium">
+                <h2 className="text-base font-black text-slate-900">Your Devices</h2>
+                <p className="text-sm text-slate-600 font-bold">{devices.length} connected</p>
+              </div>
+            </div>
+            {isDeviceListCollapsed ? (
+              <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-slate-700 transition-colors" />
+            ) : (
+              <ChevronUp className="w-5 h-5 text-slate-500 group-hover:text-slate-700 transition-colors" />
+            )}
+          </button>
+
+          {!isDeviceListCollapsed && (
+            <div className="p-5 pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {devices.map(device => (
+                  <div
+                    key={device.id}
+                    onClick={() => handleDeviceClick(device)}
+                    className="group p-5 rounded-xl border-2 border-blue-200/60 bg-gradient-to-br from-white via-blue-50/50 to-indigo-50/50 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-black text-slate-900 text-base">{device.name}</span>
+                      <span className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-black border-2 shadow-sm ${
+                        device.status === 'online' 
+                          ? 'bg-emerald-200 text-emerald-800 border-emerald-400/70' 
+                          : 'bg-slate-200 text-slate-700 border-slate-400/70'
+                      }`}>
+                        <div className={`w-2 h-2 rounded-full ${
+                          device.status === 'online' ? 'bg-emerald-600' : 'bg-slate-600'
+                        }`}></div>
+                        {device.status}
+                      </span>
+                    </div>
+                    {device.status === 'online' && device.currentTemp && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-orange-100 to-amber-100 rounded-lg border-2 border-orange-300/60 shadow-sm">
+                          <Thermometer className="w-4 h-4 text-orange-600" />
+                          <span className="font-black text-orange-900">{device.currentTemp}°C</span>
+                        </span>
+                        {device.humidity && (
+                          <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-lg border-2 border-cyan-300/60 shadow-sm">
+                            <Droplets className="w-4 h-4 text-cyan-600" />
+                            <span className="font-black text-cyan-900">{device.humidity}%</span>
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    <div className="pt-4 border-t-2 border-blue-200/60 group-hover:border-blue-300 transition-colors">
+                      <div className="flex items-center gap-2 text-sm text-slate-700 font-bold">
+                        <Clock className="w-4 h-4" />
+                        <span>{device.schedules?.length || 0} schedule{device.schedules?.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* All Schedules with Vibrant Filters */}
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-purple-200/60">
+          <button
+            onClick={() => setIsSchedulesCollapsed(!isSchedulesCollapsed)}
+            className="w-full flex items-center justify-between p-5 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-300 rounded-t-2xl group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-purple-100 to-pink-100 backdrop-blur-sm rounded-xl p-2.5 shadow-md border-2 border-purple-300/60">
+                <Clock className="w-5 h-5 text-purple-600" />
+              </div>
+              <div className="text-left">
+                <h2 className="text-base font-black text-slate-900">All Schedules</h2>
+                <p className="text-sm text-slate-600 font-bold">
                   {allSchedules.length} {scheduleFilter !== 'all' ? scheduleFilter : 'total'}
                 </p>
               </div>
             </div>
             {isSchedulesCollapsed ? (
-              <ChevronDown className="w-6 h-6 text-slate-400 group-hover:text-slate-600 transition-colors" />
+              <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-slate-700 transition-colors" />
             ) : (
-              <ChevronUp className="w-6 h-6 text-slate-400 group-hover:text-slate-600 transition-colors" />
+              <ChevronUp className="w-5 h-5 text-slate-500 group-hover:text-slate-700 transition-colors" />
             )}
           </button>
 
           {!isSchedulesCollapsed && (
-            <div className="border-t border-slate-200/60">
-              {/* Refined Filters */}
-              <div className="p-6 bg-slate-50/50 space-y-5">
+            <div className="border-t-2 border-purple-200/60">
+              {/* Vibrant Filters */}
+              <div className="p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-4">
                 {/* Status Filter */}
-                <div className="flex items-start gap-4">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-sm border border-slate-200/60 min-w-fit">
-                    <Filter className="w-4 h-4 text-slate-600" />
-                    <span className="text-sm font-bold text-slate-700">Status</span>
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-indigo-300/60 min-w-fit">
+                    <Filter className="w-4 h-4 text-indigo-600" />
+                    <span className="text-sm font-black text-indigo-900">Status</span>
                   </div>
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() => setScheduleFilter('all')}
-                      className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
                         scheduleFilter === 'all'
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
-                          : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200 hover:border-blue-300'
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-400'
+                          : 'bg-white text-slate-700 hover:bg-indigo-50 border-indigo-200 hover:border-indigo-400'
                       }`}
                     >
                       All · {activeCount + inactiveCount}
                     </button>
                     <button
                       onClick={() => setScheduleFilter('active')}
-                      className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
                         scheduleFilter === 'active'
-                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg'
-                          : 'bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300'
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-400'
+                          : 'bg-white text-slate-700 hover:bg-emerald-50 border-emerald-200 hover:border-emerald-400'
                       }`}
                     >
                       Active · {activeCount}
                     </button>
                     <button
                       onClick={() => setScheduleFilter('inactive')}
-                      className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
                         scheduleFilter === 'inactive'
-                          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                          : 'bg-white text-slate-700 hover:bg-orange-50 border border-slate-200 hover:border-orange-300'
+                          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-400'
+                          : 'bg-white text-slate-700 hover:bg-orange-50 border-orange-200 hover:border-orange-400'
                       }`}
                     >
                       Inactive · {inactiveCount}
@@ -518,22 +514,32 @@ export default function DeviceManagementPage() {
                 </div>
 
                 {/* Time Filter */}
-                <div className="flex items-start gap-4">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-sm border border-slate-200/60 min-w-fit">
-                    <Clock className="w-4 h-4 text-slate-600" />
-                    <span className="text-sm font-bold text-slate-700">Period</span>
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-purple-300/60 min-w-fit">
+                    <Clock className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm font-black text-purple-900">Period</span>
                   </div>
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={() => setTimeFilter('all')}
+                      className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
+                        timeFilter === 'all'
+                          ? 'bg-gradient-to-r from-slate-600 to-slate-800 text-white border-slate-500'
+                          : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      All Day
+                    </button>
                     {Object.entries(TIME_PERIODS).map(([key, period]) => {
                       const Icon = period.icon;
                       return (
                         <button
                           key={key}
                           onClick={() => setTimeFilter(key)}
-                          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
                             timeFilter === key
-                              ? `bg-gradient-to-r ${period.gradient} text-white shadow-lg`
-                              : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:border-slate-300'
+                              ? `bg-gradient-to-r ${period.gradient} text-white border-transparent`
+                              : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
                           }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -546,14 +552,14 @@ export default function DeviceManagementPage() {
 
                 {/* Clear Filters */}
                 {(scheduleFilter !== 'all' || timeFilter !== 'all' || deviceFilter !== 'all') && (
-                  <div className="pt-4 border-t border-slate-200">
+                  <div className="pt-3 border-t-2 border-slate-200">
                     <button
                       onClick={() => {
                         setScheduleFilter('all');
                         setTimeFilter('all');
                         setDeviceFilter('all');
                       }}
-                      className="px-5 py-2.5 text-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg"
+                      className="px-4 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl font-black hover:from-violet-600 hover:to-purple-700 transition-all duration-300 shadow-lg border-2 border-violet-400"
                     >
                       Clear all filters
                     </button>
@@ -562,67 +568,67 @@ export default function DeviceManagementPage() {
               </div>
 
               {/* Schedule List */}
-              <div className="p-6">
+              <div className="p-5">
                 {allSchedules.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {allSchedules.map(schedule => {
                       const device = devices.find(d => d.id === schedule.deviceId);
                       return (
                         <div
                           key={`${schedule.deviceId}-${schedule.id}`}
-                          className={`group p-6 rounded-2xl border transition-all duration-300 hover:shadow-lg ${
+                          className={`group p-5 rounded-xl border-2 transition-all duration-300 hover:shadow-xl ${
                             schedule.enabled
-                              ? 'border-slate-300 bg-white hover:border-slate-400'
-                              : 'border-slate-200 bg-slate-50/50 hover:border-slate-300'
+                              ? 'border-blue-300/60 bg-gradient-to-br from-white to-blue-50/30 hover:border-blue-400'
+                              : 'border-slate-300/60 bg-gradient-to-br from-slate-50 to-slate-100/30 hover:border-slate-400'
                           }`}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                                <h4 className="font-bold text-lg text-slate-900">{schedule.name}</h4>
-                                <span className="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg font-bold border border-slate-200">
+                              <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                <h4 className="font-black text-base text-slate-900">{schedule.name}</h4>
+                                <span className="text-xs px-3 py-1.5 bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 rounded-lg font-black border-2 border-slate-300/60 shadow-sm">
                                   {schedule.deviceName}
                                 </span>
                                 {schedule.powerState && (
-                                  <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                                  <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black border-2 shadow-sm ${
                                     schedule.powerState === 'on'
-                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
-                                      : 'bg-rose-50 text-rose-700 border-rose-200/60'
+                                      ? 'bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-800 border-emerald-400/70'
+                                      : 'bg-gradient-to-br from-rose-100 to-red-100 text-rose-800 border-rose-400/70'
                                   }`}>
                                     <Power className="w-3.5 h-3.5" />
                                     {schedule.powerState.toUpperCase()}
                                   </span>
                                 )}
                                 {schedule.powerState === 'on' && schedule.scene && (
-                                  <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                                  <span className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 shadow-sm ${
                                     SCENE_PRESETS[schedule.scene].color
                                   }`}>
                                     {schedule.scene}
                                   </span>
                                 )}
-                                <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                                <span className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 shadow-sm ${
                                   schedule.enabled
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
-                                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                                    ? 'bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-800 border-emerald-400/70'
+                                    : 'bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 border-slate-300'
                                 }`}>
                                   {schedule.enabled ? 'Active' : 'Inactive'}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-4 flex-wrap">
-                                <span className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl font-bold border border-slate-200">
-                                  <Clock className="w-4 h-4 text-slate-600" />
-                                  <span className="text-slate-900">{schedule.time}</span>
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg font-black border-2 border-indigo-300/60 shadow-sm">
+                                  <Clock className="w-4 h-4 text-indigo-600" />
+                                  <span className="text-indigo-900">{schedule.time}</span>
                                 </span>
                                 <div className="flex gap-2 flex-wrap">
                                   {schedule.days.map(day => (
-                                    <span key={day} className="px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-slate-300 transition-colors">
+                                    <span key={day} className="px-3 py-2 bg-white rounded-lg border-2 border-blue-200/60 text-xs font-black text-blue-900 hover:border-blue-400 transition-colors shadow-sm">
                                       {day}
                                     </span>
                                   ))}
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 ml-6">
+                            <div className="flex items-center gap-2 ml-4">
                               <label className="relative inline-flex items-center cursor-pointer">
                                 <input
                                   type="checkbox"
@@ -630,17 +636,17 @@ export default function DeviceManagementPage() {
                                   onChange={() => toggleSchedule(device, schedule.id)}
                                   className="sr-only peer"
                                 />
-                                <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-600 peer-checked:to-teal-600 shadow-inner"></div>
+                                <div className="w-12 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-600 shadow-lg"></div>
                               </label>
                               <button
                                 onClick={() => handleEditSchedule(device, schedule)}
-                                className="p-2.5 text-slate-600 hover:text-white hover:bg-slate-700 rounded-xl transition-all hover:shadow-md"
+                                className="p-2 text-slate-600 hover:text-white hover:bg-indigo-600 rounded-lg transition-all hover:shadow-md"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleDeleteSchedule(device, schedule.id)}
-                                className="p-2.5 text-slate-600 hover:text-white hover:bg-rose-600 rounded-xl transition-all hover:shadow-md"
+                                className="p-2 text-slate-600 hover:text-white hover:bg-rose-600 rounded-lg transition-all hover:shadow-md"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -651,14 +657,14 @@ export default function DeviceManagementPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-20 text-slate-500 bg-slate-50/50 rounded-2xl border border-dashed border-slate-300">
-                    <Clock className="w-16 h-16 mx-auto mb-4 opacity-40 text-slate-400" />
-                    <p className="mb-2 font-bold text-lg text-slate-700">
+                  <div className="text-center py-16 text-slate-600 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl border-2 border-dashed border-slate-300">
+                    <Clock className="w-14 h-14 mx-auto mb-3 opacity-40 text-slate-400" />
+                    <p className="mb-2 font-black text-base text-slate-800">
                       {scheduleFilter === 'all' 
                         ? 'No schedules configured'
                         : `No ${scheduleFilter} schedules`}
                     </p>
-                    <p className="text-sm text-slate-500 font-medium">
+                    <p className="text-sm text-slate-600 font-bold">
                       {scheduleFilter === 'all'
                         ? 'Click on a device to create your first automation'
                         : 'Try changing the filter to see other schedules'}
@@ -671,51 +677,51 @@ export default function DeviceManagementPage() {
         </div>
       </div>
 
-      {/* Schedule Modal */}
+      {/* Vibrant Schedule Modal */}
       {showScheduleModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-2xl font-bold text-slate-900 mb-6">
+          <div className="bg-gradient-to-br from-white to-blue-50/50 rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border-2 border-blue-200/60">
+            <h3 className="text-2xl font-black text-slate-900 mb-6">
               {editingSchedule?.name ? 'Edit Schedule' : 'New Schedule'}
             </h3>
             
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-sm font-black text-slate-800 mb-2">
                   Device
                 </label>
-                <div className="px-4 py-3 bg-slate-50 rounded-xl text-slate-900 font-semibold border border-slate-200">
+                <div className="px-4 py-3 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl text-indigo-900 font-black border-2 border-indigo-300/60 shadow-sm">
                   {selectedDevice?.name}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-sm font-black text-slate-800 mb-2">
                   Schedule Name *
                 </label>
                 <input
                   type="text"
                   value={editingSchedule?.name || ''}
                   onChange={(e) => setEditingSchedule({ ...editingSchedule, name: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-slate-900 font-medium"
+                  className="w-full px-4 py-3 border-2 border-indigo-300/60 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 font-bold shadow-sm"
                   placeholder="e.g., Morning Comfort"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-sm font-black text-slate-800 mb-2">
                   Time *
                 </label>
                 <input
                   type="time"
                   value={editingSchedule?.time || '09:00'}
                   onChange={(e) => setEditingSchedule({ ...editingSchedule, time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-slate-900 font-semibold"
+                  className="w-full px-4 py-3 border-2 border-indigo-300/60 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 font-black shadow-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-3">
+                <label className="block text-sm font-black text-slate-800 mb-3">
                   Days *
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -732,10 +738,10 @@ export default function DeviceManagementPage() {
                             : [...days, day]
                         });
                       }}
-                      className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                      className={`px-4 py-2 rounded-lg text-sm font-black transition-all border-2 shadow-md ${
                         editingSchedule?.days?.includes(day)
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
-                          : 'bg-slate-100 text-slate-700 hover:bg-blue-100 hover:text-blue-700 border border-slate-200'
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-400'
+                          : 'bg-white text-slate-700 hover:bg-indigo-100 border-indigo-200'
                       }`}
                     >
                       {day}
@@ -745,17 +751,17 @@ export default function DeviceManagementPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-3">
+                <label className="block text-sm font-black text-slate-800 mb-3">
                   Power State *
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setEditingSchedule({ ...editingSchedule, powerState: 'on' })}
-                    className={`p-4 rounded-2xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    className={`p-4 rounded-xl border-2 text-sm font-black transition-all flex items-center justify-center gap-2 shadow-md ${
                       editingSchedule?.powerState === 'on'
-                        ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-emerald-400 shadow-xl'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50'
+                        ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-emerald-400'
+                        : 'bg-white border-emerald-200 text-slate-700 hover:border-emerald-400 hover:bg-emerald-50'
                     }`}
                   >
                     <Power className="w-5 h-5" />
@@ -764,10 +770,10 @@ export default function DeviceManagementPage() {
                   <button
                     type="button"
                     onClick={() => setEditingSchedule({ ...editingSchedule, powerState: 'off' })}
-                    className={`p-4 rounded-2xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    className={`p-4 rounded-xl border-2 text-sm font-black transition-all flex items-center justify-center gap-2 shadow-md ${
                       editingSchedule?.powerState === 'off'
-                        ? 'bg-gradient-to-br from-rose-500 to-red-600 text-white border-rose-400 shadow-xl'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-rose-300 hover:bg-rose-50'
+                        ? 'bg-gradient-to-br from-rose-500 to-red-600 text-white border-rose-400'
+                        : 'bg-white border-rose-200 text-slate-700 hover:border-rose-400 hover:bg-rose-50'
                     }`}
                   >
                     <Power className="w-5 h-5" />
@@ -778,7 +784,7 @@ export default function DeviceManagementPage() {
 
               {editingSchedule?.powerState === 'on' && (
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-3">
+                  <label className="block text-sm font-black text-slate-800 mb-3">
                     Scene Preset
                   </label>
                   <div className="grid grid-cols-3 gap-3">
@@ -787,7 +793,7 @@ export default function DeviceManagementPage() {
                         key={sceneName}
                         type="button"
                         onClick={() => setEditingSchedule({ ...editingSchedule, scene: sceneName })}
-                        className={`p-4 rounded-2xl border-2 text-sm font-bold transition-all ${
+                        className={`p-3 rounded-xl border-2 text-sm font-black transition-all shadow-md ${
                           editingSchedule?.scene === sceneName
                             ? SCENE_PRESETS[sceneName].color
                             : 'border-slate-200 text-slate-700 hover:border-slate-300 bg-white'
@@ -801,7 +807,7 @@ export default function DeviceManagementPage() {
               )}
             </div>
 
-            <div className="flex gap-3 mt-8">
+            <div className="flex gap-3 mt-6">
               <button
                 type="button"
                 onClick={() => {
@@ -809,14 +815,14 @@ export default function DeviceManagementPage() {
                   setEditingSchedule(null);
                   setSelectedDevice(null);
                 }}
-                className="flex-1 px-5 py-3 border-2 border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-bold"
+                className="flex-1 px-5 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-black shadow-md"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveSchedule}
-                className="flex-1 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-bold shadow-lg"
+                className="flex-1 px-5 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all font-black shadow-lg border-2 border-indigo-400"
               >
                 Save Schedule
               </button>
@@ -825,19 +831,19 @@ export default function DeviceManagementPage() {
         </div>
       )}
 
-      {/* Device Detail Modal */}
+      {/* Device Detail Modal - continues with vibrant styling */}
       {showDeviceModal && modalDevice && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-slate-200 p-6 rounded-t-3xl z-10">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-blue-200/60">
+            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-xl border-b-2 border-blue-200/60 p-5 rounded-t-2xl z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl">
-                    <Settings className="w-6 h-6 text-white" />
+                  <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl p-2.5 shadow-md border-2 border-blue-300/60">
+                    <Settings className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900">{modalDevice.name}</h3>
-                    <p className="text-sm text-slate-500 font-medium">Device Details</p>
+                    <h3 className="text-xl font-black text-slate-900">{modalDevice.name}</h3>
+                    <p className="text-sm text-slate-600 font-bold">Device Details</p>
                   </div>
                 </div>
                 <button
@@ -845,79 +851,79 @@ export default function DeviceManagementPage() {
                     setShowDeviceModal(false);
                     setModalDevice(null);
                   }}
-                  className="p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all"
+                  className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-5 space-y-5">
               {/* Current Status */}
               <div>
-                <h4 className="text-lg font-bold text-slate-900 mb-4">Current Status</h4>
+                <h4 className="text-base font-black text-slate-900 mb-3">Current Status</h4>
                 {modalDevice.status === 'online' ? (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {modalDevice.currentTemp && (
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-5 border border-blue-200/60">
+                      <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-xl p-4 border-2 border-blue-400/70 shadow-md">
                         <div className="flex items-center gap-2 text-blue-700 mb-2">
-                          <Thermometer className="w-5 h-5" />
-                          <span className="text-sm font-bold">Current</span>
+                          <Thermometer className="w-4 h-4" />
+                          <span className="text-xs font-black">Current</span>
                         </div>
-                        <p className="text-3xl font-bold text-blue-900">{modalDevice.currentTemp}°C</p>
+                        <p className="text-2xl font-black text-blue-900">{modalDevice.currentTemp}°C</p>
                       </div>
                     )}
-                    <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-5 border border-violet-200/60">
+                    <div className="bg-gradient-to-br from-violet-100 via-purple-100 to-fuchsia-100 rounded-xl p-4 border-2 border-violet-400/70 shadow-md">
                       <div className="flex items-center gap-2 text-violet-700 mb-2">
-                        <Thermometer className="w-5 h-5" />
-                        <span className="text-sm font-bold">Target</span>
+                        <Thermometer className="w-4 h-4" />
+                        <span className="text-xs font-black">Target</span>
                       </div>
-                      <p className="text-3xl font-bold text-violet-900">{modalDevice.targetTemp || 24}°C</p>
+                      <p className="text-2xl font-black text-violet-900">{modalDevice.targetTemp || 24}°C</p>
                     </div>
                     {modalDevice.humidity && (
-                      <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-5 border border-teal-200/60">
+                      <div className="bg-gradient-to-br from-teal-100 via-cyan-100 to-blue-100 rounded-xl p-4 border-2 border-teal-400/70 shadow-md">
                         <div className="flex items-center gap-2 text-teal-700 mb-2">
-                          <Droplets className="w-5 h-5" />
-                          <span className="text-sm font-bold">Humidity</span>
+                          <Droplets className="w-4 h-4" />
+                          <span className="text-xs font-black">Humidity</span>
                         </div>
-                        <p className="text-3xl font-bold text-teal-900">{modalDevice.humidity}%</p>
+                        <p className="text-2xl font-black text-teal-900">{modalDevice.humidity}%</p>
                       </div>
                     )}
-                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-5 border border-orange-200/60">
+                    <div className="bg-gradient-to-br from-orange-100 via-amber-100 to-yellow-100 rounded-xl p-4 border-2 border-orange-400/70 shadow-md">
                       <div className="flex items-center gap-2 text-orange-700 mb-2">
-                        <Wind className="w-5 h-5" />
-                        <span className="text-sm font-bold">Fan</span>
+                        <Wind className="w-4 h-4" />
+                        <span className="text-xs font-black">Fan</span>
                       </div>
-                      <p className="text-3xl font-bold text-orange-900 capitalize">{modalDevice.fanSpeed || 'medium'}</p>
+                      <p className="text-2xl font-black text-orange-900 capitalize">{modalDevice.fanSpeed || 'medium'}</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-2xl border border-slate-200">
-                    <Power className="w-16 h-16 mx-auto mb-3 opacity-40" />
-                    <p className="font-medium">Device is offline</p>
+                  <div className="text-center py-12 text-slate-600 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl border-2 border-slate-300">
+                    <Power className="w-14 h-14 mx-auto mb-3 opacity-40" />
+                    <p className="font-bold">Device is offline</p>
                   </div>
                 )}
               </div>
 
               {/* Scene Presets */}
               <div>
-                <h4 className="text-lg font-bold text-slate-900 mb-4">Scene Presets</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <h4 className="text-base font-black text-slate-900 mb-3">Scene Presets</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {Object.values(SCENE_PRESETS).map(scene => (
                     <button
                       key={scene.name}
-                      className={`p-5 rounded-2xl border-2 text-left transition-all hover:shadow-lg hover:scale-105 ${scene.color}`}
+                      className={`p-4 rounded-xl border-2 text-left transition-all hover:shadow-xl hover:scale-105 shadow-md ${scene.color}`}
                     >
-                      <h5 className="font-bold text-lg mb-2">{scene.name}</h5>
-                      <p className="text-sm opacity-80 mb-4">{scene.description}</p>
-                      <div className="space-y-2 text-sm font-medium">
+                      <h5 className="font-black text-base mb-2">{scene.name}</h5>
+                      <p className="text-xs opacity-90 mb-3">{scene.description}</p>
+                      <div className="space-y-1 text-xs font-bold">
                         <div className="flex justify-between">
                           <span>Temperature:</span>
-                          <span className="font-bold">{scene.targetTemp}°C</span>
+                          <span className="font-black">{scene.targetTemp}°C</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Fan Speed:</span>
-                          <span className="font-bold capitalize">{scene.fanSpeed}</span>
+                          <span className="font-black capitalize">{scene.fanSpeed}</span>
                         </div>
                       </div>
                     </button>
@@ -927,8 +933,8 @@ export default function DeviceManagementPage() {
 
               {/* Device Schedules */}
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
                     <Clock className="w-5 h-5" />
                     Schedules ({modalDevice.schedules?.length || 0})
                   </h4>
@@ -937,7 +943,7 @@ export default function DeviceManagementPage() {
                       setShowDeviceModal(false);
                       handleAddSchedule(modalDevice);
                     }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all text-sm font-bold shadow-lg"
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all text-sm font-black shadow-lg border-2 border-indigo-400"
                   >
                     <Plus className="w-4 h-4" />
                     Add Schedule
@@ -949,56 +955,56 @@ export default function DeviceManagementPage() {
                     {modalDevice.schedules.map(schedule => (
                       <div
                         key={schedule.id}
-                        className={`p-5 rounded-2xl border-2 transition-all ${
+                        className={`p-4 rounded-xl border-2 transition-all shadow-md ${
                           schedule.enabled
-                            ? 'border-slate-300 bg-white'
-                            : 'border-slate-200 bg-slate-50/50'
+                            ? 'border-blue-300/60 bg-gradient-to-br from-white to-blue-50/30'
+                            : 'border-slate-300/60 bg-gradient-to-br from-slate-50 to-slate-100/30'
                         }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3 flex-wrap">
-                              <h5 className="font-bold text-slate-900">{schedule.name}</h5>
+                            <div className="flex items-center gap-2 mb-3 flex-wrap">
+                              <h5 className="font-black text-slate-900">{schedule.name}</h5>
                               {schedule.powerState && (
-                                <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                                <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black border-2 shadow-sm ${
                                   schedule.powerState === 'on'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
-                                    : 'bg-rose-50 text-rose-700 border-rose-200/60'
+                                    ? 'bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-800 border-emerald-400/70'
+                                    : 'bg-gradient-to-br from-rose-100 to-red-100 text-rose-800 border-rose-400/70'
                                 }`}>
                                   <Power className="w-3.5 h-3.5" />
                                   {schedule.powerState.toUpperCase()}
                                 </span>
                               )}
                               {schedule.powerState === 'on' && schedule.scene && (
-                                <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                                <span className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 shadow-sm ${
                                   SCENE_PRESETS[schedule.scene].color
                                 }`}>
                                   {schedule.scene}
                                 </span>
                               )}
-                              <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                              <span className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 shadow-sm ${
                                 schedule.enabled
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
-                                  : 'bg-slate-100 text-slate-600 border-slate-200'
+                                  ? 'bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-800 border-emerald-400/70'
+                                  : 'bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 border-slate-300'
                               }`}>
                                 {schedule.enabled ? 'Active' : 'Inactive'}
                               </span>
                             </div>
-                            <div className="flex items-center gap-4 flex-wrap">
-                              <span className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl font-bold border border-slate-200">
-                                <Clock className="w-4 h-4 text-slate-600" />
-                                <span className="text-slate-900">{schedule.time}</span>
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg font-black border-2 border-indigo-300/60 shadow-sm">
+                                <Clock className="w-4 h-4 text-indigo-600" />
+                                <span className="text-indigo-900">{schedule.time}</span>
                               </span>
                               <div className="flex gap-2 flex-wrap">
                                 {schedule.days.map(day => (
-                                  <span key={day} className="px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold text-slate-700">
+                                  <span key={day} className="px-3 py-2 bg-white rounded-lg border-2 border-blue-200/60 text-xs font-black text-blue-900 shadow-sm">
                                     {day}
                                   </span>
                                 ))}
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 ml-6">
+                          <div className="flex items-center gap-2 ml-4">
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input
                                 type="checkbox"
@@ -1006,20 +1012,20 @@ export default function DeviceManagementPage() {
                                 onChange={() => toggleSchedule(modalDevice, schedule.id)}
                                 className="sr-only peer"
                               />
-                              <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-600 peer-checked:to-teal-600 shadow-inner"></div>
+                              <div className="w-12 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-600 shadow-lg"></div>
                             </label>
                             <button
                               onClick={() => {
                                 setShowDeviceModal(false);
                                 handleEditSchedule(modalDevice, schedule);
                               }}
-                              className="p-2.5 text-slate-600 hover:text-white hover:bg-slate-700 rounded-xl transition-all hover:shadow-md"
+                              className="p-2 text-slate-600 hover:text-white hover:bg-indigo-600 rounded-lg transition-all hover:shadow-md"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteSchedule(modalDevice, schedule.id)}
-                              className="p-2.5 text-slate-600 hover:text-white hover:bg-rose-600 rounded-xl transition-all hover:shadow-md"
+                              className="p-2 text-slate-600 hover:text-white hover:bg-rose-600 rounded-lg transition-all hover:shadow-md"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1029,10 +1035,10 @@ export default function DeviceManagementPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-slate-500 bg-slate-50/50 rounded-2xl border border-dashed border-slate-300">
-                    <Clock className="w-16 h-16 mx-auto mb-3 opacity-40" />
-                    <p className="mb-2 font-bold text-slate-700">No schedules configured</p>
-                    <p className="text-sm">Schedules will appear here once created</p>
+                  <div className="text-center py-12 text-slate-600 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl border-2 border-dashed border-slate-300">
+                    <Clock className="w-14 h-14 mx-auto mb-3 opacity-40" />
+                    <p className="mb-2 font-black text-slate-800">No schedules configured</p>
+                    <p className="text-sm font-bold">Schedules will appear here once created</p>
                   </div>
                 )}
               </div>

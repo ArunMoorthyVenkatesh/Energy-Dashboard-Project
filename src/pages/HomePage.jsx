@@ -1,6 +1,6 @@
 import { useOutletContext } from 'react-router';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { X } from 'lucide-react';
+import { X, Clock, Calendar } from 'lucide-react';
 import { loadRuntimeConfig } from '../config/RuntimeConfig';
 import { mapSiteRealtimeEvent } from '../mappers/realtimeSiteMapper';
 import { fetchGroupsForSite, fetchSiteMetadata } from '../api';
@@ -13,7 +13,6 @@ import GroupUsageWidget from '../components/Dashboard/GroupUsageWidget';
 import GroupTimelineWidget from '../components/Dashboard/GroupTimelineWidget';
 import styles from './homepage.module.css';
 
-const NUM_COLS = 6;
 const LAYOUT = [
   { id: 1, name: 'realtime_kpi', title: 'Real-time KPIs', row: 1, rowSpan: 4, col: 1, colSpan: 2 },
   { id: 2, name: 'energy_in_out', title: 'Energy Input & Output', row: 1, rowSpan: 4, col: 3, colSpan: 2 },
@@ -105,7 +104,6 @@ function ExpandedWidgetModal({ children, title, onClose }) {
   );
 }
 
-
 export default function HomePage() {
   const { setTopbarTitle } = useOutletContext();
   const [time, setTime] = useState(new Date());
@@ -166,8 +164,6 @@ export default function HomePage() {
 
     const fetchDevices = async () => {
       try {
-        console.log('🔄 Fetching devices from:', `${apiUrl}/devices`);
-        
         const response = await fetch(`${apiUrl}/devices`, {
           headers: {
             'Authorization': `Bearer ${apiKey}`,
@@ -177,7 +173,6 @@ export default function HomePage() {
         });
         
         const json = await response.json();
-        console.log('📦 API Response:', json);
         
         if (json.success && json.data?.items) {
           const allDevices = json.data.items.map(device => ({
@@ -187,18 +182,7 @@ export default function HomePage() {
             role: device.energy?.role || 'unknown',
             status: device.status === 'active' ? 'normal' : 'offline',
             deviceType: device.deviceType,
-            daily: 0,
-            monthly: 0,
-            lifetime: 0,
-            voltage: 0,
-            current: 0,
-            temperature: 0,
-            active_power: 0,
-            battery_percent: 0,
           }));
-
-          console.log('✅ All devices:', allDevices);
-          console.log('📊 Total devices for display:', allDevices.length);
           
           setWsData(prev => ({
             ...prev,
@@ -253,7 +237,6 @@ export default function HomePage() {
     const apiUrl = runtimeConfigRef.current.API_URL || process.env.REACT_APP_API_URL || 'https://api-semply.semply.cloud/api/v1/iot';
 
     if (pollingRef.current) return;
-    console.info('⚙️ Using REST polling fallback');
 
     pollingRef.current = setInterval(async () => {
       try {
@@ -279,25 +262,20 @@ export default function HomePage() {
       'wss://api-semply.semply.cloud/api/v1/iot/realtime';
     const url = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}apiKey=${encodeURIComponent(apiKey)}`;
 
-    console.info('🔌 Attempting WebSocket connection to:', baseUrl);
-
     try {
       socketRef.current = new WebSocket(url);
     } catch (err) {
-      console.warn('❌ WebSocket creation failed, switching to polling fallback:', err);
       startPollingFallback();
       return;
     }
 
     socketRef.current.onopen = () => {
-      console.info('✅ Realtime websocket connected');
       setIsConnected(true);
       stopPollingFallback();
       startHeartbeat();
     };
 
-    socketRef.current.onerror = (err) => {
-      console.error('❌ Realtime websocket error', err);
+    socketRef.current.onerror = () => {
       stopHeartbeat();
       startPollingFallback();
     };
@@ -310,8 +288,6 @@ export default function HomePage() {
         return;
       }
 
-      console.log('🔍 WebSocket Event:', event);
-
       if (!event?.type) return;
 
       if (event.type === 'site_realtime_state') {
@@ -319,10 +295,7 @@ export default function HomePage() {
           return;
         }
 
-        console.log('📦 WebSocket Payload:', event.payload);
-
         const mapped = mapSiteRealtimeEvent(event);
-        console.log('✨ Mapped Data:', mapped);
 
         if (!mapped) return;
         
@@ -339,14 +312,12 @@ export default function HomePage() {
               const wsDevice = wsDeviceMap.get(String(device.id)) || wsDeviceMap.get(String(device.deviceId));
               
               if (wsDevice) {
-                console.log(`✅ Merging WebSocket data for device ${device.name}:`, wsDevice);
                 return { ...device, ...wsDevice, name: device.name, deviceId: device.deviceId };
               }
               return device;
             });
             
             updated.batteryData = mergedDevices;
-            console.log('🔗 Merged battery data:', updated.batteryData);
           }
           
           return shallowPatchEqual(prev, updated) ? prev : updated;
@@ -355,7 +326,6 @@ export default function HomePage() {
     };
 
     socketRef.current.onclose = () => {
-      console.warn('⚠️ Realtime websocket disconnected — falling back to polling');
       setIsConnected(false);
       stopHeartbeat();
       setTimeout(initializeWebSocket, 15000);
@@ -370,12 +340,12 @@ export default function HomePage() {
       stopPollingFallback();
       socketRef.current?.close();
     };
-  }, [initializeWebSocket, configLoaded]);
+  }, [initializeWebSocket, configLoaded, stopHeartbeat, stopPollingFallback]);
 
-  function renderWidget(name, isExpanded = false, onExpand = null) {
+  function renderWidget(name, isExpanded = false) {
     switch (name) {
       case 'realtime_kpi':
-        return <RealTimeKPIWidget wsData={wsData} siteInfo={siteInfo} onExpand={onExpand} />;
+        return <RealTimeKPIWidget wsData={wsData} siteInfo={siteInfo} />;
       case 'energy_analytics':
         return <EnergyAnalyticsWidget wsData={wsData} siteId={siteId} />;
       case 'energy_in_out':
@@ -397,111 +367,99 @@ export default function HomePage() {
     <>
       <div className={styles.pageContainer}>
         {!expandedWidget && (
-          <div className={styles.header}>
-            <h1 className={styles.headerTitle}>
-              {siteInfo?.name || 'Energy Management Dashboard'}
-            </h1>
-            <p className={styles.headerSubtitle}>
-              Last updated:{' '}
-              {time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} •{' '}
-              {time.toLocaleTimeString()}
-            </p>
+          <div className="mb-6">
+            {/* Modern Header */}
+            <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-sm border border-slate-200/60 p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-3 shadow-lg">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-black text-slate-900 mb-1">
+                      {siteInfo?.name || 'Energy Management Dashboard'}
+                    </h1>
+                    <div className="flex items-center gap-4 text-sm text-slate-600">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4" />
+                        <span className="font-semibold">
+                          {time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                      <div className="w-1 h-1 rounded-full bg-slate-400" />
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4" />
+                        <span className="font-semibold">
+                          {time.toLocaleTimeString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Status Indicator */}
+                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-slate-200/60 shadow-sm">
+                  <div className="relative">
+                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
+                    <div className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full opacity-75 animate-ping" />
+                  </div>
+                  <span className="text-sm font-bold text-slate-700">Live</span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Main widgets grid - responsive */}
+        {/* Main widgets grid */}
         <div className={styles.mainGrid}>
-          {/* Real-time KPI Widget */}
           <div className={`${styles.gridItem} ${styles.realtimeKpi}`}>
-            <WidgetWrapper
-              compact
-              showExpand
-              noScroll={false}
-              onExpand={() => setExpandedWidget(LAYOUT[0])}
-            >
-              {renderWidget('realtime_kpi', false, () => setExpandedWidget(LAYOUT[0]))}
+            <WidgetWrapper compact showExpand noScroll={false} onExpand={() => setExpandedWidget(LAYOUT[0])}>
+              {renderWidget('realtime_kpi', false)}
             </WidgetWrapper>
           </div>
 
-          {/* Energy In/Out Widget */}
           <div className={`${styles.gridItem} ${styles.energyInOut}`}>
-            <WidgetWrapper
-              compact
-              showExpand
-              noScroll={true}
-              onExpand={() => setExpandedWidget(LAYOUT[1])}
-            >
-              {renderWidget('energy_in_out', false, () => setExpandedWidget(LAYOUT[1]))}
+            <WidgetWrapper compact showExpand noScroll={true} onExpand={() => setExpandedWidget(LAYOUT[1])}>
+              {renderWidget('energy_in_out', false)}
             </WidgetWrapper>
           </div>
 
-          {/* Carbon Credit Widget */}
           <div className={`${styles.gridItem} ${styles.carbonCredit}`}>
-            <WidgetWrapper
-              compact
-              showExpand
-              noScroll={false}
-              onExpand={() => setExpandedWidget(LAYOUT[2])}
-            >
-              {renderWidget('carbon_credit', false, () => setExpandedWidget(LAYOUT[2]))}
+            <WidgetWrapper compact showExpand noScroll={false} onExpand={() => setExpandedWidget(LAYOUT[2])}>
+              {renderWidget('carbon_credit', false)}
             </WidgetWrapper>
           </div>
 
-          {/* Group Usage Widget */}
           <div className={`${styles.gridItem} ${styles.groupUsage}`}>
-            <WidgetWrapper
-              compact
-              showExpand
-              noScroll={false}
-              onExpand={() => setExpandedWidget(LAYOUT[4])}
-            >
-              {renderWidget('group_energy_usage', false, () => setExpandedWidget(LAYOUT[4]))}
+            <WidgetWrapper compact showExpand noScroll={false} onExpand={() => setExpandedWidget(LAYOUT[4])}>
+              {renderWidget('group_energy_usage', false)}
             </WidgetWrapper>
           </div>
 
-          {/* Battery Widget */}
           <div className={`${styles.gridItem} ${styles.battery}`}>
-            <WidgetWrapper
-              compact
-              showExpand
-              noScroll={false}
-              onExpand={() => setExpandedWidget(LAYOUT[3])}
-            >
-              {renderWidget('battery', false, () => setExpandedWidget(LAYOUT[3]))}
+            <WidgetWrapper compact showExpand noScroll={false} onExpand={() => setExpandedWidget(LAYOUT[3])}>
+              {renderWidget('battery', false)}
             </WidgetWrapper>
           </div>
         </div>
 
-        {/* Energy Analytics Section - Full width */}
         <div className={styles.fullWidthSection}>
-          <WidgetWrapper
-            compact
-            showExpand
-            noScroll={false}
-            onExpand={() => setExpandedWidget({ id: 'energy_analytics', name: 'energy_analytics', title: 'Energy Analytics' })}
-          >
+          <WidgetWrapper compact showExpand noScroll={false} onExpand={() => setExpandedWidget({ id: 'energy_analytics', name: 'energy_analytics', title: 'Energy Analytics' })}>
             <EnergyAnalyticsWidget wsData={wsData} siteId={siteId} />
           </WidgetWrapper>
         </div>
 
-        {/* Group Timeline Section - Full width */}
         <div className={styles.fullWidthSection}>
-          <WidgetWrapper
-            compact
-            showExpand
-            noScroll={false}
-            onExpand={() => setExpandedWidget({ id: 'group_timeline', name: 'group_energy_timeline', title: 'Group Energy Timeline' })}
-          >
+          <WidgetWrapper compact showExpand noScroll={false} onExpand={() => setExpandedWidget({ id: 'group_timeline', name: 'group_energy_timeline', title: 'Group Energy Timeline' })}>
             <GroupTimelineWidget data={groupData} />
           </WidgetWrapper>
         </div>
       </div>
 
       {expandedWidget && (
-        <ExpandedWidgetModal
-          title={expandedWidget.title}
-          onClose={() => setExpandedWidget(null)}
-        >
+        <ExpandedWidgetModal title={expandedWidget.title} onClose={() => setExpandedWidget(null)}>
           {renderWidget(expandedWidget.name, true)}
         </ExpandedWidgetModal>
       )}

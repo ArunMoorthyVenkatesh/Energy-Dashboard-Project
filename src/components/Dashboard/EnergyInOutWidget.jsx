@@ -5,7 +5,6 @@ import OutletSvg from '../../assets/svg/OutletSvg';
 import PowerSvg from '../../assets/svg/PowerSvg';
 import RoundRightArrowSvg from '../../assets/svg/RoundRightArrowSvg';
 import SolarSvg from '../../assets/svg/SolarSvg';
-import styles from './energyinoutwidget.module.css';
 import { formatWithCommas } from '../../utils/FormatUtil';
 
 const COLOR = {
@@ -198,35 +197,31 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
     };
   }, [timeRange, isExpanded]);
 
-  const rowGap = isExpanded ? 24 : 3;
-  const headerMargin = isExpanded ? 20 : 4;
-  const contentPaddingTop = isExpanded ? 30 : 6;
-  const contentPaddingBottom = isExpanded ? 30 : 6;
-
   return (
-    <div
-      className={styles.container}
+    <div 
+      className="bg-white rounded-xl shadow-sm p-4 h-full flex flex-col relative"
       ref={containerRef}
     >
-      {/* Header */}
-      <div style={{ flexShrink: 0, marginBottom: headerMargin, padding: '0 12px' }}>
-        <div className="flex items-center gap-2 mb-2">
-          <div className="p-1 bg-gradient-to-br from-amber-50 to-orange-100 rounded-lg shadow-sm border border-amber-200/60">
-            <Zap className="w-3.5 h-3.5 text-amber-600" />
+      {/* Header - Matching other widgets */}
+      <div 
+        className="flex flex-col gap-3 mb-3 pb-3 border-b border-slate-200/60 flex-shrink-0"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-br from-amber-100 to-orange-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-amber-200/60">
+            <Zap className="w-5 h-5 text-amber-600" />
           </div>
-          <h3 className="text-xs font-bold text-slate-900">
-            Energy input &amp; output
-          </h3>
+          <h2 className="text-base font-bold text-slate-900">Energy Input & Output</h2>
         </div>
 
+        {/* Time Range Selector - Centered */}
         <div className="flex justify-center">
           <div
             className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
             style={{
-              boxShadow:
-                'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
+              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
             }}
-            aria-label="Select time range"
+            onClick={(e) => e.stopPropagation()}
           >
             {TIME_OPTIONS.map((opt) => {
               const active = timeRange === opt.value;
@@ -235,8 +230,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
                   key={opt.value}
                   type="button"
                   onClick={() => setTimeRange(opt.value)}
-                  aria-pressed={active}
-                  className={`relative px-2.5 py-1 rounded-md text-[10px] font-bold transition-all duration-200 whitespace-nowrap ${
+                  className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
                     active
                       ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
@@ -244,8 +238,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
                   style={
                     active
                       ? {
-                          boxShadow:
-                            '0 2px 8px rgba(251, 146, 60, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
+                          boxShadow: '0 2px 8px rgba(251, 146, 60, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
                         }
                       : {}
                   }
@@ -258,7 +251,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         </div>
       </div>
 
-      {/* Arrows */}
+      {/* Arrows SVG */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ zIndex: 1 }}
@@ -296,22 +289,16 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
 
       {/* Content */}
       <div
+        className="relative flex-1 flex flex-col justify-between min-h-0 overflow-hidden"
         style={{
-          position: 'relative',
           zIndex: 2,
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          minHeight: 0,
-          overflow: 'hidden',
-          paddingTop: contentPaddingTop,
-          paddingBottom: contentPaddingBottom,
-          gap: rowGap,
-          transformOrigin: 'center top',
+          paddingTop: isExpanded ? 30 : 6,
+          paddingBottom: isExpanded ? 30 : 6,
+          gap: isExpanded ? 24 : 3,
         }}
       >
-        <div className={styles.row} style={{ flexShrink: 0 }}>
+        {/* Top Row - Energy Sources */}
+        <div className="flex justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0">
           <ValueBlock refEl={solarRef} scaled={displayData.pv} color={COLOR.solar} isExpanded={isExpanded}>
             <SolarSvg style={{ fill: COLOR.solar }} /> solar cells
           </ValueBlock>
@@ -323,15 +310,19 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
           </ValueBlock>
         </div>
 
-        <div className={styles.buildingImage}>
+        {/* Building Image */}
+        <div className="flex justify-center items-center" style={{ margin: 'clamp(1rem, 3vh, 1.5rem) 0 clamp(0.25rem, 2vh, 0.75rem) 0' }}>
           <img
             ref={buildingRef}
             src="toyota_building.png"
             alt="toyota building"
+            className="w-auto h-auto object-contain transition-transform hover:scale-105"
+            style={{ maxWidth: '60%', maxHeight: 'clamp(120px, 25vh, 220px)' }}
           />
         </div>
 
-        <div className={styles.row} style={{ flexShrink: 0 }}>
+        {/* Bottom Row - Usage & Export */}
+        <div className="flex justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0" style={{ gap: 'clamp(2rem, 10vw, 4rem)' }}>
           <ValueBlock refEl={usageRef} scaled={displayData.load} color={COLOR.usage} isExpanded={isExpanded}>
             <OutletSvg style={{ fill: COLOR.usage }} /> usage
           </ValueBlock>
@@ -344,20 +335,29 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
   );
 }
 
-/* ---------- helper ---------- */
+/* ---------- Value Block Component ---------- */
 function ValueBlock({ refEl, scaled, color, children, isExpanded = false }) {
   const valueFontSize = isExpanded ? 'clamp(1.125rem, 2cqh, 1.5rem)' : 'clamp(0.85rem, 1.5cqh, 1rem)';
   const unitFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.6rem, 1.1cqh, 0.7rem)';
   const labelFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.65rem, 1.2cqh, 0.75rem)';
   
   return (
-    <div ref={refEl} className={styles.infoWrapper} style={{ color, minHeight: isExpanded ? '60px' : '40px', justifyContent: 'center' }}>
+    <div 
+      ref={refEl} 
+      className="flex flex-col items-center text-center justify-center"
+      style={{ 
+        color, 
+        minHeight: isExpanded ? '60px' : '40px'
+      }}
+    >
+      {/* Value */}
       <span
-        className={styles.infoValue}
         style={{
           fontSize: valueFontSize,
           fontWeight: 900,
           marginBottom: '2px',
+          color: '#000',
+          lineHeight: 1.1,
         }}
       >
         {scaled.value}{' '}
@@ -372,11 +372,13 @@ function ValueBlock({ refEl, scaled, color, children, isExpanded = false }) {
         </span>
       </span>
 
+      {/* Icon + Label */}
       <div
-        className={styles.energySource}
+        className="flex items-center justify-center gap-1"
         style={{
           fontSize: labelFontSize,
           fontWeight: 600,
+          color: '#000',
         }}
       >
         {children}

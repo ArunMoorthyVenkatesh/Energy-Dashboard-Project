@@ -46,6 +46,15 @@ function autoScaleEnergy(value) {
   };
 }
 
+// Clean label helper - removes "From" prefix and cleans up text
+function cleanLabel(label) {
+  return label
+    .replace(/^from\s+/i, '') // Remove "From" prefix
+    .replace(/cells?$/i, 'Cells') // Normalize "cells" to "Cells"
+    .replace(/grid$/i, 'Grid') // Normalize "grid" to "Grid"
+    .replace(/battery$/i, 'Battery'); // Normalize "battery" to "Battery"
+}
+
 /**
  * @param {object} data
  * @param {string | number} line1 - line 1 text in center
@@ -176,39 +185,37 @@ export default function PieGraph({ data, line1, line2, line3 }) {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(30, 41, 59, 0.95)',
-            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(30, 41, 59, 0.98)',
+            backdropFilter: 'blur(12px)',
             color: 'white',
-            padding: '12px 16px',
-            borderRadius: '10px',
-            boxShadow: '0 8px 20px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2)',
+            padding: '16px 20px',
+            borderRadius: '12px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.2)',
             pointerEvents: 'none',
             zIndex: 1000,
             whiteSpace: 'nowrap',
             textAlign: 'center',
-            minWidth: '140px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            minWidth: '160px',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
             animation: 'pieTooltipFadeIn 0.2s ease-out',
           }}
         >
           <div style={{ 
-            fontSize: '11px', 
-            marginBottom: '6px', 
-            fontWeight: '600', 
-            color: '#cbd5e1',
+            fontSize: '10px', 
+            marginBottom: '8px', 
+            fontWeight: '700', 
+            color: '#94a3b8',
             textTransform: 'uppercase',
-            letterSpacing: '0.5px'
+            letterSpacing: '1px'
           }}>
-            {pieData[hoveredIndex].label}
+            {cleanLabel(pieData[hoveredIndex].label)}
           </div>
           <div style={{ 
-            fontSize: '18px', 
-            fontWeight: '800', 
-            marginBottom: '4px',
-            background: 'linear-gradient(135deg, #fff 0%, #e2e8f0 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
+            fontSize: '24px', 
+            fontWeight: '900', 
+            marginBottom: '6px',
+            color: '#ffffff',
+            lineHeight: '1',
           }}>
             {(() => {
               const scaled = autoScaleEnergy(pieData[hoveredIndex].value);
@@ -216,11 +223,11 @@ export default function PieGraph({ data, line1, line2, line3 }) {
             })()}
           </div>
           <div style={{ 
-            fontSize: '12px', 
-            color: '#94a3b8',
+            fontSize: '13px', 
+            color: '#cbd5e1',
             fontWeight: '600'
           }}>
-            {pieData[hoveredIndex].percentage.toFixed(1)}%
+            {pieData[hoveredIndex].percentage.toFixed(2)}%
           </div>
         </div>
       )}

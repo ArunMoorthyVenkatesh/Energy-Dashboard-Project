@@ -119,77 +119,136 @@ export default function GroupTimelineWidget({ data }) {
   const hasData = sourceData.length > 0 || consumptionData.length > 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-50 rounded-lg">
-            <Activity className="w-5 h-5 text-purple-600" />
+          <div className="bg-gradient-to-br from-violet-100 to-purple-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-violet-200/60">
+            <Activity className="w-5 h-5 text-violet-600" />
           </div>
-          <h3 className="text-base font-bold text-gray-900">
-            Group energy supply / consumption timeline
-          </h3>
+          <h2 className="text-lg font-bold text-slate-900">
+            Group Energy Supply / Consumption Timeline
+          </h2>
         </div>
 
-        {/* Toggle Buttons */}
-        <div className="flex items-center gap-3" style={{ marginRight: '60px' }}>
+        {/* Toggle Buttons - wrapped with onClick stopPropagation */}
+        <div 
+          className="flex items-center gap-3"
+          onClick={(e) => e.stopPropagation()} // Prevent expansion when clicking toggles
+        >
           {/* Group Selection */}
           {grpDropdownOptions.length > 0 && (
-            <div className="flex gap-2">
-              {grpDropdownOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => selectGrp(opt.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedGrp === opt.value
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <div
+              className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
+              style={{
+                boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
+              }}
+            >
+              {grpDropdownOptions.map((opt) => {
+                const active = selectedGrp === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => selectGrp(opt.value)}
+                    className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                      active
+                        ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                    }`}
+                    style={
+                      active
+                        ? {
+                            boxShadow: '0 2px 8px rgba(139, 92, 246, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
+                          }
+                        : {}
+                    }
+                  >
+                    <span className="relative z-10">{opt.label}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
 
           {/* Time Range Selection */}
-          <div className="flex gap-2">
-            {timeDropdownOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => selectTimeRange(opt.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  timeRange === opt.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+          <div
+            className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
+            style={{
+              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
+            }}
+          >
+            {timeDropdownOptions.map((opt) => {
+              const active = timeRange === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => selectTimeRange(opt.value)}
+                  className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                    active
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  }`}
+                  style={
+                    active
+                      ? {
+                          boxShadow: '0 2px 8px rgba(59, 130, 246, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
+                        }
+                      : {}
+                  }
+                >
+                  <span className="relative z-10">{opt.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      <div className="min-h-[200px]" style={{ padding: '0.5rem', paddingLeft: '1rem', position: 'relative', zIndex: 10 }}>
+      {/* Graph Area - Much Larger */}
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border-2 border-slate-200/60 p-6" style={{ minHeight: '450px' }}>
         {loading ? (
-          <div className="flex items-center justify-center h-[200px] text-gray-400">
-            <p className="text-sm">Loading data...</p>
+          <div className="flex items-center justify-center h-[450px] text-slate-400">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm font-medium">Loading timeline data...</span>
+            </div>
           </div>
         ) : hasData ? (
-          <div style={{ height: '180px', width: '100%', position: 'relative' }}>
+          <div style={{ height: '420px', width: '100%', position: 'relative' }}>
             <DoubleLineGraph
               upperData={sourceData || []}
               lowerData={consumptionData || []}
-              yAxisLabel="Electric (kW)"
+              yAxisLabel="Power"
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[200px] text-gray-400">
-            <Activity className="w-10 h-10 mb-2 opacity-30" />
-            <p className="text-sm font-medium">No timeline data available</p>
+          <div className="flex flex-col items-center justify-center h-[450px] text-slate-400">
+            <Activity className="w-16 h-16 mb-3 opacity-30" />
+            <p className="text-base font-semibold mb-1">No Timeline Data Available</p>
+            <p className="text-sm">Select a group and time range to view energy flow</p>
           </div>
         )}
       </div>
+
+      {/* Legend */}
+      {hasData && !loading && (
+        <div className="mt-4 flex flex-wrap gap-4 justify-center">
+          {[
+            { color: '#F59E0B', name: 'Grid' },
+            { color: '#10B981', name: 'Solar' },
+            { color: '#3B82F6', name: 'Battery' },
+            { color: '#EF4444', name: 'Internal Load' },
+          ].map((item) => (
+            <div key={item.name} className="flex items-center gap-2">
+              <div 
+                className="w-4 h-1 rounded-full shadow-sm" 
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-xs font-semibold text-slate-700">{item.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
