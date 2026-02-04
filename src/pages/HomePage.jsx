@@ -1,6 +1,6 @@
 import { useOutletContext } from 'react-router';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Maximize2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { loadRuntimeConfig } from '../config/RuntimeConfig';
 import { mapSiteRealtimeEvent } from '../mappers/realtimeSiteMapper';
 import { fetchGroupsForSite, fetchSiteMetadata } from '../api';
@@ -11,6 +11,7 @@ import CarbonCreditWidget from '../components/Dashboard/CarbonCreditWidget';
 import PowerSourceWidget from '../components/Dashboard/PowerSourceWidget';
 import GroupUsageWidget from '../components/Dashboard/GroupUsageWidget';
 import GroupTimelineWidget from '../components/Dashboard/GroupTimelineWidget';
+import styles from './homepage.module.css';
 
 const NUM_COLS = 6;
 const LAYOUT = [
@@ -66,45 +67,11 @@ async function fetchRealtimeFallback(siteId, apiKey, apiUrl) {
 function WidgetWrapper({ children, onExpand, compact = true, showExpand = true, noScroll = false }) {
   return (
     <div
-      style={{
-        height: '100%',
-        width: '100%',
-        position: 'relative',
-        overflow: 'hidden',
-        borderRadius: 18,
-        background: 'white',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-      }}
-      className="transition-all duration-200 hover:shadow-md"
+      onClick={showExpand ? onExpand : undefined}
+      className={`${styles.widgetWrapper} ${compact ? styles.compact : ''} ${showExpand ? styles.clickable : ''}`}
     >
-      {showExpand && (
-        <button
-          onClick={onExpand}
-          title="Expand widget"
-          className="absolute top-3 right-3 z-30 p-2 rounded-lg border border-gray-200 
-                     bg-white/80 backdrop-blur-sm hover:bg-blue-50 active:scale-95 
-                     transition-all duration-150 shadow-sm"
-        >
-          <Maximize2 size={16} className="text-gray-600" />
-        </button>
-      )}
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          overflowY: noScroll ? 'hidden' : 'auto',
-          overflowX: 'hidden',
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#CBD5E0 #F7FAFC',
-        }}
-      >
-        <div
-          style={{
-            transform: compact ? 'scale(0.96)' : 'none',
-            transformOrigin: 'top left',
-            width: compact ? '104%' : '100%',
-          }}
-        >
+      <div className={`${styles.widgetContent} ${noScroll ? styles.noScroll : ''}`}>
+        <div className={compact ? styles.widgetInner : ''}>
           {children}
         </div>
       </div>
@@ -115,39 +82,29 @@ function WidgetWrapper({ children, onExpand, compact = true, showExpand = true, 
 function ExpandedWidgetModal({ children, title, onClose }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className={styles.modalOverlay}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl w-11/12 h-5/6 flex flex-col overflow-hidden animate-fadeIn"
+        className={styles.modalContent}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
-          <button
-            onClick={onClose}
-            className="hover:bg-gray-200 text-gray-600 hover:text-gray-800 rounded-lg transition-all duration-200 p-2"
-            title="Close"
-          >
-            <X size={22} />
-          </button>
-        </div>
-        <div
-          className="flex-1 p-6"
-          style={{
-            minHeight: 0,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#CBD5E0 #F7FAFC',
-          }}
+        <button
+          onClick={onClose}
+          className={styles.modalClose}
+          title="Close"
         >
+          <X size={24} />
+        </button>
+
+        <div className={styles.modalBody}>
           {children}
         </div>
       </div>
     </div>
   );
 }
+
 
 export default function HomePage() {
   const { setTopbarTitle } = useOutletContext();
@@ -276,22 +233,22 @@ export default function HomePage() {
     })();
   }, [siteId]);
 
-  const startHeartbeat = () => {
+  const startHeartbeat = useCallback(() => {
     heartbeatRef.current = setInterval(() => {
       if (socketRef.current?.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({ action: 'heartbeat' }));
       }
     }, 30000);
-  };
+  }, []);
 
-  const stopHeartbeat = () => {
+  const stopHeartbeat = useCallback(() => {
     if (heartbeatRef.current) {
       clearInterval(heartbeatRef.current);
       heartbeatRef.current = null;
     }
-  };
+  }, []);
 
-  function startPollingFallback() {
+  const startPollingFallback = useCallback(() => {
     const apiKey = runtimeConfigRef.current.API_KEY || process.env.REACT_APP_API_KEY || 'dev-ws-key';
     const apiUrl = runtimeConfigRef.current.API_URL || process.env.REACT_APP_API_URL || 'https://api-semply.semply.cloud/api/v1/iot';
 
@@ -306,14 +263,14 @@ export default function HomePage() {
         console.warn('Polling failed', err);
       }
     }, 10000);
-  }
+  }, [siteId]);
 
-  function stopPollingFallback() {
+  const stopPollingFallback = useCallback(() => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
     }
-  }
+  }, []);
 
   const initializeWebSocket = useCallback(() => {
     const apiKey = runtimeConfigRef.current.API_KEY || process.env.REACT_APP_API_KEY || 'dev-ws-key';
@@ -342,6 +299,7 @@ export default function HomePage() {
     socketRef.current.onerror = (err) => {
       console.error('❌ Realtime websocket error', err);
       stopHeartbeat();
+      startPollingFallback();
     };
 
     socketRef.current.onmessage = (msg) => {
@@ -402,7 +360,7 @@ export default function HomePage() {
       stopHeartbeat();
       setTimeout(initializeWebSocket, 15000);
     };
-  }, );
+  }, [siteId, startPollingFallback, stopPollingFallback, startHeartbeat, stopHeartbeat]);
 
   useEffect(() => {
     if (!configLoaded) return;
@@ -414,10 +372,10 @@ export default function HomePage() {
     };
   }, [initializeWebSocket, configLoaded]);
 
-  function renderWidget(name, isExpanded = false) {
+  function renderWidget(name, isExpanded = false, onExpand = null) {
     switch (name) {
       case 'realtime_kpi':
-        return <RealTimeKPIWidget wsData={wsData} siteInfo={siteInfo} />;
+        return <RealTimeKPIWidget wsData={wsData} siteInfo={siteInfo} onExpand={onExpand} />;
       case 'energy_analytics':
         return <EnergyAnalyticsWidget wsData={wsData} siteId={siteId} />;
       case 'energy_in_out':
@@ -437,36 +395,13 @@ export default function HomePage() {
 
   return (
     <>
-      <div
-        style={{
-          height: '100vh',
-          width: '100%',
-          backgroundColor: '#F9FAFB',
-          padding: '8px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          overflow: 'auto',
-        }}
-      >
+      <div className={styles.pageContainer}>
         {!expandedWidget && (
-          <div
-            style={{
-              padding: '10px 14px',
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              border: '1px solid #E5E7EB',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
-              flexShrink: 0,
-            }}
-          >
-            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#111827', margin: 0 }}>
+          <div className={styles.header}>
+            <h1 className={styles.headerTitle}>
               {siteInfo?.name || 'Energy Management Dashboard'}
             </h1>
-            <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+            <p className={styles.headerSubtitle}>
               Last updated:{' '}
               {time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} •{' '}
               {time.toLocaleTimeString()}
@@ -474,49 +409,71 @@ export default function HomePage() {
           </div>
         )}
 
-        <div
-          style={{
-            minHeight: '700px',
-            height: '700px',
-            overflow: 'hidden',
-            display: 'grid',
-            gridTemplateColumns: `repeat(${NUM_COLS}, minmax(0, 1fr))`,
-            gridTemplateRows: 'repeat(7, minmax(0, 1fr))',
-            gap: '8px',
-            flexShrink: 0,
-          }}
-        >
-          {LAYOUT.map((l) => (
-            <div
-              key={l.id}
-              style={{
-                gridColumn: `${l.col} / span ${l.colSpan}`,
-                gridRow: `${l.row} / span ${l.rowSpan}`,
-                minHeight: 0,
-                minWidth: 0,
-                overflow: 'hidden',
-              }}
+        {/* Main widgets grid - responsive */}
+        <div className={styles.mainGrid}>
+          {/* Real-time KPI Widget */}
+          <div className={`${styles.gridItem} ${styles.realtimeKpi}`}>
+            <WidgetWrapper
+              compact
+              showExpand
+              noScroll={false}
+              onExpand={() => setExpandedWidget(LAYOUT[0])}
             >
-              {l.name === 'group_energy_usage' || l.name === 'battery' ? (
-                <div style={{ height: '100%', width: '100%', padding: '4px' }}>
-                  {renderWidget(l.name, false)}
-                </div>
-              ) : (
-                <WidgetWrapper
-                  compact
-                  showExpand
-                  noScroll={l.name === 'energy_in_out'}
-                  onExpand={() => setExpandedWidget(l)}
-                >
-                  {renderWidget(l.name, false)}
-                </WidgetWrapper>
-              )}
-            </div>
-          ))}
+              {renderWidget('realtime_kpi', false, () => setExpandedWidget(LAYOUT[0]))}
+            </WidgetWrapper>
+          </div>
+
+          {/* Energy In/Out Widget */}
+          <div className={`${styles.gridItem} ${styles.energyInOut}`}>
+            <WidgetWrapper
+              compact
+              showExpand
+              noScroll={true}
+              onExpand={() => setExpandedWidget(LAYOUT[1])}
+            >
+              {renderWidget('energy_in_out', false, () => setExpandedWidget(LAYOUT[1]))}
+            </WidgetWrapper>
+          </div>
+
+          {/* Carbon Credit Widget */}
+          <div className={`${styles.gridItem} ${styles.carbonCredit}`}>
+            <WidgetWrapper
+              compact
+              showExpand
+              noScroll={false}
+              onExpand={() => setExpandedWidget(LAYOUT[2])}
+            >
+              {renderWidget('carbon_credit', false, () => setExpandedWidget(LAYOUT[2]))}
+            </WidgetWrapper>
+          </div>
+
+          {/* Group Usage Widget */}
+          <div className={`${styles.gridItem} ${styles.groupUsage}`}>
+            <WidgetWrapper
+              compact
+              showExpand
+              noScroll={false}
+              onExpand={() => setExpandedWidget(LAYOUT[4])}
+            >
+              {renderWidget('group_energy_usage', false, () => setExpandedWidget(LAYOUT[4]))}
+            </WidgetWrapper>
+          </div>
+
+          {/* Battery Widget */}
+          <div className={`${styles.gridItem} ${styles.battery}`}>
+            <WidgetWrapper
+              compact
+              showExpand
+              noScroll={false}
+              onExpand={() => setExpandedWidget(LAYOUT[3])}
+            >
+              {renderWidget('battery', false, () => setExpandedWidget(LAYOUT[3]))}
+            </WidgetWrapper>
+          </div>
         </div>
 
-        {/* Energy Analytics Section - Below main grid */}
-        <div style={{ flexShrink: 0, minHeight: '550px', marginBottom: '8px' }}>
+        {/* Energy Analytics Section - Full width */}
+        <div className={styles.fullWidthSection}>
           <WidgetWrapper
             compact
             showExpand
@@ -527,42 +484,16 @@ export default function HomePage() {
           </WidgetWrapper>
         </div>
 
-        {/* Group Timeline Section - Below Energy Analytics */}
-        <div style={{ flexShrink: 0, minHeight: '300px', marginBottom: '8px' }}>
-          <div style={{ 
-            height: '100%', 
-            width: '100%', 
-            position: 'relative',
-            overflow: 'visible',
-            borderRadius: 18,
-            background: 'white',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-          }}
-          className="transition-all duration-200 hover:shadow-md"
+        {/* Group Timeline Section - Full width */}
+        <div className={styles.fullWidthSection}>
+          <WidgetWrapper
+            compact
+            showExpand
+            noScroll={false}
+            onExpand={() => setExpandedWidget({ id: 'group_timeline', name: 'group_energy_timeline', title: 'Group Energy Timeline' })}
           >
-            <button
-              onClick={() => setExpandedWidget({ id: 'group_timeline', name: 'group_energy_timeline', title: 'Group Energy Timeline' })}
-              title="Expand widget"
-              className="absolute top-3 right-3 z-30 p-2 rounded-lg border border-gray-200 
-                         bg-white/80 backdrop-blur-sm hover:bg-blue-50 active:scale-95 
-                         transition-all duration-150 shadow-sm"
-            >
-              <Maximize2 size={16} className="text-gray-600" />
-            </button>
-            <div style={{ 
-              height: '100%', 
-              width: '100%',
-              overflow: 'visible',
-            }}>
-              <div style={{ 
-                transform: 'scale(0.96)',
-                transformOrigin: 'top left',
-                width: '104%',
-              }}>
-                <GroupTimelineWidget data={groupData} />
-              </div>
-            </div>
-          </div>
+            <GroupTimelineWidget data={groupData} />
+          </WidgetWrapper>
         </div>
       </div>
 
@@ -571,9 +502,7 @@ export default function HomePage() {
           title={expandedWidget.title}
           onClose={() => setExpandedWidget(null)}
         >
-          <WidgetWrapper compact={false} showExpand={false}>
-            {renderWidget(expandedWidget.name, true)}
-          </WidgetWrapper>
+          {renderWidget(expandedWidget.name, true)}
         </ExpandedWidgetModal>
       )}
     </>

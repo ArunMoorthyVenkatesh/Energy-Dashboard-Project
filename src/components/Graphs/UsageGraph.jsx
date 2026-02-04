@@ -6,13 +6,12 @@ import SensorSvg from '../../assets/svg/SensorSvg';
 import LinkedCameraSvg from '../../assets/svg/LinkedCameraSvg';
 import AirSvg from '../../assets/svg/AirSvg';
 import ThermostatSvg from '../../assets/svg/ThermostatSvg';
-import styles from './usagegraph.module.css';
-import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import SolarSvg from '../../assets/svg/SolarSvg';
 import BatterySvg from '../../assets/svg/BatterySvg';
 import EvStationSvg from '../../assets/svg/EvStationSvg';
 import ElectricMeterSvg from '../../assets/svg/ElectricMeterSvg';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const ICON = {
   temp: <ThermostatSvg />,
@@ -29,16 +28,34 @@ const ICON = {
   meter: <ElectricMeterSvg />,
 };
 
+// Auto-scale energy values (kWh -> MWh -> GWh)
+function autoScaleEnergy(value) {
+  const absValue = Math.abs(value);
+  if (absValue >= 1000000) {
+    return { value: value / 1000000, unit: 'GWh' };
+  } else if (absValue >= 1000) {
+    return { value: value / 1000, unit: 'MWh' };
+  }
+  return { value, unit: 'kWh' };
+}
+
 export default function UsageGraph({ data }) {
   const totalUsage = data.reduce((sum, d) => sum + (Number.isFinite(d.usage) ? d.usage : 0), 0);
+  
   return (
-    <div className={styles.container} style={{ color: '#000000' }}>
-      <div className={styles.header}>
-        <div>Group</div>
-        <div>Energy usage</div>
-        <div>IoT devices</div>
+    <div className="flex flex-col w-full h-full">
+      {/* Header */}
+      <div className="grid grid-cols-[2fr_3fr_2fr] gap-4 px-4 py-3 bg-slate-50/50 rounded-lg border border-slate-200/60 mb-3">
+        <div className="text-xs font-bold text-slate-700">Group</div>
+        <div className="text-xs font-bold text-slate-700">Energy usage</div>
+        <div className="text-xs font-bold text-slate-700">IoT devices</div>
       </div>
-      <div className={styles.content}>
+      
+      {/* Content */}
+      <div className="flex flex-col gap-3 overflow-y-auto pr-1" style={{ 
+        scrollbarWidth: 'thin',
+        scrollbarColor: '#cbd5e1 #f1f5f9'
+      }}>
         {data.map((d) => (
           <Row data={d} totalUsage={totalUsage} key={d.deviceId || d.name} />
         ))}
@@ -51,6 +68,7 @@ function Row({ data, totalUsage }) {
   const barRef = useRef(null);
   const percentRef = useRef(null);
   const [percentOutside, setPercentOutside] = useState(false);
+  
   useEffect(() => {
     const checkFit = () => {
       if (barRef.current && percentRef.current) {
@@ -68,6 +86,8 @@ function Row({ data, totalUsage }) {
   const usageValue = Number.isFinite(data.usage) ? data.usage : 0;
   const denominator = totalUsage > 0 ? totalUsage : 1;
   const percentage = ((usageValue / denominator) * 100).toFixed(2);
+  const scaled = autoScaleEnergy(usageValue);
+  
   const [overlayPos, setOverlayPos] = useState(null);
   const [hoveredDevice, setHoveredDevice] = useState(null);
 
@@ -86,25 +106,39 @@ function Row({ data, totalUsage }) {
   }
 
   return (
-    <div className={styles.row} style={{ color: '#000000' }}>
-      <div>{data.name}</div>
-      <div className={styles.barWrapper}>
-        <div
-          className={styles.bar}
-          style={{ width: `${percentage}%` }}
-          ref={barRef}>
-          <span
-            className={`${styles.usagePercent} ${
-              percentOutside ? styles.outside : ''
-            }`}
-            ref={percentRef}
-            style={{ color: '#000000' }}>
-            {percentage}%{' '}
-            <span className={styles.usageValue}>({usageValue.toFixed(2)} kWh)</span>
-          </span>
+    <div className="grid grid-cols-[2fr_3fr_2fr] gap-4 items-center px-4 py-2 hover:bg-slate-50/50 rounded-lg transition-colors">
+      {/* Group name */}
+      <div className="text-sm font-semibold text-slate-900 truncate">
+        {data.name}
+      </div>
+      
+      {/* Usage bar */}
+      <div className="flex items-center">
+        <div className="relative w-full">
+          <div
+            ref={barRef}
+            className="relative bg-gradient-to-r from-blue-500 to-blue-600 rounded-md min-h-[32px] flex items-center px-2 shadow-sm"
+            style={{ width: `${percentage}%` }}
+          >
+            <span
+              ref={percentRef}
+              className={`text-xs font-bold whitespace-nowrap ${
+                percentOutside 
+                  ? 'absolute left-full ml-2 text-slate-900' 
+                  : 'ml-auto text-white'
+              }`}
+            >
+              {percentage}%
+              <span className="ml-1 font-normal opacity-90">
+                ({scaled.value.toFixed(2)} {scaled.unit})
+              </span>
+            </span>
+          </div>
         </div>
       </div>
-      <div className={styles.devices}>
+      
+      {/* Devices */}
+      <div className="flex items-center gap-1 flex-wrap">
         {Object.values(
           (data.devices || []).reduce((acc, device) => {
             if (!acc[device.deviceType]) {
@@ -123,29 +157,40 @@ function Row({ data, totalUsage }) {
         ).map((group) => (
           <button
             key={group.type}
-            className={styles.deviceButton}
+            className="p-1.5 bg-white rounded-md border border-slate-200/60 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 shadow-sm"
             onMouseEnter={(e) => handleMouseEnter(e, group.type)}
             onMouseLeave={handleMouseLeave}
           >
-            {ICON[group.type]}
+            <div className="w-5 h-5">
+              {ICON[group.type]}
+            </div>
 
             {overlayPos &&
               hoveredDevice === group.type &&
               createPortal(
                 <div
-                  className={styles.deviceOverlay}
-                  style={{ top: overlayPos.top, left: overlayPos.left, color: '#000000' }}
+                  className="absolute z-[9999] bg-white rounded-lg shadow-lg border border-slate-200 p-3 max-w-xs max-h-[300px] overflow-y-auto"
+                  style={{ 
+                    top: overlayPos.top - 10, 
+                    left: overlayPos.left,
+                    transform: 'translate(-50%, -100%)',
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#cbd5e1 #f1f5f9'
+                  }}
                 >
-                  {group.names.map((name, i) => (
-                    <span key={i}>{name}</span>
-                  ))}
+                  <div className="flex flex-col gap-2">
+                    {group.names.map((name, i) => (
+                      <span key={i} className="text-sm text-slate-700 whitespace-nowrap">
+                        {name}
+                      </span>
+                    ))}
+                  </div>
                 </div>,
                 document.body
               )}
           </button>
         ))}
       </div>
-
     </div>
   );
 }

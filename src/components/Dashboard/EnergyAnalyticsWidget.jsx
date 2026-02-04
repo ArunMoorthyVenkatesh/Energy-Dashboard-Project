@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { TrendingUp } from 'lucide-react';
 import PieGraph from '../Graphs/PieGraph';
 import TimelineBarchart from '../Graphs/TimelineBarchart';
 import { formatWithCommas } from '../../utils/FormatUtil';
@@ -30,6 +31,20 @@ function safePercent(numerator, denominator, decimals = 2) {
   if (den <= 0) return '0.00';
   const pct = (num / den) * 100;
   return Number.isFinite(pct) ? pct.toFixed(decimals) : '0.00';
+}
+
+// Auto-scale energy values (kW -> MW -> GW)
+function autoScaleEnergy(value) {
+  const numValue = parseFloat(value);
+  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
+  
+  const absValue = Math.abs(numValue);
+  if (absValue >= 1000000) {
+    return { value: formatWithCommas(numValue / 1000000), unit: 'GW' };
+  } else if (absValue >= 1000) {
+    return { value: formatWithCommas(numValue / 1000), unit: 'MW' };
+  }
+  return { value: formatWithCommas(numValue), unit: 'kW' };
 }
 
 /* ---------------------------
@@ -96,7 +111,7 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
   /* ---------------------------
    * DERIVED ENERGY VALUES (memoized)
    * --------------------------- */
-  const { load, pv, gridImport, bess, gridPct, bessPct, pvPct, pieData } = useMemo(() => {
+  const { load, pv, gridImport, bess, gridPct, bessPct, pvPct, pieData, scaledValues } = useMemo(() => {
     const load = safeNumber(energyBucket?.load, 0);
     const pv = safeNumber(energyBucket?.pv, 0);
     const gridImport = safeNumber(energyBucket?.grid_import, 0);
@@ -106,13 +121,34 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
     const bessPct = safePercent(bess, load);
     const pvPct = load > 0 ? (100 - Number(gridPct)).toFixed(2) : '0.00';
 
+    // Scale all values
+    const scaledPv = autoScaleEnergy(pv);
+    const scaledGrid = autoScaleEnergy(gridImport);
+    const scaledBess = autoScaleEnergy(bess);
+    const scaledLoad = autoScaleEnergy(load);
+
     const pieData = [
-      { label: 'From solar cells', value: pv, unit: 'kW', color: '#3B82F6' },
-      { label: 'From power grid', value: gridImport, unit: 'kW', color: '#F59E0B' },
-      { label: 'From battery', value: bess, unit: 'kW', color: '#10B981' },
+      { label: 'From solar cells', value: pv, unit: scaledPv.unit, color: '#3B82F6' },
+      { label: 'From power grid', value: gridImport, unit: scaledGrid.unit, color: '#F59E0B' },
+      { label: 'From battery', value: bess, unit: scaledBess.unit, color: '#10B981' },
     ];
 
-    return { load, pv, gridImport, bess, gridPct, bessPct, pvPct, pieData };
+    return { 
+      load, 
+      pv, 
+      gridImport, 
+      bess, 
+      gridPct, 
+      bessPct, 
+      pvPct, 
+      pieData,
+      scaledValues: {
+        pv: scaledPv,
+        grid: scaledGrid,
+        bess: scaledBess,
+        load: scaledLoad,
+      }
+    };
   }, [energyBucket]);
 
   const hasGraph = Array.isArray(usageGraphData) && usageGraphData.length > 0;
@@ -121,88 +157,136 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
    * RENDER
    * --------------------------- */
   return (
-    <div className="p-6">
+    <div className="bg-white rounded-xl shadow-sm p-4 h-full flex flex-col">
       {/* Header */}
-      <div className="pb-4 border-b border-gray-100 mb-6">
-        <h2 className="text-lg font-bold text-gray-900">Energy Analytics</h2>
+      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-200/60 flex-shrink-0">
+        <div className="bg-gradient-to-br from-indigo-100 to-purple-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-indigo-200/60">
+          <TrendingUp className="w-5 h-5 text-indigo-600" />
+        </div>
+        <h2 className="text-base font-bold text-slate-900">Energy Analytics</h2>
       </div>
 
       {/* Time Range Selector */}
-      <div className="flex gap-2 mb-6">
-        {TIME_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            aria-label={`Select ${opt.label} range`}
-            onClick={() => setTimeRange(opt.value)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              timeRange === opt.value
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
+      <div className="flex justify-center mb-4 flex-shrink-0">
+        <div
+          className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
+          style={{
+            boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          {TIME_OPTIONS.map((opt) => {
+            const active = timeRange === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setTimeRange(opt.value)}
+                className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                  active
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+                style={
+                  active
+                    ? {
+                        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
+                      }
+                    : {}
+                }
+              >
+                <span className="relative z-10">{opt.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Usage Graph */}
-      <div className="bg-gray-50 rounded-lg border border-gray-200 mb-6" style={{ padding: '1rem 1.5rem', minHeight: '300px' }}>
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border-2 border-slate-200/60 mb-4 p-4 flex-shrink-0" style={{ minHeight: '300px' }}>
         {loadingGantt ? (
-          <div className="flex items-center justify-center h-[300px] text-gray-400">
-            Loading data...
+          <div className="flex items-center justify-center h-[280px] text-slate-400">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm font-medium">Loading data...</span>
+            </div>
           </div>
         ) : hasGraph ? (
           <div style={{ height: '280px', width: '100%' }}>
             <TimelineBarchart
               key={timeRange}
-              yAxisLabel="Usage (kW)"
+              yAxisLabel="Usage"
               data={usageGraphData}
               timeRange={timeRange}
               showTooltip={true}
-              tooltipFormatter={(value) => `${formatWithCommas(value)} kW`}
+              tooltipFormatter={(value) => {
+                const scaled = autoScaleEnergy(value);
+                return `${scaled.value} ${scaled.unit}`;
+              }}
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[300px] text-gray-400">
-            <div className="text-sm font-medium mb-1">Usage (kW)</div>
+          <div className="flex flex-col items-center justify-center h-[280px] text-slate-400">
+            <TrendingUp className="w-12 h-12 mb-2 opacity-30" />
+            <div className="text-sm font-semibold mb-1">Usage Chart</div>
             <div className="text-xs">No usage data available</div>
           </div>
         )}
       </div>
 
       {/* Usage Breakdown Section */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
         {/* Breakdown list */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-gray-900 mb-3">Electric Usage Breakdown</h3>
-          <div className="space-y-3">
+        <div className="flex flex-col">
+          <h3 className="text-sm font-bold text-slate-900 mb-3">Electric Usage Breakdown</h3>
+          <div className="space-y-2.5 flex-1">
             {[
-              { color: 'bg-blue-500', label: 'Solar Cells', value: pv, pct: pvPct },
-              { color: 'bg-amber-500', label: 'Power Grid', value: gridImport, pct: gridPct },
-              { color: 'bg-green-500', label: 'Battery', value: bess, pct: bessPct },
+              { 
+                gradient: 'from-blue-500 to-indigo-600', 
+                label: 'Solar Cells', 
+                scaled: scaledValues.pv, 
+                pct: pvPct 
+              },
+              { 
+                gradient: 'from-amber-500 to-orange-600', 
+                label: 'Power Grid', 
+                scaled: scaledValues.grid, 
+                pct: gridPct 
+              },
+              { 
+                gradient: 'from-green-500 to-emerald-600', 
+                label: 'Battery', 
+                scaled: scaledValues.bess, 
+                pct: bessPct 
+              },
             ].map((item) => (
-              <div key={item.label} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                  <span className="text-sm text-gray-600">{item.label}</span>
-                </div>
-                <div className="flex items-baseline gap-0.5 whitespace-nowrap pl-2" style={{ paddingRight: '1cm' }}>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {formatWithCommas(item.value)}
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900">kW</span>
-                  <span className="text-xs text-gray-500 ml-1">({item.pct}%)</span>
+              <div 
+                key={item.label} 
+                className="bg-gradient-to-r from-slate-50 to-white rounded-lg p-3 border border-slate-200/60 hover:border-slate-300 hover:shadow-sm transition-all duration-200"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full bg-gradient-to-br ${item.gradient} shadow-sm`} />
+                    <span className="text-xs font-semibold text-slate-700">{item.label}</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm font-bold text-slate-900">
+                      {item.scaled.value}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-600">{item.scaled.unit}</span>
+                    <span className="text-xs text-slate-500 ml-1">({item.pct}%)</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-900">Total Usage</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-gray-900">{formatWithCommas(load)}</span>
-                <span className="text-sm text-gray-600">kW</span>
+          <div className="mt-3 pt-3 border-t-2 border-slate-200/60">
+            <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-lg p-3 border-2 border-indigo-200/60">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-900">Total Usage</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xl font-black text-slate-900">{scaledValues.load.value}</span>
+                  <span className="text-sm font-bold text-slate-600">{scaledValues.load.unit}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -211,12 +295,13 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
         {/* Pie Chart */}
         <div className="flex items-center justify-center">
           {load > 0 ? (
-            <div className="w-full max-w-[200px]">
+            <div className="w-full max-w-[220px]">
               <PieGraph data={pieData} />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center text-gray-400 h-full">
-              <div className="text-sm font-medium mb-1">Energy Distribution</div>
+            <div className="flex flex-col items-center justify-center text-slate-400 h-full bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border-2 border-slate-200/60 p-6">
+              <TrendingUp className="w-12 h-12 mb-2 opacity-30" />
+              <div className="text-sm font-semibold mb-1">Energy Distribution</div>
               <div className="text-xs">No usage data</div>
             </div>
           )}

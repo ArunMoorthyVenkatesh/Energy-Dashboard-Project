@@ -23,6 +23,29 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
   };
 }
 
+// Auto-scale energy values for display
+function autoScaleEnergy(value) {
+  const numValue = parseFloat(value);
+  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
+  
+  const absValue = Math.abs(numValue);
+  if (absValue >= 1000000) {
+    return { 
+      value: (numValue / 1000000).toFixed(2), 
+      unit: 'GW' 
+    };
+  } else if (absValue >= 1000) {
+    return { 
+      value: (numValue / 1000).toFixed(2), 
+      unit: 'MW' 
+    };
+  }
+  return { 
+    value: numValue.toFixed(2), 
+    unit: 'kW' 
+  };
+}
+
 /**
  * @param {object} data
  * @param {string | number} line1 - line 1 text in center
@@ -54,19 +77,51 @@ export default function PieGraph({ data, line1, line2, line3 }) {
         <span className={styles.centerLine3}>{line3}</span>
       </div>
       <svg width='100%' height='100%' viewBox='0 0 100 100'>
+        <defs>
+          {/* Gradient definitions for each slice */}
+          <linearGradient id="gradient-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#60a5fa" />
+            <stop offset="100%" stopColor="#3b82f6" />
+          </linearGradient>
+          <linearGradient id="gradient-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="100%" stopColor="#f59e0b" />
+          </linearGradient>
+          <linearGradient id="gradient-green" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#34d399" />
+            <stop offset="100%" stopColor="#10b981" />
+          </linearGradient>
+          
+          {/* Shadow filter */}
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+            <feOffset dx="0" dy="1" result="offsetblur"/>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.2"/>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
         {fullCircleSlice ? (
           // Show single circle if one slice is 100%
           <circle
             cx={center}
             cy={center}
             r={radius}
-            fill={fullCircleSlice.color}
+            fill={`url(#gradient-${fullCircleSlice.label.includes('solar') ? 'blue' : fullCircleSlice.label.includes('grid') ? 'amber' : 'green'})`}
             stroke='#fff'
-            strokeWidth='1'
+            strokeWidth='2'
+            filter="url(#shadow)"
             style={{ 
               cursor: 'pointer',
-              opacity: hoveredIndex === null || hoveredIndex === 0 ? 1 : 0.5,
-              transition: 'opacity 0.2s ease'
+              opacity: hoveredIndex === null || hoveredIndex === 0 ? 1 : 0.6,
+              transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: hoveredIndex === 0 ? 'scale(1.05)' : 'scale(1)',
+              transformOrigin: 'center',
             }}
             onMouseEnter={() => setHoveredIndex(0)}
             onMouseLeave={() => setHoveredIndex(null)}
@@ -75,32 +130,41 @@ export default function PieGraph({ data, line1, line2, line3 }) {
           />
         ) : (
           // Show pie chart slices
-          pieData.map((slice, i) => (
-            <path
-              key={`path-${i}`}
-              d={describeArc(
-                center,
-                center,
-                radius,
-                slice.startAngle,
-                slice.startAngle + slice.angle
-              )}
-              stroke='#fff'
-              strokeWidth='1'
-              fill={slice.color}
-              style={{
-                cursor: 'pointer',
-                opacity: hoveredIndex === null || hoveredIndex === i ? 1 : 0.5,
-                transition: 'opacity 0.2s ease, transform 0.2s ease',
-                transform: hoveredIndex === i ? 'scale(1.03)' : 'scale(1)',
-                transformOrigin: 'center',
-              }}
-              onMouseEnter={() => setHoveredIndex(i)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              onTouchStart={() => setHoveredIndex(i)}
-              onTouchEnd={() => setHoveredIndex(null)}
-            />
-          ))
+          pieData.map((slice, i) => {
+            const gradientId = slice.label.includes('solar') 
+              ? 'gradient-blue' 
+              : slice.label.includes('grid') 
+                ? 'gradient-amber' 
+                : 'gradient-green';
+            
+            return (
+              <path
+                key={`path-${i}`}
+                d={describeArc(
+                  center,
+                  center,
+                  radius,
+                  slice.startAngle,
+                  slice.startAngle + slice.angle
+                )}
+                stroke='#fff'
+                strokeWidth='2'
+                fill={`url(#${gradientId})`}
+                filter="url(#shadow)"
+                style={{
+                  cursor: 'pointer',
+                  opacity: hoveredIndex === null || hoveredIndex === i ? 1 : 0.5,
+                  transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: hoveredIndex === i ? 'scale(1.05)' : 'scale(1)',
+                  transformOrigin: 'center',
+                }}
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                onTouchStart={() => setHoveredIndex(i)}
+                onTouchEnd={() => setHoveredIndex(null)}
+              />
+            );
+          })
         )}
       </svg>
 
@@ -112,32 +176,67 @@ export default function PieGraph({ data, line1, line2, line3 }) {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+            backdropFilter: 'blur(8px)',
             color: 'white',
-            padding: '10px 14px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2)',
             pointerEvents: 'none',
             zIndex: 1000,
             whiteSpace: 'nowrap',
             textAlign: 'center',
-            minWidth: '120px',
+            minWidth: '140px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            animation: 'pieTooltipFadeIn 0.2s ease-out',
           }}
         >
-          <div style={{ fontSize: '13px', marginBottom: '4px', fontWeight: '600', color: '#E5E7EB' }}>
+          <div style={{ 
+            fontSize: '11px', 
+            marginBottom: '6px', 
+            fontWeight: '600', 
+            color: '#cbd5e1',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             {pieData[hoveredIndex].label}
           </div>
-          <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '2px' }}>
-            {pieData[hoveredIndex].value.toLocaleString(undefined, { 
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2 
-            })} {pieData[hoveredIndex].unit || ''}
+          <div style={{ 
+            fontSize: '18px', 
+            fontWeight: '800', 
+            marginBottom: '4px',
+            background: 'linear-gradient(135deg, #fff 0%, #e2e8f0 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
+            {(() => {
+              const scaled = autoScaleEnergy(pieData[hoveredIndex].value);
+              return `${scaled.value} ${scaled.unit}`;
+            })()}
           </div>
-          <div style={{ fontSize: '12px', color: '#D1D5DB' }}>
-            ({pieData[hoveredIndex].percentage.toFixed(2)}%)
+          <div style={{ 
+            fontSize: '12px', 
+            color: '#94a3b8',
+            fontWeight: '600'
+          }}>
+            {pieData[hoveredIndex].percentage.toFixed(1)}%
           </div>
         </div>
       )}
+      
+      <style>{`
+        @keyframes pieTooltipFadeIn {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }

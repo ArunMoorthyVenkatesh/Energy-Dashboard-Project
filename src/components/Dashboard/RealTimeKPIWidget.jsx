@@ -92,72 +92,82 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex items-center justify-between pb-6 border-b border-gray-100 mb-6">
+      <div className="flex items-center justify-between pb-6 border-b border-slate-200/60 mb-6">
         <div className="flex items-center gap-4">
-          <img src={toyotaLogoSrc} alt="Toyota logo" className="h-8 w-auto" />
-          <div className="w-px h-8 bg-gray-300" />
-          <h2 className="text-lg font-bold text-gray-900">{siteInfo?.name || 'Site'}</h2>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-slate-200/60">
+            <img src={toyotaLogoSrc} alt="Toyota logo" className="h-8 w-auto" />
+          </div>
+          <div className="w-px h-8 bg-slate-300" />
+          <h2 className="text-lg font-bold text-slate-900">{siteInfo?.name || 'Site'}</h2>
         </div>
       </div>
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 gap-4">
         {/* Monthly Saved */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+        <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-lg p-4 border-2 border-blue-300/60 hover:border-blue-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-4 h-4 text-blue-600" />
-            <span className="text-xs font-medium text-blue-900">Monthly Saved</span>
+            <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
+              <DollarSign className="w-4 h-4 text-blue-600" />
+            </div>
+            <span className="text-xs font-bold text-slate-900">Monthly Saved</span>
           </div>
           <div className="flex items-baseline gap-1 flex-wrap">
-            <span className="font-bold text-blue-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
+            <span className="font-black text-slate-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
               {formatWithCommas(summary.monthSaving)}
             </span>
-            <span className="text-xs text-blue-700 whitespace-nowrap">Baht</span>
+            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">Baht</span>
           </div>
         </div>
 
         {/* Avg Saved */}
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+        <div className="bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100 rounded-lg p-4 border-2 border-emerald-300/60 hover:border-emerald-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-green-600" />
-            <span className="text-xs font-medium text-green-900">Avg Saved</span>
+            <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
+            </div>
+            <span className="text-xs font-bold text-slate-900">Avg Saved</span>
           </div>
           <div className="flex items-baseline gap-1 flex-wrap">
-            <span className="font-bold text-green-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
+            <span className="font-black text-slate-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
               {formatWithCommas(summary.avgSaving)}
             </span>
-            <span className="text-xs text-green-700 whitespace-nowrap">Baht/hr</span>
+            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">Baht/hr</span>
           </div>
         </div>
 
         {/* Temperature */}
-        <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-4 border border-amber-200">
+        <div className="bg-gradient-to-br from-orange-100 via-amber-100 to-yellow-100 rounded-lg p-4 border-2 border-orange-300/60 hover:border-orange-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
-            <Thermometer className="w-4 h-4 text-amber-600" />
-            <span className="text-xs font-medium text-amber-900">Temperature</span>
+            <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
+              <Thermometer className="w-4 h-4 text-orange-600" />
+            </div>
+            <span className="text-xs font-bold text-slate-900">Temperature</span>
           </div>
-          <div className="flex items-center gap-2" style={{ color: '#000000', fontSize: 'clamp(0.875rem, 2vw, 1.25rem)', fontWeight: 700 }}>
+          <div className="flex items-center gap-2" style={{ color: '#0f172a', fontSize: 'clamp(0.875rem, 2vw, 1.25rem)', fontWeight: 900 }}>
             <WeatherTempDisplay
               main={weather?.main}
               current={weather?.current}
               min={weather?.min}
               max={weather?.max}
             />
-            {weatherLoading && <span className="text-xs text-amber-600">Updating...</span>}
+            {weatherLoading && <span className="text-xs text-orange-700 font-semibold">Updating...</span>}
           </div>
         </div>
 
         {/* Current Usage */}
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+        <div className="bg-gradient-to-br from-purple-100 via-fuchsia-100 to-pink-100 rounded-lg p-4 border-2 border-purple-300/60 hover:border-purple-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-4 h-4 text-purple-600" />
-            <span className="text-xs font-medium text-purple-900">Current Usage</span>
+            <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
+              <Zap className="w-4 h-4 text-purple-600" />
+            </div>
+            <span className="text-xs font-bold text-slate-900">Current Usage</span>
           </div>
           <div className="flex items-baseline gap-1 flex-wrap">
-            <span className="font-bold text-purple-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
+            <span className="font-black text-slate-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
               {formatWithCommas(summary.electricUsage)}
             </span>
-            <span className="text-xs text-purple-700 whitespace-nowrap">kW</span>
+            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">kW</span>
           </div>
         </div>
       </div>

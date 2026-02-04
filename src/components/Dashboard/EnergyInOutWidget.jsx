@@ -5,7 +5,6 @@ import OutletSvg from '../../assets/svg/OutletSvg';
 import PowerSvg from '../../assets/svg/PowerSvg';
 import RoundRightArrowSvg from '../../assets/svg/RoundRightArrowSvg';
 import SolarSvg from '../../assets/svg/SolarSvg';
-import Card from '../Base/Card';
 import styles from './energyinoutwidget.module.css';
 import { formatWithCommas } from '../../utils/FormatUtil';
 
@@ -16,6 +15,20 @@ const COLOR = {
   usage: '#CE5E49',
   export: '#E5A44E',
 };
+
+// Auto-scale energy values (kW -> MW -> GW)
+function autoScaleEnergy(value) {
+  const numValue = parseFloat(value);
+  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
+  
+  const absValue = Math.abs(numValue);
+  if (absValue >= 1000000) {
+    return { value: formatWithCommas(numValue / 1000000), unit: 'GW' };
+  } else if (absValue >= 1000) {
+    return { value: formatWithCommas(numValue / 1000), unit: 'MW' };
+  }
+  return { value: formatWithCommas(numValue), unit: 'kW' };
+}
 
 export default function EnergyInOutWidget({ data, isExpanded = false }) {
   const containerRef = useRef(null);
@@ -99,12 +112,13 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
 
   const normalized = normalizeFields(getSelectedRaw());
 
+  // Auto-scale all values
   const displayData = {
-    pv: formatWithCommas(normalized.pv),
-    battery: formatWithCommas(normalized.battery),
-    gridImport: formatWithCommas(normalized.gridImport),
-    load: formatWithCommas(normalized.load),
-    gridExport: formatWithCommas(normalized.gridExport),
+    pv: autoScaleEnergy(normalized.pv),
+    battery: autoScaleEnergy(normalized.battery),
+    gridImport: autoScaleEnergy(normalized.gridImport),
+    load: autoScaleEnergy(normalized.load),
+    gridExport: autoScaleEnergy(normalized.gridExport),
   };
 
   useEffect(() => {
@@ -184,33 +198,33 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
     };
   }, [timeRange, isExpanded]);
 
-  const rowGap = isExpanded ? 24 : 10;
-  const headerMargin = isExpanded ? 20 : 12;
-  const contentPaddingTop = isExpanded ? 24 : 10;
-  const contentPaddingBottom = isExpanded ? 24 : 0;
+  const rowGap = isExpanded ? 24 : 3;
+  const headerMargin = isExpanded ? 20 : 4;
+  const contentPaddingTop = isExpanded ? 30 : 6;
+  const contentPaddingBottom = isExpanded ? 30 : 6;
 
   return (
-    <Card
+    <div
       className={styles.container}
       ref={containerRef}
     >
       {/* Header */}
-      <div style={{ flexShrink: 0, marginBottom: headerMargin }}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-amber-50 rounded-lg">
-            <Zap className="w-5 h-5 text-amber-600" />
+      <div style={{ flexShrink: 0, marginBottom: headerMargin, padding: '0 12px' }}>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="p-1 bg-gradient-to-br from-amber-50 to-orange-100 rounded-lg shadow-sm border border-amber-200/60">
+            <Zap className="w-3.5 h-3.5 text-amber-600" />
           </div>
-          <h3 className="text-base font-bold text-gray-900">
+          <h3 className="text-xs font-bold text-slate-900">
             Energy input &amp; output
           </h3>
         </div>
 
         <div className="flex justify-center">
           <div
-            className="inline-flex items-center gap-0.5 rounded-xl bg-gradient-to-b from-gray-50 to-gray-100 p-0.5 shadow-inner border border-gray-200/60"
+            className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
             style={{
               boxShadow:
-                'inset 0 1px 2px rgba(0, 0, 0, 0.08), 0 1px 1px rgba(255, 255, 255, 0.6)',
+                'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
             }}
             aria-label="Select time range"
           >
@@ -222,29 +236,20 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
                   type="button"
                   onClick={() => setTimeRange(opt.value)}
                   aria-pressed={active}
-                  className={`relative px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
+                  className={`relative px-2.5 py-1 rounded-md text-[10px] font-bold transition-all duration-200 whitespace-nowrap ${
                     active
-                      ? 'bg-white text-amber-700 shadow-md border border-gray-200/80'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/40'
+                      ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                   }`}
                   style={
                     active
                       ? {
                           boxShadow:
-                            '0 1px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                            '0 2px 8px rgba(251, 146, 60, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
                         }
                       : {}
                   }
                 >
-                  {active && (
-                    <div
-                      className="absolute inset-0 rounded-lg"
-                      style={{
-                        background:
-                          'linear-gradient(180deg, rgba(251, 191, 36, 0.05) 0%, rgba(251, 191, 36, 0.02) 100%)',
-                      }}
-                    />
-                  )}
                   <span className="relative z-10">{opt.label}</span>
                 </button>
               );
@@ -263,13 +268,13 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
             <marker
               key={i}
               id={`arrowhead-${i}`}
-              markerWidth="10"
-              markerHeight="10"
-              refX="9"
-              refY="3"
+              markerWidth="8"
+              markerHeight="8"
+              refX="7"
+              refY="2.5"
               orient="auto"
             >
-              <polygon points="0 0, 10 3, 0 6" fill={l.color} />
+              <polygon points="0 0, 8 2.5, 0 5" fill={l.color} />
             </marker>
           ))}
         </defs>
@@ -282,7 +287,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
             x2={l.x2}
             y2={l.y2}
             stroke={l.color}
-            strokeWidth={isExpanded ? '2.2' : '2'}
+            strokeWidth={isExpanded ? '2' : '1.5'}
             strokeDasharray="5,5"
             markerEnd={`url(#arrowhead-${i})`}
           />
@@ -307,13 +312,13 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         }}
       >
         <div className={styles.row} style={{ flexShrink: 0 }}>
-          <ValueBlock refEl={solarRef} value={displayData.pv} unit="kW" color={COLOR.solar} isExpanded={isExpanded}>
+          <ValueBlock refEl={solarRef} scaled={displayData.pv} color={COLOR.solar} isExpanded={isExpanded}>
             <SolarSvg style={{ fill: COLOR.solar }} /> solar cells
           </ValueBlock>
-          <ValueBlock refEl={batteryRef} value={displayData.battery} unit="kW" color={COLOR.battery} isExpanded={isExpanded}>
+          <ValueBlock refEl={batteryRef} scaled={displayData.battery} color={COLOR.battery} isExpanded={isExpanded}>
             <BatterySvg style={{ fill: COLOR.battery }} /> battery
           </ValueBlock>
-          <ValueBlock refEl={gridRef} value={displayData.gridImport} unit="kW" color={COLOR.power} isExpanded={isExpanded}>
+          <ValueBlock refEl={gridRef} scaled={displayData.gridImport} color={COLOR.power} isExpanded={isExpanded}>
             <PowerSvg style={{ fill: COLOR.power }} /> power grid
           </ValueBlock>
         </div>
@@ -327,41 +332,43 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         </div>
 
         <div className={styles.row} style={{ flexShrink: 0 }}>
-          <ValueBlock refEl={usageRef} value={displayData.load} unit="kW" color={COLOR.usage} isExpanded={isExpanded}>
+          <ValueBlock refEl={usageRef} scaled={displayData.load} color={COLOR.usage} isExpanded={isExpanded}>
             <OutletSvg style={{ fill: COLOR.usage }} /> usage
           </ValueBlock>
-          <ValueBlock refEl={exportRef} value={displayData.gridExport} unit="kW" color={COLOR.export} isExpanded={isExpanded}>
+          <ValueBlock refEl={exportRef} scaled={displayData.gridExport} color={COLOR.export} isExpanded={isExpanded}>
             <RoundRightArrowSvg style={{ fill: COLOR.export }} /> export
           </ValueBlock>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
 /* ---------- helper ---------- */
-function ValueBlock({ refEl, value, unit, color, children, isExpanded = false }) {
-  const valueFontSize = isExpanded ? 'clamp(1.125rem, 2cqh, 1.5rem)' : 'clamp(0.9rem, 1.6cqh, 1.1rem)';
-  const unitFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.625rem, 1.2cqh, 0.75rem)';
-  const labelFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.7rem, 1.3cqh, 0.85rem)';
+function ValueBlock({ refEl, scaled, color, children, isExpanded = false }) {
+  const valueFontSize = isExpanded ? 'clamp(1.125rem, 2cqh, 1.5rem)' : 'clamp(0.85rem, 1.5cqh, 1rem)';
+  const unitFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.6rem, 1.1cqh, 0.7rem)';
+  const labelFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.65rem, 1.2cqh, 0.75rem)';
   
   return (
-    <div ref={refEl} className={styles.infoWrapper} style={{ color }}>
+    <div ref={refEl} className={styles.infoWrapper} style={{ color, minHeight: isExpanded ? '60px' : '40px', justifyContent: 'center' }}>
       <span
         className={styles.infoValue}
         style={{
           fontSize: valueFontSize,
+          fontWeight: 900,
+          marginBottom: '2px',
         }}
       >
-        {value}{' '}
+        {scaled.value}{' '}
         <span
           style={{
             fontSize: unitFontSize,
-            fontWeight: 600,
-            color: '#000000',
+            fontWeight: 700,
+            color: '#475569',
           }}
         >
-          {unit}
+          {scaled.unit}
         </span>
       </span>
 
@@ -369,6 +376,7 @@ function ValueBlock({ refEl, value, unit, color, children, isExpanded = false })
         className={styles.energySource}
         style={{
           fontSize: labelFontSize,
+          fontWeight: 600,
         }}
       >
         {children}

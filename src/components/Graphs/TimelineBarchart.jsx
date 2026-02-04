@@ -40,14 +40,27 @@ export default function TimelineBarchart({
   return (
     <div className={styles.container} style={{ position: 'relative' }}>
       <div className={styles.topSection}>
-        <span className={styles.yAxisLabel}>{yAxisLabel}</span>
+        <span className={styles.yAxisLabel} style={{ 
+          fontSize: '0.75rem', 
+          fontWeight: '700', 
+          color: '#475569',
+          letterSpacing: '0.025em'
+        }}>
+          {yAxisLabel}
+        </span>
       </div>
       <div className={styles.bottomSection}>
         <div className={styles.leftSection}>
           <div className={styles.yAxis}>
             {yTicks.map((tick, i) => (
               <div key={`y-label-${i}`} className={styles.yTickWrapper}>
-                <span className={styles.yLabel}>{tick}</span>
+                <span className={styles.yLabel} style={{
+                  fontSize: '0.7rem',
+                  fontWeight: '600',
+                  color: '#64748b'
+                }}>
+                  {tick}
+                </span>
               </div>
             ))}
           </div>
@@ -56,30 +69,48 @@ export default function TimelineBarchart({
           <div className={styles.chartArea}>
             <div className={styles.gridLines}>
               {yTicks.map((_, i) => (
-                <div key={`grid-line-${i}`} className={styles.gridLine} />
+                <div 
+                  key={`grid-line-${i}`} 
+                  className={styles.gridLine}
+                  style={{
+                    borderTop: '1px solid rgba(148, 163, 184, 0.15)',
+                  }}
+                />
               ))}
             </div>
             <div
               className={styles.bars}
               style={{ gridTemplateColumns: `repeat(${xTicks.length}, 1fr)` }}
             >
-              {data.map((y, i) => (
-                <div
-                  key={i}
-                  className={styles.bar}
-                  style={{
-                    height: `${((y?.value || 0) / niceMaximum) * 100}%`,
-                    opacity: hoveredIndex === null || hoveredIndex === i ? 1 : 0.5,
-                    transition: 'opacity 0.15s ease, transform 0.15s ease',
-                    cursor: 'pointer',
-                    transform: hoveredIndex === i ? 'scaleY(1.02)' : 'scaleY(1)',
-                  }}
-                  onMouseEnter={() => handleBarHover(i)}
-                  onMouseLeave={handleBarLeave}
-                  onTouchStart={() => handleBarHover(i)}
-                  onTouchEnd={handleBarLeave}
-                />
-              ))}
+              {data.map((y, i) => {
+                const barHeight = ((y?.value || 0) / niceMaximum) * 100;
+                const isHovered = hoveredIndex === i;
+                
+                return (
+                  <div
+                    key={i}
+                    className={styles.bar}
+                    style={{
+                      height: `${barHeight}%`,
+                      background: isHovered 
+                        ? 'linear-gradient(180deg, #6366f1 0%, #4f46e5 100%)'
+                        : 'linear-gradient(180deg, #818cf8 0%, #6366f1 100%)',
+                      opacity: hoveredIndex === null || isHovered ? 1 : 0.4,
+                      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                      cursor: 'pointer',
+                      transform: isHovered ? 'scaleY(1.02) scaleX(1.05)' : 'scaleY(1)',
+                      boxShadow: isHovered 
+                        ? '0 4px 12px rgba(99, 102, 241, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1)'
+                        : '0 2px 4px rgba(99, 102, 241, 0.1)',
+                      borderRadius: '4px 4px 0 0',
+                    }}
+                    onMouseEnter={() => handleBarHover(i)}
+                    onMouseLeave={handleBarLeave}
+                    onTouchStart={() => handleBarHover(i)}
+                    onTouchEnd={handleBarLeave}
+                  />
+                );
+              })}
             </div>
 
             {/* Tooltip - positioned relative to chartArea */}
@@ -89,20 +120,28 @@ export default function TimelineBarchart({
                   position: 'absolute',
                   left: `calc((100% / ${xTicks.length}) * ${hoveredIndex} + (100% / ${xTicks.length}) / 2)`,
                   bottom: `${((data[hoveredIndex]?.value || 0) / niceMaximum) * 100}%`,
-                  transform: 'translate(-50%, -8px)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                  transform: 'translate(-50%, -12px)',
+                  backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                  backdropFilter: 'blur(8px)',
                   color: 'white',
-                  padding: '6px 10px',
-                  borderRadius: '6px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)',
                   pointerEvents: 'none',
                   zIndex: 1000,
                   whiteSpace: 'nowrap',
                   fontSize: '13px',
-                  fontWeight: '600',
+                  fontWeight: '700',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  animation: 'tooltipFadeIn 0.2s ease-out',
                 }}
               >
-                {formatValue(data[hoveredIndex]?.value || 0)}
+                <div style={{ marginBottom: '2px', fontSize: '11px', opacity: 0.8, fontWeight: '600' }}>
+                  {data[hoveredIndex]?.key || ''}
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: '700' }}>
+                  {formatValue(data[hoveredIndex]?.value || 0)}
+                </div>
               </div>
             )}
           </div>
@@ -114,14 +153,37 @@ export default function TimelineBarchart({
               const tickLabel = xTicks[i];
               return (
                 <div key={`x-tick-${i}`} className={styles.tickWrapper}>
-                  {tickLabel && <div className={styles.tick} />}
-                  <div className={styles.label}>{tickLabel}</div>
+                  {tickLabel && <div className={styles.tick} style={{ 
+                    backgroundColor: '#94a3b8',
+                    width: '1px',
+                    height: '4px'
+                  }} />}
+                  <div className={styles.label} style={{
+                    fontSize: '0.7rem',
+                    fontWeight: '600',
+                    color: '#64748b'
+                  }}>
+                    {tickLabel}
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
       </div>
+      
+      <style>{`
+        @keyframes tooltipFadeIn {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -8px);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -12px);
+          }
+        }
+      `}</style>
     </div>
   );
 }

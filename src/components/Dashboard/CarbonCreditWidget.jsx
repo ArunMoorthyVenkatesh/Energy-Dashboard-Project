@@ -5,143 +5,155 @@ import { formatWithCommas } from '../../utils/FormatUtil';
 export default function CarbonCreditWidget({ data, isExpanded = false }) {
   const safeNumber = (value) => (Number.isFinite(value) ? value : 0);
 
+  // Auto-scale energy values (kW -> MW -> GW)
+  const autoScaleEnergy = (value) => {
+    const absValue = Math.abs(value);
+    if (absValue >= 1000000) {
+      return { value: value / 1000000, unit: 'GW' };
+    } else if (absValue >= 1000) {
+      return { value: value / 1000, unit: 'MW' };
+    }
+    return { value, unit: 'kW' };
+  };
+
+  // Auto-scale CO2 values (kg -> tonnes)
+  const autoScaleCO2 = (value) => {
+    const absValue = Math.abs(value);
+    if (absValue >= 1000) {
+      return { value: value / 1000, unit: 'tCO2e' };
+    }
+    return { value, unit: 'kgCO2e' };
+  };
+
   const sections = useMemo(() => {
     const energy = data?.energy_summary || {};
     const saving = data?.saving_summary || {};
 
+    // Auto-scale values
+    const dailyCO2 = autoScaleCO2(safeNumber(saving.today_co2_saving));
+    const monthlyCO2 = autoScaleCO2(safeNumber(saving.month_co2_saving));
+    const lifetimeCO2 = autoScaleCO2(safeNumber(saving.lifetime_co2_saving));
+    const dailyEnergy = autoScaleEnergy(safeNumber(energy.today_pv_energy));
+    const monthlyEnergy = autoScaleEnergy(safeNumber(energy.month_pv_energy));
+    const lifetimeEnergy = autoScaleEnergy(safeNumber(energy.lifetime_pv_energy));
+
     return [
       {
         title: 'Daily carbon credit',
-        dataValue: safeNumber(saving.today_co2_saving),
-        dataUnit: 'kgCO2e',
+        dataValue: dailyCO2.value,
+        dataUnit: dailyCO2.unit,
         icon: Leaf,
-        color: 'green',
+        gradient: 'from-emerald-100 via-teal-100 to-cyan-100',
+        border: 'border-emerald-300/60',
+        hoverBorder: 'hover:border-emerald-400',
+        iconColor: 'text-emerald-600',
       },
       {
         title: 'Monthly carbon credit',
-        dataValue: safeNumber(saving.month_co2_saving),
-        dataUnit: 'kgCO2e',
+        dataValue: monthlyCO2.value,
+        dataUnit: monthlyCO2.unit,
         icon: Leaf,
-        color: 'green',
+        gradient: 'from-green-100 via-emerald-100 to-teal-100',
+        border: 'border-green-300/60',
+        hoverBorder: 'hover:border-green-400',
+        iconColor: 'text-green-600',
       },
       {
         title: 'Lifetime carbon credit',
-        dataValue: safeNumber(saving.lifetime_co2_saving),
-        dataUnit: 'kgCO2e',
+        dataValue: lifetimeCO2.value,
+        dataUnit: lifetimeCO2.unit,
         icon: Leaf,
-        color: 'green',
+        gradient: 'from-lime-100 via-green-100 to-emerald-100',
+        border: 'border-lime-300/60',
+        hoverBorder: 'hover:border-lime-400',
+        iconColor: 'text-lime-600',
       },
       {
         title: 'Daily energy saved',
-        dataValue: safeNumber(energy.today_pv_energy),
-        dataUnit: 'kW',
+        dataValue: dailyEnergy.value,
+        dataUnit: dailyEnergy.unit,
         icon: Zap,
-        color: 'blue',
+        gradient: 'from-blue-100 via-sky-100 to-cyan-100',
+        border: 'border-blue-300/60',
+        hoverBorder: 'hover:border-blue-400',
+        iconColor: 'text-blue-600',
       },
       {
         title: 'Monthly energy saved',
-        dataValue: safeNumber(energy.month_pv_energy),
-        dataUnit: 'kW',
+        dataValue: monthlyEnergy.value,
+        dataUnit: monthlyEnergy.unit,
         icon: Zap,
-        color: 'blue',
+        gradient: 'from-indigo-100 via-blue-100 to-sky-100',
+        border: 'border-indigo-300/60',
+        hoverBorder: 'hover:border-indigo-400',
+        iconColor: 'text-indigo-600',
       },
       {
         title: 'Lifetime energy saved',
-        dataValue: safeNumber(energy.lifetime_pv_energy),
-        dataUnit: 'kW',
+        dataValue: lifetimeEnergy.value,
+        dataUnit: lifetimeEnergy.unit,
         icon: Zap,
-        color: 'blue',
+        gradient: 'from-violet-100 via-indigo-100 to-blue-100',
+        border: 'border-violet-300/60',
+        hoverBorder: 'hover:border-violet-400',
+        iconColor: 'text-violet-600',
       },
       {
         title: 'Renewable energy ratio',
         dataValue: safeNumber(energy.lifetime_ratio) * 100,
         dataUnit: '%',
         icon: TrendingUp,
-        color: 'purple',
+        gradient: 'from-purple-100 via-fuchsia-100 to-pink-100',
+        border: 'border-purple-300/60',
+        hoverBorder: 'hover:border-purple-400',
+        iconColor: 'text-purple-600',
       },
     ];
   }, [data]);
 
-  const getColorClasses = (color) => {
-    const colors = {
-      green: {
-        bg: 'bg-gradient-to-br from-green-50 to-emerald-50',
-        border: 'border-green-200',
-        icon: 'text-green-600',
-        iconBg: 'bg-green-100',
-        text: 'text-green-900',
-        value: 'text-green-900',
-      },
-      blue: {
-        bg: 'bg-gradient-to-br from-blue-50 to-cyan-50',
-        border: 'border-blue-200',
-        icon: 'text-blue-600',
-        iconBg: 'bg-blue-100',
-        text: 'text-blue-900',
-        value: 'text-blue-900',
-      },
-      purple: {
-        bg: 'bg-gradient-to-br from-purple-50 to-violet-50',
-        border: 'border-purple-200',
-        icon: 'text-purple-600',
-        iconBg: 'bg-purple-100',
-        text: 'text-purple-900',
-        value: 'text-purple-900',
-      },
-    };
-    return colors[color] || colors.green;
-  };
-
   return (
-    <div
-      className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 ml-auto"
-      style={{ width: '100%' }} // ✅ decreases width from the LEFT (right edge stays aligned)
-    >
+    <div className="p-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4 sm:mb-5">
-        <div className="p-1.5 bg-green-50 rounded-md">
+      <div className="flex items-center gap-3 pb-6 border-b border-slate-200/60 mb-6">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-slate-200/60">
           <Leaf className="w-5 h-5 text-green-600" />
         </div>
-        <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-bold text-slate-900">
           Carbon Credit Generation
         </h2>
       </div>
 
-      {/* Grid of Compact Cards */}
+      {/* Grid of Cards */}
       <div
-        className={`grid gap-3 sm:gap-4 transition-all duration-300 ease-in-out ${
-          isExpanded ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-1'
+        className={`grid gap-4 transition-all duration-300 ease-in-out ${
+          isExpanded ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'
         }`}
       >
         {sections.map((section, i) => {
           const Icon = section.icon;
-          const colors = getColorClasses(section.color);
 
           return (
             <div
               key={i}
-              className={`${colors.bg} rounded-lg border ${colors.border} p-3 sm:p-4 hover:shadow-md transition-all flex flex-col justify-between`}
-              style={{
-                height: isExpanded ? '140px' : '110px',
-                minWidth: isExpanded ? 'auto' : '200px',
-                transform: isExpanded ? 'scale(1)' : 'scale(0.95)',
-                transformOrigin: 'center',
-              }}
+              className={`bg-gradient-to-br ${section.gradient} rounded-lg p-4 border-2 ${section.border} ${section.hoverBorder} hover:shadow-lg transition-all duration-300`}
             >
-              <div className="flex items-start justify-between mb-1.5 sm:mb-2">
-                <span className={`text-[11px] sm:text-xs font-semibold ${colors.text}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
+                  <Icon className={`w-4 h-4 ${section.iconColor}`} />
+                </div>
+                <span className="text-xs font-bold text-slate-900">
                   {section.title}
                 </span>
-                <div className={`p-1 ${colors.iconBg} rounded-md`}>
-                  <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${colors.icon}`} />
-                </div>
               </div>
 
-              <div className="flex items-baseline gap-1 sm:gap-1.5">
-                <span className={`text-lg sm:text-xl font-bold ${colors.value}`}>
+              <div className="flex items-baseline gap-1 flex-wrap">
+                <span 
+                  className="font-black text-slate-900" 
+                  style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}
+                >
                   {formatWithCommas(section.dataValue)}
                 </span>
-                <span className={`text-[11px] sm:text-sm font-medium ${colors.text}`}>
+                <span className="text-xs text-slate-700 font-bold whitespace-nowrap">
                   {section.dataUnit}
                 </span>
               </div>
