@@ -3,231 +3,226 @@ import { niceScale } from '../../utils/GraphUtil';
 import styles from './doublelinegraph.module.css';
 
 /**
- * @param {string} yAxisLabel - label for y-axis
- * @param {number[]} upperData - array of numbers matching the time range interval for top section
- * @param {number[]} lowerData - array of numbers matching the time range interval for bottom section
- * @param {string[]} yearLabels - only needed if timeRange is set to 'year'
- * @param {string} timeRange - 'day' | 'month' | 'lifetime'
+ * @param {string} yAxisLabel
+ * @param {Array} upperData
+ * @param {Array} lowerData
  */
 export default function DoubleLineGraph({
   yAxisLabel,
   upperData,
   lowerData,
 }) {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [hoverIndex, setHoverIndex] = useState(null);
 
-  const allData = [...upperData, ...lowerData]
-    .flatMap(ds => ds.data.map(item => item?.value ?? 0));
-  
-  const dataMin = Math.min(...allData);
-  const dataMax = Math.max(...allData);
+  const datasets = [...upperData, ...lowerData];
 
-  // Find the absolute maximum to make scale symmetric
-  const absMax = Math.max(Math.abs(dataMin), Math.abs(dataMax));
+  const allValues = datasets.flatMap(ds =>
+    ds.data.map(d => d?.value ?? 0)
+  );
 
-  // Use symmetric range: -absMax to +absMax
-  const { niceMinimum, niceMaximum, ticks } = niceScale(-absMax, absMax, 5);
+  const absMax = Math.max(...allValues.map(v => Math.abs(v)));
 
-  const yLabelMin = niceMinimum;
-  const yLabelMax = niceMaximum;
+  const { niceMinimum, niceMaximum, ticks } = niceScale(
+    -absMax,
+    absMax,
+    5
+  );
 
-  const positiveTicks = ticks
-    .filter((tick) => tick > 0)
-    .map((tick) => `+${tick}`);
-  const negativeTicks = ticks
-    .filter((tick) => tick < 0)
-    .map((tick) => `${tick}`);
-  const zeroTick = ticks.includes(0) ? ['0'] : [];
+  const yMin = niceMinimum;
+  const yMax = niceMaximum;
 
-  const yTicks = [
-    ...positiveTicks.reverse(),
-    ...zeroTick,
-    ...negativeTicks.reverse(),
-  ];
+  const xTicks = upperData[0]?.data.map(d => d.key) ?? [];
 
-  const yCenterTick = '0';
+  function yPercent(value) {
+    return ((value - yMin) / (yMax - yMin)) * 100;
+  }
 
-  const xTicks = (upperData[0]?.data || []).map(item => item.key);
-
-  function calculateYPos(value) {
-    return ((value - yLabelMin) / (yLabelMax - yLabelMin)) * 100;
+  function svgY(value) {
+    return 100 - yPercent(value);
   }
 
   function generatePoints(data) {
-    if (!data || data.length === 0) return "";
     return data
-      .map((item, i) => {
-        const yValue = item?.value ?? 0;
+      .map((d, i) => {
         const x = (i / (data.length - 1)) * 100;
-        const y = 100 - calculateYPos(yValue);
+        const y = svgY(d?.value ?? 0);
         return `${x},${y}`;
       })
       .join(' ');
   }
 
-  function handleBarHover(event, index) {
-    setHoveredIndex(index);
-    setTooltipPosition({
-      x: event.clientX,
-      y: event.clientY,
-    });
+  function getTooltipPosition() {
+    if (hoverIndex === null) return null;
+
+    const values = datasets.map(
+      ds => ds.data[hoverIndex]?.value ?? 0
+    );
+
+    // visually highest point (inverted Y axis)
+    const highestValue = Math.min(...values);
+
+    return {
+      left: `${(hoverIndex / (xTicks.length - 1)) * 100}%`,
+      top: `${svgY(highestValue) - 8}%`,
+    };
   }
 
-  function handleBarLeave() {
-    setHoveredIndex(null);
-  }
-
-  // Get data for the hovered index
-  function getTooltipData() {
-    if (hoveredIndex === null) return null;
-    
-    const xLabel = xTicks[hoveredIndex];
-    const datasets = [...upperData, ...lowerData];
-    const values = datasets.map(dataset => ({
-      name: dataset.name,
-      value: dataset.data[hoveredIndex]?.value ?? 0,
-      color: dataset.color,
-    }));
-
-    return { xLabel, values };
-  }
-
-  const tooltipData = getTooltipData();
+  const tooltipPos = getTooltipPosition();
 
   return (
     <div className={styles.container}>
       <div className={styles.topSection}>
         <span className={styles.yAxisLabel}>{yAxisLabel}</span>
       </div>
+
       <div className={styles.middleSection}>
         <div className={styles.leftSection}>
           <div className={styles.yAxis}>
-            {yTicks.map((tick, i) => (
-              <div key={`y-label-${i}`} className={styles.yTickWrapper}>
-                <span className={styles.yLabel}>{tick}</span>
+            {ticks.map((t, i) => (
+              <div key={i} className={styles.yTickWrapper}>
+                <span className={styles.yLabel}>
+                  {t > 0 ? `+${t}` : t}
+                </span>
               </div>
             ))}
           </div>
         </div>
+
         <div className={styles.rightSection}>
           <div className={styles.chartArea}>
+            {/* GRID */}
             <div className={styles.gridLines}>
-              {yTicks.map((tick, i) => (
+              {ticks.map((t, i) => (
                 <div
-                  key={`grid-line-${i}`}
+                  key={i}
                   className={`${styles.gridLine} ${
-                    tick === yCenterTick ? styles.baseGridline : ''
+                    t === 0 ? styles.baseGridline : ''
                   }`}
                 />
               ))}
             </div>
+
+            {/* LINES */}
             <svg
               className={styles.lineSvg}
-              viewBox='0 0 100 100'
-              preserveAspectRatio='none'
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
             >
-              {/* Lines */}
-              {[...upperData, ...lowerData].map((dataset) => (
+              {datasets.map(ds => (
                 <polyline
-                  key={`line-${dataset.id}`}
-                  fill='none'
-                  stroke={dataset.color}
-                  strokeWidth='1.5'
-                  vectorEffect='non-scaling-stroke'
-                  points={generatePoints(dataset.data)}
+                  key={ds.id}
+                  fill="none"
+                  stroke={ds.color}
+                  strokeWidth="1.5"
+                  vectorEffect="non-scaling-stroke"
+                  points={generatePoints(ds.data)}
                 />
               ))}
             </svg>
 
-            {/* Bars with hover */}
-            {[...upperData, ...lowerData].map((dataset) => (
+            {/* VERTICAL HOVER LINE */}
+            {hoverIndex !== null && (
               <div
-                key={`bars-${dataset.id}`}
-                className={styles.bars}
-                style={{ gridTemplateColumns: `repeat(${xTicks.length}, 1fr)` }}
+                className={styles.hoverLine}
+                style={{
+                  left: `${(hoverIndex / (xTicks.length - 1)) * 100}%`,
+                }}
+              />
+            )}
+
+            {/* HOVER COLUMNS */}
+            <div
+              className={styles.hoverCols}
+              style={{
+                gridTemplateColumns: `repeat(${xTicks.length}, 1fr)`,
+              }}
+            >
+              {xTicks.map((_, i) => (
+                <div
+                  key={i}
+                  className={styles.hoverCol}
+                  onMouseEnter={() => setHoverIndex(i)}
+                  onMouseLeave={() => setHoverIndex(null)}
+                />
+              ))}
+            </div>
+
+            {/* TOOLTIP */}
+            {hoverIndex !== null && tooltipPos && (
+              <div
+                className={styles.tooltip}
+                style={tooltipPos}
               >
-                {dataset.data.map((y, i) => (
+                <div className={styles.tooltipHeader}>
+                  {xTicks[hoverIndex]}
+                </div>
+
+                {datasets.map(ds => (
                   <div
-                    key={`${dataset.id}-bar-${i}`}
-                    className={styles.bar}
-                    style={{
-                      height: `${calculateYPos(y?.value ?? 0)}%`,
-                    }}
-                    onMouseEnter={(e) => handleBarHover(e, i)}
-                    onMouseMove={(e) => handleBarHover(e, i)}
-                    onMouseLeave={handleBarLeave}
-                  />
+                    key={ds.id}
+                    className={styles.tooltipRow}
+                  >
+                    <span
+                      className={styles.tooltipDot}
+                      style={{ backgroundColor: ds.color }}
+                    />
+                    <span className={styles.tooltipLabel}>
+                      {ds.name}
+                    </span>
+                    <span className={styles.tooltipValue}>
+                      {(ds.data[hoverIndex]?.value ?? 0).toFixed(2)} kW
+                    </span>
+                  </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* X AXIS */}
+          <div
+            className={styles.xAxis}
+            style={{
+              gridTemplateColumns: `repeat(${xTicks.length}, 1fr)`,
+            }}
+          >
+            {xTicks.map((t, i) => (
+              <div key={i} className={styles.tickWrapper}>
+                {t && <div className={styles.tick} />}
+                <div className={styles.label}>{t}</div>
               </div>
             ))}
           </div>
-          <div
-            className={styles.xAxis}
-            style={{ gridTemplateColumns: `repeat(${xTicks.length}, 1fr)` }}
-          >
-            {xTicks.map((tickLabel, i) => {
-              return (
-                <div key={`x-tick-${i}`} className={styles.tickWrapper}>
-                  {tickLabel && <div className={styles.tick} />}
-                  <div className={styles.label}>{tickLabel}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <div className={styles.bottomSection}>
-        <div className={styles.legendGrp}>
-          <span className={styles.legendTitle}>Input sources: </span>
-          {upperData.map((data, i) => (
-            <div className={styles.legendWrapper} key={`src-lgd-${i}`}>
-              <div
-                className={styles.legendColor}
-                style={{ backgroundColor: data.color }}
-              />
-              <span>{data.name}</span>
-            </div>
-          ))}
-        </div>
-        <div className={styles.legendGrp}>
-          <span className={styles.legendTitle}>Load: </span>
-          {lowerData.map((data, i) => (
-            <div className={styles.legendWrapper} key={`load-lgd-${i}`}>
-              <div
-                className={styles.legendColor}
-                style={{ backgroundColor: data.color }}
-              />
-              <span>{data.name}</span>
-            </div>
-          ))}
         </div>
       </div>
 
-      {/* Tooltip */}
-      {tooltipData && (
-        <div
-          className={styles.tooltip}
-          style={{
-            left: `${tooltipPosition.x + 10}px`,
-            top: `${tooltipPosition.y + 10}px`,
-          }}
-        >
-          <div className={styles.tooltipHeader}>{tooltipData.xLabel}</div>
-          {tooltipData.values.map((item, i) => (
-            <div key={i} className={styles.tooltipRow}>
-              <div
-                className={styles.tooltipColorDot}
-                style={{ backgroundColor: item.color }}
+      {/* LEGEND */}
+      <div className={styles.bottomSection}>
+        <div className={styles.legendGrp}>
+          <span className={styles.legendTitle}>Input sources:</span>
+          {upperData.map(d => (
+            <div key={d.id} className={styles.legendWrapper}>
+              <span
+                className={styles.legendColor}
+                style={{ backgroundColor: d.color }}
               />
-              <span className={styles.tooltipLabel}>{item.name}:</span>
-              <span className={styles.tooltipValue}>
-                {item.value.toFixed(2)} kW
-              </span>
+              <span>{d.name}</span>
             </div>
           ))}
         </div>
-      )}
+
+        <div className={styles.legendGrp}>
+          <span className={styles.legendTitle}>Load:</span>
+          {lowerData.map(d => (
+            <div key={d.id} className={styles.legendWrapper}>
+              <span
+                className={styles.legendColor}
+                style={{ backgroundColor: d.color }}
+              />
+              <span>{d.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

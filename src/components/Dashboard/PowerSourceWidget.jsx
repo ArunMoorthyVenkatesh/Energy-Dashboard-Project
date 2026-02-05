@@ -76,7 +76,7 @@ export default function PowerSourceWidget({
   
   return (
     <div 
-      className={`bg-white rounded-xl shadow-sm p-4 h-full flex flex-col ${className}`.trim()} 
+      className={`p-4 h-full flex flex-col ${className}`.trim()} 
       aria-label={title}
     >
       {/* Header */}

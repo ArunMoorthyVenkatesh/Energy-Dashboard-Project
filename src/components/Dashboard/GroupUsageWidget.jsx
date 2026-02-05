@@ -13,13 +13,13 @@ export default function GroupUsageWidget({
   
   return (
     <div 
-      className={`bg-white rounded-xl shadow-sm p-4 h-full flex flex-col ${className}`.trim()} 
+      className={`p-4 h-full flex flex-col ${className}`.trim()} 
       aria-label={title}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-slate-200/60">
+          <div className="bg-gradient-to-br from-blue-100 to-indigo-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-blue-200/60">
             <BarChart3 className="w-5 h-5 text-blue-600" />
           </div>
           <h3 className="text-base font-bold text-slate-900">{title}</h3>
@@ -27,7 +27,7 @@ export default function GroupUsageWidget({
         {/* Optional area for dropdowns / buttons */}
         {rightSlot && <div className="flex items-center gap-2">{rightSlot}</div>}
       </div>
-
+      
       {/* Content */}
       <div className="flex-1 min-h-0">
         {hasData ? (

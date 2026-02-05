@@ -119,7 +119,7 @@ export default function GroupTimelineWidget({ data }) {
   const hasData = sourceData.length > 0 || consumptionData.length > 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
+    <div className="p-6">
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 mb-6">
         <div className="flex items-center gap-3">

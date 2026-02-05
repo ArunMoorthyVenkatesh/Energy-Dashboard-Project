@@ -53,126 +53,65 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
     return Number.isFinite(n) ? n : 0;
   };
 
-  function pickLiveRow() {
-    return (
-      data?.power?.row ||
-      data?.power?.now ||
-      data?.live ||
-      data?.realtime ||
-      data?.real_time ||
-      null
-    );
+  function selectTimeRange(range) {
+    setTimeRange(range);
   }
 
-  function getSelectedRaw() {
-    console.log('🔍 EnergyInOutWidget - timeRange:', timeRange);
-    console.log('🔍 Full data structure:', data);
-    
+  function getData() {
     let selectedData;
     
+    // ✅ Handle Live mode separately
     if (timeRange === 'live') {
-      selectedData = pickLiveRow();
-      console.log('📊 Live data selected:', selectedData);
-    } else {
-      switch (timeRange) {
-        case 'day':
-          selectedData = data?.daily;
-          console.log('📊 Daily data selected:', selectedData);
-          break;
-        case 'month':
-          selectedData = data?.monthly;
-          console.log('📊 Monthly data selected:', selectedData);
-          break;
-        case 'lifetime':
-          selectedData = data?.lifetime;
-          console.log('📊 Lifetime data selected:', selectedData);
-          break;
-        default:
-          selectedData = pickLiveRow();
+      // Live data from power.now or power.row
+      selectedData = data?.power?.now || data?.power?.row || null;
+      
+      if (selectedData) {
+        // Live data is in Watts, convert to kW
+        return {
+          pv: safeNum(selectedData.solar),
+          battery: (safeNum(selectedData.battery_discharge) - safeNum(selectedData.battery_charge)),
+          gridImport: safeNum(selectedData.grid_import),
+          load: safeNum(selectedData.load),
+          gridExport: safeNum(selectedData.grid_export),
+        };
       }
     }
     
-    return selectedData;
-  }
-
-  function normalizeFields(raw) {
-    if (!raw) {
-      console.log('⚠️ No raw data received');
-      return { pv: 0, battery: 0, gridImport: 0, load: 0, gridExport: 0 };
+    // ✅ Day/Month/Lifetime from energyData (already in kW from mapper)
+    switch (timeRange) {
+      case 'day':
+        selectedData = data?.daily;
+        break;
+      case 'month':
+        selectedData = data?.monthly;
+        break;
+      case 'lifetime':
+        selectedData = data?.lifetime;
+        break;
+      default:
+        selectedData = data?.daily;
     }
 
-    console.log('🔧 Normalizing fields from:', raw);
-
-    // ✅ FIXED: Check if values are in Watts (live) vs kW (cumulative)
-    // Live data: values are in Watts (100,000+)
-    // Cumulative data: values are already in kW (1-100)
-    const looksLikeWatts = safeNum(raw?.solar) > 10000 || safeNum(raw?.load) > 10000;
-    
-    console.log('🔍 Detection:', {
-      solar: raw?.solar,
-      load: raw?.load,
-      looksLikeWatts,
-      willDivideBy1000: looksLikeWatts,
-    });
-
-    if (looksLikeWatts) {
-      // Live data in Watts - convert to kW
-      const batteryNet = safeNum(raw?.battery_discharge) - safeNum(raw?.battery_charge);
-      const batteryValue = batteryNet !== 0 ? batteryNet : (safeNum(raw?.battery) || safeNum(raw?.bess));
-      
-      const normalized = {
-        pv: safeNum(raw?.solar) / 1000,           // Convert Watts to kW
-        battery: batteryValue / 1000,
-        gridImport: safeNum(raw?.grid_import) / 1000,
-        load: safeNum(raw?.load) / 1000,
-        gridExport: safeNum(raw?.grid_export) / 1000,
-      };
-      
-      console.log('✅ Normalized (from Watts):', normalized);
-      return normalized;
-    }
-
-    // Day/Month/Lifetime data already in kW (or needs different handling)
-    // Check if it's from the mapper (already divided by 1000)
-    const alreadyInKw = safeNum(raw?.pv) > 0 || safeNum(raw?.bess) !== undefined;
-    
-    if (alreadyInKw) {
-      // Data from mapper - already in kW with 'pv' and 'bess' fields
-      const normalized = {
-        pv: safeNum(raw?.pv),
-        battery: safeNum(raw?.bess),
-        gridImport: safeNum(raw?.grid_import),
-        load: safeNum(raw?.load),
-        gridExport: safeNum(raw?.grid_export),
-      };
-      console.log('✅ Normalized (already kW with pv/bess):', normalized);
-      return normalized;
-    }
-    
-    // Fallback: raw cumulative data in Watts with 'solar' field
-    const normalized = {
-      pv: safeNum(raw?.solar) / 1000,
-      battery: safeNum(raw?.bess) / 1000,
-      gridImport: safeNum(raw?.grid_import) / 1000,
-      load: safeNum(raw?.load) / 1000,
-      gridExport: safeNum(raw?.grid_export) / 1000,
+    // Data from mapper is already in kW with pv/bess fields
+    return {
+      pv: safeNum(selectedData?.pv),
+      battery: safeNum(selectedData?.bess),
+      gridImport: safeNum(selectedData?.grid_import),
+      load: safeNum(selectedData?.load),
+      gridExport: safeNum(selectedData?.grid_export),
     };
-    console.log('✅ Normalized (from Watts, fallback):', normalized);
-    return normalized;
   }
 
-  const normalized = normalizeFields(getSelectedRaw());
+  const rawData = getData();
 
   // Auto-scale all values
   const displayData = {
-    pv: autoScaleEnergy(normalized.pv),
-    battery: autoScaleEnergy(normalized.battery),
-    gridImport: autoScaleEnergy(normalized.gridImport),
-    load: autoScaleEnergy(normalized.load),
-    gridExport: autoScaleEnergy(normalized.gridExport),
+    pv: autoScaleEnergy(rawData.pv),
+    battery: autoScaleEnergy(rawData.battery),
+    gridImport: autoScaleEnergy(rawData.gridImport),
+    load: autoScaleEnergy(rawData.load),
+    gridExport: autoScaleEnergy(rawData.gridExport),
   };
-
-  console.log('📺 Display data:', displayData);
 
   useEffect(() => {
     function updateLines() {
@@ -253,7 +192,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
 
   return (
     <div 
-      className="bg-white rounded-xl shadow-sm p-4 h-full flex flex-col relative"
+      className="h-full flex flex-col relative p-4"
       ref={containerRef}
     >
       {/* Header - Matching other widgets */}
@@ -283,7 +222,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setTimeRange(opt.value)}
+                  onClick={() => selectTimeRange(opt.value)}
                   className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
                     active
                       ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg'
