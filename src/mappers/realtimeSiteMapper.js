@@ -11,19 +11,11 @@ export function mapSiteRealtimeEvent(event) {
   const energySaving = payload.energy_saving || {};
   const carbonCredit = payload.carbon_credit || {};
 
-  // ✅ FIXED: Helper to safely convert watts to kW
+  // ✅ Helper to safely convert watts to kW
   const toKw = (value) => {
     if (value === null || value === undefined) return 0;
     const num = Number(value);
     return Number.isFinite(num) ? num / 1000 : 0;
-  };
-
-  // ✅ FIXED: Safely calculate grid export
-  const calcGridExport = (solar, grid, load) => {
-    const s = toKw(solar);
-    const g = toKw(grid);
-    const l = toKw(load);
-    return Math.max(0, s + g - l);
   };
 
   const mapBucket = (bucket) => {
@@ -37,11 +29,12 @@ export function mapSiteRealtimeEvent(event) {
       };
     }
 
+    // ✅ FIXED: Use actual WebSocket field names
     return {
       pv: toKw(bucket.solar),
-      bess: toKw(bucket.battery),
-      grid_import: toKw(bucket.grid),
-      grid_export: calcGridExport(bucket.solar, bucket.grid, bucket.load),
+      bess: toKw(bucket.battery_discharge) - toKw(bucket.battery_charge), // Net battery (discharge - charge)
+      grid_import: toKw(bucket.grid_import),      // ✅ FIXED: was bucket.grid
+      grid_export: toKw(bucket.grid_export),      // ✅ FIXED: now using actual field
       load: toKw(bucket.load)
     };
   };
@@ -59,18 +52,13 @@ export function mapSiteRealtimeEvent(event) {
       };
     }
 
-    const solar = toKw(nowBucket.solar);
-    const battery = toKw(nowBucket.battery);
-    const load = toKw(nowBucket.load);
-    const grid = toKw(nowBucket.grid);
-
     return {
-      solar,
-      battery,
-      battery_charge: battery,
-      grid_import: grid,
-      load,
-      grid_export: Math.max(0, solar + battery - load),
+      solar: toKw(nowBucket.solar),
+      battery: toKw(nowBucket.battery_discharge) - toKw(nowBucket.battery_charge),
+      battery_charge: toKw(nowBucket.battery_charge),
+      grid_import: toKw(nowBucket.grid_import),   // ✅ FIXED
+      load: toKw(nowBucket.load),
+      grid_export: toKw(nowBucket.grid_export),   // ✅ FIXED
     };
   };
 
@@ -133,7 +121,7 @@ export function mapSiteRealtimeEvent(event) {
         today_pv_energy: toKw(power.day?.solar),
         month_pv_energy: toKw(power.month?.solar),
         lifetime_pv_energy: toKw(power.year?.solar),
-        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid)) || 0,
+        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid_import)) || 0,  // ✅ FIXED
       }
     },
     carbonCredit: {
@@ -146,7 +134,7 @@ export function mapSiteRealtimeEvent(event) {
         today_pv_energy: toKw(power.day?.solar),
         month_pv_energy: toKw(power.month?.solar),
         lifetime_pv_energy: toKw(power.year?.solar),
-        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid)) || 0
+        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid_import)) || 0  // ✅ FIXED
       }
     },
     batteryData: batteries,
