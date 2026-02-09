@@ -24,3 +24,9 @@ export function toCapitalLetter(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function formatFixed2(value) {
+  if (value === null || value === undefined) return '-';
+  const num = Number(value);
+  return Number.isFinite(num) ? num.toFixed(2) : '-';
+}

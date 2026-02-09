@@ -15,18 +15,27 @@ const COLOR = {
   export: '#E5A44E',
 };
 
-// Auto-scale energy values (kW -> MW -> GW)
-function autoScaleEnergy(value) {
+// Auto-scale energy values with proper units (kW/kWh -> MW/MWh -> GW/GWh)
+function autoScaleEnergy(value, isEnergy = false) {
   const numValue = parseFloat(value);
-  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
+  if (!Number.isFinite(numValue)) return { value: '0.00', unit: isEnergy ? 'kWh' : 'kW' };
   
   const absValue = Math.abs(numValue);
   if (absValue >= 1000000) {
-    return { value: formatWithCommas((numValue / 1000000).toFixed(2)), unit: 'GW' };
+    return { 
+      value: formatWithCommas((numValue / 1000000).toFixed(2)), 
+      unit: isEnergy ? 'GWh' : 'GW' 
+    };
   } else if (absValue >= 1000) {
-    return { value: formatWithCommas((numValue / 1000).toFixed(2)), unit: 'MW' };
+    return { 
+      value: formatWithCommas((numValue / 1000).toFixed(2)), 
+      unit: isEnergy ? 'MWh' : 'MW' 
+    };
   }
-  return { value: formatWithCommas(numValue.toFixed(2)), unit: 'kW' };
+  return { 
+    value: formatWithCommas(numValue.toFixed(2)), 
+    unit: isEnergy ? 'kWh' : 'kW' 
+  };
 }
 
 export default function EnergyInOutWidget({ data, isExpanded = false }) {
@@ -104,13 +113,16 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
 
   const rawData = getData();
 
-  // Auto-scale all values
+  // Determine if we're showing energy (kWh) or power (kW)
+  const isEnergy = timeRange !== 'live';
+
+  // Auto-scale all values with appropriate units
   const displayData = {
-    pv: autoScaleEnergy(rawData.pv),
-    battery: autoScaleEnergy(rawData.battery),
-    gridImport: autoScaleEnergy(rawData.gridImport),
-    load: autoScaleEnergy(rawData.load),
-    gridExport: autoScaleEnergy(rawData.gridExport),
+    pv: autoScaleEnergy(rawData.pv, isEnergy),
+    battery: autoScaleEnergy(rawData.battery, isEnergy),
+    gridImport: autoScaleEnergy(rawData.gridImport, isEnergy),
+    load: autoScaleEnergy(rawData.load, isEnergy),
+    gridExport: autoScaleEnergy(rawData.gridExport, isEnergy),
   };
 
   useEffect(() => {

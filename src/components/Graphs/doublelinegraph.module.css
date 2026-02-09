@@ -4,6 +4,7 @@
   height: 100%;
   width: 100%;
   position: relative;
+  min-height: 300px;
 }
 
 .topSection {
@@ -11,6 +12,7 @@
   align-items: center;
   justify-content: center;
   padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .yAxisLabel {
@@ -23,12 +25,15 @@
   display: flex;
   flex: 1;
   gap: 8px;
+  overflow: visible;
+  min-height: 0;
 }
 
 .leftSection {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .yAxis {
@@ -56,12 +61,16 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  overflow: visible;
+  min-width: 0;
+  min-height: 0;
 }
 
 .chartArea {
   position: relative;
   flex: 1;
-  min-height: 0;
+  min-height: 200px;
+  overflow: visible;
 }
 
 .gridLines {
@@ -109,6 +118,7 @@
   display: grid;
   gap: 0;
   padding-top: 4px;
+  flex-shrink: 0;
 }
 
 .tickWrapper {
@@ -136,6 +146,7 @@
   gap: 24px;
   padding-top: 12px;
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .legendGrp {
@@ -179,6 +190,32 @@
   pointer-events: none;
   z-index: 1000;
   min-width: 200px;
+  animation: tooltipFadeIn 0.15s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 4px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+  }
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid white;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
 }
 
 .tooltipHeader {
@@ -202,6 +239,7 @@
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
 .tooltipLabel {

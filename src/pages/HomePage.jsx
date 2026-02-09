@@ -30,19 +30,37 @@ function shallowPatchEqual(prevObj, patchObj) {
 }
 
 async function fetchRealtimeFallback(siteId, apiKey, apiUrl) {
-  const url = `${apiUrl}/devices`;
+  // ✅ prevent Safari 304 "error loading resource" by forcing a fresh URL
+  const url = `${apiUrl}/devices?ts=${Date.now()}`;
+
   const res = await fetch(url, {
-    headers: { 
+    method: 'GET',
+    cache: 'no-store', // ✅ important
+    headers: {
       'Authorization': `Bearer ${apiKey}`,
-      'X-api-key': apiKey
+      'X-api-key': apiKey,
+      'Accept': 'application/json',
+      // ✅ bypass cache revalidation / ETag -> 304
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
     },
   });
-  const json = await res.json();
+
+  // ✅ safer parsing (handles empty/non-json)
+  const contentType = res.headers.get('content-type') || '';
+  const text = await res.text();
+  if (!res.ok) throw new Error(`Devices fetch failed: ${res.status} ${text.slice(0, 200)}`);
+  if (!contentType.includes('application/json')) {
+    throw new Error(`Devices response not JSON: ${contentType} ${text.slice(0, 200)}`);
+  }
+
+  const json = JSON.parse(text);
   if (!json.success) throw new Error('Failed to fetch device data');
-  const items = json.data?.items || [];
-  const totalLoad = items.filter((d) => d.energy?.role === 'load').length;
-  const totalSolar = items.filter((d) => d.energy?.role === 'solar').length;
-  const totalGrid = items.filter((d) => d.energy?.role === 'grid').length;
+
+  const items = Array.isArray(json.data) ? json.data : [];
+  const totalLoad = items.filter((d) => d.role === 'load').length;
+  const totalSolar = items.filter((d) => d.role === 'solar').length;
+  const totalGrid = items.filter((d) => d.role === 'grid').length;
 
   return {
     energyData: {
@@ -164,26 +182,56 @@ export default function HomePage() {
 
     const fetchDevices = async () => {
       try {
-        const response = await fetch(`${apiUrl}/devices`, {
+        // ✅ prevent Safari 304 "error loading resource" by forcing a fresh URL
+        const url = `${apiUrl}/devices?ts=${Date.now()}`;
+
+        const response = await fetch(url, {
+          method: 'GET',
+          cache: 'no-store', // ✅ important
           headers: {
             'Authorization': `Bearer ${apiKey}`,
             'X-api-key': apiKey,
-            'Content-Type': 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            // ✅ bypass cache revalidation / ETag -> 304
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
           }
         });
-        
-        const json = await response.json();
-        
-        if (json.success && json.data?.items) {
-          const allDevices = json.data.items.map(device => ({
+
+        // ✅ safer parsing (handles empty/non-json)
+        const contentType = response.headers.get('content-type') || '';
+        const rawText = await response.text();
+
+        if (!response.ok) {
+          console.error('❌ devices fetch failed:', response.status, rawText.slice(0, 300));
+          return;
+        }
+
+        if (!contentType.includes('application/json')) {
+          console.error('❌ devices response not JSON:', contentType, rawText.slice(0, 300));
+          return;
+        }
+
+        const json = JSON.parse(rawText);
+
+        console.log('📡 API Response:', json);
+
+        if (json.success && json.data) {
+          // ✅ Safety check: ensure json.data is an array
+          const dataArray = Array.isArray(json.data) ? json.data : [];
+
+          const allDevices = dataArray.map(device => ({
             deviceId: device.deviceId,
             id: device.id,
             name: device.name,
-            role: device.energy?.role || 'unknown',
-            status: device.status === 'active' ? 'normal' : 'offline',
-            deviceType: device.deviceType,
+            role: device.role,
+            power: device.power,
+            status: device.power?.now?.online ? 'normal' : 'offline',
           }));
-          
+
+          console.log('✅ Mapped devices:', allDevices);
+
           setWsData(prev => ({
             ...prev,
             batteryData: allDevices
@@ -193,7 +241,7 @@ export default function HomePage() {
         console.error('❌ Failed to fetch devices:', error);
       }
     };
-    
+
     fetchDevices();
   }, [configLoaded]);
 
@@ -257,8 +305,8 @@ export default function HomePage() {
 
   const initializeWebSocket = useCallback(() => {
     const apiKey = runtimeConfigRef.current.API_KEY || process.env.REACT_APP_API_KEY || 'dev-ws-key';
-    const baseUrl = runtimeConfigRef.current.WEBSOCKET_URL || 
-      process.env.REACT_APP_WEBSOCKET_URL || 
+    const baseUrl = runtimeConfigRef.current.WEBSOCKET_URL ||
+      process.env.REACT_APP_WEBSOCKET_URL ||
       'wss://api-semply.semply.cloud/api/v1/iot/realtime';
     const url = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}apiKey=${encodeURIComponent(apiKey)}`;
 
@@ -298,28 +346,39 @@ export default function HomePage() {
         const mapped = mapSiteRealtimeEvent(event);
 
         if (!mapped) return;
-        
+
         setWsData((prev) => {
           const updated = { ...prev, ...mapped };
-          
-          if (mapped.batteryData && prev.batteryData) {
-            const wsDeviceMap = new Map();
-            mapped.batteryData.forEach(wsDevice => {
-              wsDeviceMap.set(String(wsDevice.id), wsDevice);
-            });
-            
-            const mergedDevices = prev.batteryData.map(device => {
-              const wsDevice = wsDeviceMap.get(String(device.id)) || wsDeviceMap.get(String(device.deviceId));
-              
-              if (wsDevice) {
-                return { ...device, ...wsDevice, name: device.name, deviceId: device.deviceId };
+
+          console.log('🔄 Before merge - batteryData:', prev.batteryData?.length);
+
+          if (prev.batteryData && prev.batteryData.length > 0) {
+            const updatedDevices = prev.batteryData.map(device => {
+              if (device.role === 'solar' && mapped.siteLevelSolarData) {
+                return {
+                  ...device,
+                  power: mapped.siteLevelSolarData.power,
+                  status: mapped.siteLevelSolarData.power.now.online ? 'normal' : 'offline'
+                };
               }
+
+              if (device.role === 'battery' && mapped.batteryData) {
+                const wsDevice = mapped.batteryData.find(
+                  wd => String(wd.id) === String(device.id) || String(wd.deviceId) === String(device.deviceId)
+                );
+                if (wsDevice) {
+                  return { ...device, ...wsDevice, name: device.name, deviceId: device.deviceId };
+                }
+              }
+
               return device;
             });
-            
-            updated.batteryData = mergedDevices;
+
+            updated.batteryData = updatedDevices;
           }
-          
+
+          console.log('🔄 After merge - batteryData:', updated.batteryData?.length);
+
           return shallowPatchEqual(prev, updated) ? prev : updated;
         });
       }
@@ -368,7 +427,6 @@ export default function HomePage() {
       <div className={styles.pageContainer}>
         {!expandedWidget && (
           <div className="mb-6">
-            {/* Modern Header */}
             <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-sm border border-slate-200/60 p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -398,8 +456,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                
-                {/* Status Indicator */}
+
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-slate-200/60 shadow-sm">
                   <div className="relative">
                     <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
@@ -412,7 +469,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Main widgets grid */}
         <div className={styles.mainGrid}>
           <div className={`${styles.gridItem} ${styles.realtimeKpi}`}>
             <WidgetWrapper compact showExpand noScroll={false} onExpand={() => setExpandedWidget(LAYOUT[0])}>

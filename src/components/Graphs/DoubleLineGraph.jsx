@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { niceScale } from '../../utils/GraphUtil';
 import styles from './doublelinegraph.module.css';
 
@@ -6,22 +7,39 @@ import styles from './doublelinegraph.module.css';
  * @param {string} yAxisLabel
  * @param {Array} upperData
  * @param {Array} lowerData
+ * @param {Function} onRefresh - Optional callback function to fetch new data
+ * @param {number} refreshInterval - Refresh interval in milliseconds (default: 60000 = 1 minute)
  */
 export default function DoubleLineGraph({
   yAxisLabel,
   upperData,
   lowerData,
+  onRefresh,
+  refreshInterval = 60000, // 1 minute default
 }) {
   const [hoverIndex, setHoverIndex] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState(null);
+  const chartRef = useRef(null);
+  const tooltipRef = useRef(null);
+
+  // Auto-refresh effect
+  useEffect(() => {
+    if (!onRefresh) return;
+
+    const intervalId = setInterval(() => {
+      onRefresh();
+    }, refreshInterval);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, [onRefresh, refreshInterval]);
 
   const datasets = [...upperData, ...lowerData];
-
   const allValues = datasets.flatMap(ds =>
     ds.data.map(d => d?.value ?? 0)
   );
 
   const absMax = Math.max(...allValues.map(v => Math.abs(v)));
-
   const { niceMinimum, niceMaximum, ticks } = niceScale(
     -absMax,
     absMax,
@@ -30,7 +48,6 @@ export default function DoubleLineGraph({
 
   const yMin = niceMinimum;
   const yMax = niceMaximum;
-
   const xTicks = upperData[0]?.data.map(d => d.key) ?? [];
 
   function yPercent(value) {
@@ -51,23 +68,86 @@ export default function DoubleLineGraph({
       .join(' ');
   }
 
-  function getTooltipPosition() {
-    if (hoverIndex === null) return null;
+  function handleMouseEnter(index, event) {
+    setHoverIndex(index);
+    if (!chartRef.current) return;
 
-    const values = datasets.map(
-      ds => ds.data[hoverIndex]?.value ?? 0
-    );
+    const chartRect = chartRef.current.getBoundingClientRect();
+    const values = datasets.map(ds => ds.data[index]?.value ?? 0);
+    const highestValue = Math.max(...values);
 
-    // visually highest point (inverted Y axis)
-    const highestValue = Math.min(...values);
+    // Calculate x position
+    const xPercent = (index / (xTicks.length - 1)) * 100;
+    let xPos = chartRect.left + (chartRect.width * xPercent / 100);
 
-    return {
-      left: `${(hoverIndex / (xTicks.length - 1)) * 100}%`,
-      top: `${svgY(highestValue) - 8}%`,
-    };
+    // Calculate y position (at the highest data point)
+    const yPercent = svgY(highestValue);
+    let yPos = chartRect.top + (chartRect.height * yPercent / 100);
+
+    // Adjust position to prevent cutoff
+    const tooltipWidth = 220; // Approximate tooltip width
+    const tooltipHeight = 150; // Approximate tooltip height
+    const padding = 16;
+
+    // Prevent horizontal cutoff
+    if (xPos - tooltipWidth / 2 < padding) {
+      xPos = padding + tooltipWidth / 2;
+    } else if (xPos + tooltipWidth / 2 > window.innerWidth - padding) {
+      xPos = window.innerWidth - padding - tooltipWidth / 2;
+    }
+
+    // Prevent vertical cutoff at top
+    if (yPos - tooltipHeight - padding < 0) {
+      yPos = yPos + tooltipHeight + 24; // Show below instead of above
+    } else {
+      yPos = yPos - 12; // Normal offset above
+    }
+
+    setTooltipPos({
+      x: xPos,
+      y: yPos,
+      showBelow: yPos > chartRect.top + tooltipHeight
+    });
   }
 
-  const tooltipPos = getTooltipPosition();
+  function handleMouseLeave() {
+    setHoverIndex(null);
+    setTooltipPos(null);
+  }
+
+  // Tooltip component rendered in portal
+  const tooltip = hoverIndex !== null && tooltipPos && (
+    <div
+      ref={tooltipRef}
+      className={styles.tooltip}
+      style={{
+        left: `${tooltipPos.x}px`,
+        top: `${tooltipPos.y}px`,
+        transform: tooltipPos.showBelow ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
+      }}
+    >
+      <div className={styles.tooltipHeader}>
+        {xTicks[hoverIndex]}
+      </div>
+      {datasets.map(ds => (
+        <div
+          key={ds.id}
+          className={styles.tooltipRow}
+        >
+          <span
+            className={styles.tooltipColorDot}
+            style={{ backgroundColor: ds.color }}
+          />
+          <span className={styles.tooltipLabel}>
+            {ds.name}
+          </span>
+          <span className={styles.tooltipValue}>
+            {(ds.data[hoverIndex]?.value ?? 0).toFixed(2)} kW
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className={styles.container}>
@@ -78,7 +158,8 @@ export default function DoubleLineGraph({
       <div className={styles.middleSection}>
         <div className={styles.leftSection}>
           <div className={styles.yAxis}>
-            {ticks.map((t, i) => (
+            {/* ✅ FIX: Reverse the ticks so highest values are at top */}
+            {[...ticks].reverse().map((t, i) => (
               <div key={i} className={styles.yTickWrapper}>
                 <span className={styles.yLabel}>
                   {t > 0 ? `+${t}` : t}
@@ -89,7 +170,7 @@ export default function DoubleLineGraph({
         </div>
 
         <div className={styles.rightSection}>
-          <div className={styles.chartArea}>
+          <div className={styles.chartArea} ref={chartRef}>
             {/* GRID */}
             <div className={styles.gridLines}>
               {ticks.map((t, i) => (
@@ -120,19 +201,39 @@ export default function DoubleLineGraph({
               ))}
             </svg>
 
-            {/* VERTICAL HOVER LINE */}
+            {/* DATA POINT DOTS */}
             {hoverIndex !== null && (
-              <div
-                className={styles.hoverLine}
-                style={{
-                  left: `${(hoverIndex / (xTicks.length - 1)) * 100}%`,
-                }}
-              />
+              <svg
+                className={styles.lineSvg}
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                {datasets.map(ds => {
+                  const value = ds.data[hoverIndex]?.value ?? 0;
+                  const x = (hoverIndex / (xTicks.length - 1)) * 100;
+                  const y = svgY(value);
+                  return (
+                    <circle
+                      key={ds.id}
+                      cx={x}
+                      cy={y}
+                      r="1"
+                      fill={ds.color}
+                      stroke="white"
+                      strokeWidth="0.5"
+                      vectorEffect="non-scaling-stroke"
+                      style={{
+                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))'
+                      }}
+                    />
+                  );
+                })}
+              </svg>
             )}
 
-            {/* HOVER COLUMNS */}
+            {/* HOVER BARS */}
             <div
-              className={styles.hoverCols}
+              className={styles.bars}
               style={{
                 gridTemplateColumns: `repeat(${xTicks.length}, 1fr)`,
               }}
@@ -140,42 +241,12 @@ export default function DoubleLineGraph({
               {xTicks.map((_, i) => (
                 <div
                   key={i}
-                  className={styles.hoverCol}
-                  onMouseEnter={() => setHoverIndex(i)}
-                  onMouseLeave={() => setHoverIndex(null)}
+                  className={styles.bar}
+                  onMouseEnter={(e) => handleMouseEnter(i, e)}
+                  onMouseLeave={handleMouseLeave}
                 />
               ))}
             </div>
-
-            {/* TOOLTIP */}
-            {hoverIndex !== null && tooltipPos && (
-              <div
-                className={styles.tooltip}
-                style={tooltipPos}
-              >
-                <div className={styles.tooltipHeader}>
-                  {xTicks[hoverIndex]}
-                </div>
-
-                {datasets.map(ds => (
-                  <div
-                    key={ds.id}
-                    className={styles.tooltipRow}
-                  >
-                    <span
-                      className={styles.tooltipDot}
-                      style={{ backgroundColor: ds.color }}
-                    />
-                    <span className={styles.tooltipLabel}>
-                      {ds.name}
-                    </span>
-                    <span className={styles.tooltipValue}>
-                      {(ds.data[hoverIndex]?.value ?? 0).toFixed(2)} kW
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* X AXIS */}
@@ -209,7 +280,6 @@ export default function DoubleLineGraph({
             </div>
           ))}
         </div>
-
         <div className={styles.legendGrp}>
           <span className={styles.legendTitle}>Load:</span>
           {lowerData.map(d => (
@@ -223,6 +293,12 @@ export default function DoubleLineGraph({
           ))}
         </div>
       </div>
+
+      {/* TOOLTIP PORTAL - Render outside of chart container to avoid overflow issues */}
+      {typeof document !== 'undefined' && createPortal(
+        tooltip,
+        document.body
+      )}
     </div>
   );
 }

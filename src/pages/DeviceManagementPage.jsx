@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Thermometer, Droplets, Wind, Clock, Plus, Edit2, Trash2, Power, ChevronDown, ChevronUp, Filter, Sunrise, Sun, Sunset, Moon, X } from 'lucide-react';
+import { Settings, Thermometer, Droplets, Wind, Clock, Plus, Edit2, Trash2, Power, ChevronDown, ChevronUp, Filter, Sunrise, Sun, Sunset, Moon, X, Search } from 'lucide-react';
 import DeviceAPI from '../api/DeviceAPI';
 
 // Vibrant Scene Presets
@@ -80,6 +80,10 @@ export default function DeviceManagementPage() {
   const [timeFilter, setTimeFilter] = useState('all');
   const [deviceFilter, setDeviceFilter] = useState('all');
 
+  // New device filters
+  const [deviceSearchQuery, setDeviceSearchQuery] = useState('');
+  const [deviceStatusFilter, setDeviceStatusFilter] = useState('all');
+
   useEffect(() => {
     loadDevices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,7 +147,8 @@ export default function DeviceManagementPage() {
     setEditingSchedule({
       id: `sched-${Date.now()}`,
       name: '',
-      time: '09:00',
+      startTime: '09:00',
+      endTime: '17:00',
       days: [],
       scene: 'Comfort',
       powerState: 'on',
@@ -166,6 +171,12 @@ export default function DeviceManagementPage() {
   const handleSaveSchedule = async () => {
     if (!editingSchedule.name || editingSchedule.days.length === 0) {
       alert('Please fill in all required fields');
+      return;
+    }
+
+    // Validate time range
+    if (editingSchedule.startTime >= editingSchedule.endTime) {
+      alert('End time must be after start time');
       return;
     }
 
@@ -275,6 +286,27 @@ export default function DeviceManagementPage() {
     }
   };
 
+  // Filter devices based on search and status
+  const getFilteredDevices = () => {
+    let filtered = devices;
+
+    // Filter by status
+    if (deviceStatusFilter !== 'all') {
+      filtered = filtered.filter(d => d.status === deviceStatusFilter);
+    }
+
+    // Filter by search query
+    if (deviceSearchQuery.trim()) {
+      const query = deviceSearchQuery.toLowerCase();
+      filtered = filtered.filter(d => 
+        d.name.toLowerCase().includes(query) ||
+        d.id.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  };
+
   const getAllSchedules = () => {
     const allSchedules = [];
     devices.forEach(device => {
@@ -298,7 +330,7 @@ export default function DeviceManagementPage() {
     
     if (timeFilter !== 'all') {
       filteredSchedules = filteredSchedules.filter(schedule => {
-        const hour = parseInt(schedule.time.split(':')[0]);
+        const hour = parseInt(schedule.startTime?.split(':')[0] || schedule.time?.split(':')[0] || 0);
         
         if (timeFilter === 'morning' && hour >= 5 && hour < 12) return true;
         if (timeFilter === 'afternoon' && hour >= 12 && hour < 17) return true;
@@ -314,8 +346,8 @@ export default function DeviceManagementPage() {
     }
     
     filteredSchedules.sort((a, b) => {
-      const timeA = a.time.split(':').map(Number);
-      const timeB = b.time.split(':').map(Number);
+      const timeA = (a.startTime || a.time || '00:00').split(':').map(Number);
+      const timeB = (b.startTime || b.time || '00:00').split(':').map(Number);
       
       if (timeA[0] !== timeB[0]) {
         return timeA[0] - timeB[0];
@@ -340,9 +372,12 @@ export default function DeviceManagementPage() {
     );
   }
 
+  const filteredDevices = getFilteredDevices();
   const allSchedules = getAllSchedules();
   const activeCount = devices.reduce((sum, d) => sum + (d.schedules?.filter(s => s.enabled).length || 0), 0);
   const inactiveCount = devices.reduce((sum, d) => sum + (d.schedules?.filter(s => !s.enabled).length || 0), 0);
+  const onlineCount = devices.filter(d => d.status === 'online').length;
+  const offlineCount = devices.filter(d => d.status === 'offline').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
@@ -386,7 +421,9 @@ export default function DeviceManagementPage() {
               </div>
               <div className="text-left">
                 <h2 className="text-base font-black text-slate-900">Your Devices</h2>
-                <p className="text-sm text-slate-600 font-bold">{devices.length} connected</p>
+                <p className="text-sm text-slate-600 font-bold">
+                  {filteredDevices.length} {deviceStatusFilter !== 'all' || deviceSearchQuery ? 'found' : 'connected'}
+                </p>
               </div>
             </div>
             {isDeviceListCollapsed ? (
@@ -397,51 +434,158 @@ export default function DeviceManagementPage() {
           </button>
 
           {!isDeviceListCollapsed && (
-            <div className="p-5 pt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {devices.map(device => (
-                  <div
-                    key={device.id}
-                    onClick={() => handleDeviceClick(device)}
-                    className="group p-5 rounded-xl border-2 border-blue-200/60 bg-gradient-to-br from-white via-blue-50/50 to-indigo-50/50 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-black text-slate-900 text-base">{device.name}</span>
-                      <span className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-black border-2 shadow-sm ${
-                        device.status === 'online' 
-                          ? 'bg-emerald-200 text-emerald-800 border-emerald-400/70' 
-                          : 'bg-slate-200 text-slate-700 border-slate-400/70'
-                      }`}>
-                        <div className={`w-2 h-2 rounded-full ${
-                          device.status === 'online' ? 'bg-emerald-600' : 'bg-slate-600'
-                        }`}></div>
-                        {device.status}
-                      </span>
-                    </div>
-                    {device.status === 'online' && device.currentTemp && (
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-orange-100 to-amber-100 rounded-lg border-2 border-orange-300/60 shadow-sm">
-                          <Thermometer className="w-4 h-4 text-orange-600" />
-                          <span className="font-black text-orange-900">{device.currentTemp}°C</span>
-                        </span>
-                        {device.humidity && (
-                          <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-lg border-2 border-cyan-300/60 shadow-sm">
-                            <Droplets className="w-4 h-4 text-cyan-600" />
-                            <span className="font-black text-cyan-900">{device.humidity}%</span>
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    <div className="pt-4 border-t-2 border-blue-200/60 group-hover:border-blue-300 transition-colors">
-                      <div className="flex items-center gap-2 text-sm text-slate-700 font-bold">
-                        <Clock className="w-4 h-4" />
-                        <span>{device.schedules?.length || 0} schedule{device.schedules?.length !== 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
+            <>
+              {/* Device Filters */}
+              <div className="border-t-2 border-blue-200/60 p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-4">
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-indigo-500" />
+                  <input
+                    type="text"
+                    value={deviceSearchQuery}
+                    onChange={(e) => setDeviceSearchQuery(e.target.value)}
+                    placeholder="Search devices by name or ID..."
+                    className="w-full pl-12 pr-4 py-3 border-2 border-indigo-300/60 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 font-bold shadow-md bg-white placeholder-slate-400"
+                  />
+                  {deviceSearchQuery && (
+                    <button
+                      onClick={() => setDeviceSearchQuery('')}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Status Filter */}
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-blue-300/60 min-w-fit">
+                    <Filter className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-black text-blue-900">Status</span>
                   </div>
-                ))}
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={() => setDeviceStatusFilter('all')}
+                      className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
+                        deviceStatusFilter === 'all'
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-400'
+                          : 'bg-white text-slate-700 hover:bg-indigo-50 border-indigo-200 hover:border-indigo-400'
+                      }`}
+                    >
+                      All · {devices.length}
+                    </button>
+                    <button
+                      onClick={() => setDeviceStatusFilter('online')}
+                      className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
+                        deviceStatusFilter === 'online'
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-400'
+                          : 'bg-white text-slate-700 hover:bg-emerald-50 border-emerald-200 hover:border-emerald-400'
+                      }`}
+                    >
+                      Online · {onlineCount}
+                    </button>
+                    <button
+                      onClick={() => setDeviceStatusFilter('offline')}
+                      className={`px-4 py-2 rounded-xl text-sm font-black transition-all duration-300 border-2 shadow-md ${
+                        deviceStatusFilter === 'offline'
+                          ? 'bg-gradient-to-r from-slate-500 to-slate-700 text-white border-slate-400'
+                          : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 hover:border-slate-400'
+                      }`}
+                    >
+                      Offline · {offlineCount}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Clear Filters */}
+                {(deviceStatusFilter !== 'all' || deviceSearchQuery) && (
+                  <div className="pt-3 border-t-2 border-slate-200">
+                    <button
+                      onClick={() => {
+                        setDeviceStatusFilter('all');
+                        setDeviceSearchQuery('');
+                      }}
+                      className="px-4 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl font-black hover:from-violet-600 hover:to-purple-700 transition-all duration-300 shadow-lg border-2 border-violet-400"
+                    >
+                      Clear all filters
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
+
+              <div className="p-5 pt-0">
+                {filteredDevices.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredDevices.map(device => (
+                      <div
+                        key={device.id}
+                        onClick={() => handleDeviceClick(device)}
+                        className="group p-5 rounded-xl border-2 border-blue-200/60 bg-gradient-to-br from-white via-blue-50/50 to-indigo-50/50 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="font-black text-slate-900 text-base">{device.name}</span>
+                          <span className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-black border-2 shadow-sm ${
+                            device.status === 'online' 
+                              ? 'bg-emerald-200 text-emerald-800 border-emerald-400/70' 
+                              : 'bg-slate-200 text-slate-700 border-slate-400/70'
+                          }`}>
+                            <div className={`w-2 h-2 rounded-full ${
+                              device.status === 'online' ? 'bg-emerald-600' : 'bg-slate-600'
+                            }`}></div>
+                            {device.status}
+                          </span>
+                        </div>
+                        
+                        {/* Online devices - show actual values */}
+                        {device.status === 'online' && device.currentTemp && (
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-orange-100 to-amber-100 rounded-lg border-2 border-orange-300/60 shadow-sm">
+                              <Thermometer className="w-4 h-4 text-orange-600" />
+                              <span className="font-black text-orange-900">{device.currentTemp}°C</span>
+                            </span>
+                            {device.humidity && (
+                              <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-lg border-2 border-cyan-300/60 shadow-sm">
+                                <Droplets className="w-4 h-4 text-cyan-600" />
+                                <span className="font-black text-cyan-900">{device.humidity}%</span>
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Offline devices - show dashes */}
+                        {device.status === 'offline' && (
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border-2 border-slate-300/60 shadow-sm">
+                              <Thermometer className="w-4 h-4 text-slate-500" />
+                              <span className="font-black text-slate-600">-°C</span>
+                            </span>
+                            <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border-2 border-slate-300/60 shadow-sm">
+                              <Droplets className="w-4 h-4 text-slate-500" />
+                              <span className="font-black text-slate-600">-%</span>
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="pt-4 border-t-2 border-blue-200/60 group-hover:border-blue-300 transition-colors">
+                          <div className="flex items-center gap-2 text-sm text-slate-700 font-bold">
+                            <Clock className="w-4 h-4" />
+                            <span>{device.schedules?.length || 0} schedule{device.schedules?.length !== 1 ? 's' : ''}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16 text-slate-600 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl border-2 border-dashed border-slate-300">
+                    <Search className="w-14 h-14 mx-auto mb-3 opacity-40 text-slate-400" />
+                    <p className="mb-2 font-black text-base text-slate-800">No devices found</p>
+                    <p className="text-sm text-slate-600 font-bold">
+                      Try adjusting your search or filter criteria
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
 
@@ -617,7 +761,9 @@ export default function DeviceManagementPage() {
                               <div className="flex items-center gap-3 flex-wrap">
                                 <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg font-black border-2 border-indigo-300/60 shadow-sm">
                                   <Clock className="w-4 h-4 text-indigo-600" />
-                                  <span className="text-indigo-900">{schedule.time}</span>
+                                  <span className="text-indigo-900">
+                                    {schedule.startTime || schedule.time} - {schedule.endTime || 'N/A'}
+                                  </span>
                                 </span>
                                 <div className="flex gap-2 flex-wrap">
                                   {schedule.days.map(day => (
@@ -708,16 +854,30 @@ export default function DeviceManagementPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-black text-slate-800 mb-2">
-                  Time *
-                </label>
-                <input
-                  type="time"
-                  value={editingSchedule?.time || '09:00'}
-                  onChange={(e) => setEditingSchedule({ ...editingSchedule, time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-indigo-300/60 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 font-black shadow-sm"
-                />
+              {/* Start and End Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-black text-slate-800 mb-2">
+                    Start Time *
+                  </label>
+                  <input
+                    type="time"
+                    value={editingSchedule?.startTime || '09:00'}
+                    onChange={(e) => setEditingSchedule({ ...editingSchedule, startTime: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-indigo-300/60 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 font-black shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-black text-slate-800 mb-2">
+                    End Time *
+                  </label>
+                  <input
+                    type="time"
+                    value={editingSchedule?.endTime || '17:00'}
+                    onChange={(e) => setEditingSchedule({ ...editingSchedule, endTime: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-indigo-300/60 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 font-black shadow-sm"
+                  />
+                </div>
               </div>
 
               <div>
@@ -831,7 +991,7 @@ export default function DeviceManagementPage() {
         </div>
       )}
 
-      {/* Device Detail Modal - continues with vibrant styling */}
+      {/* Device Detail Modal - Same as before, just update the schedule time display */}
       {showDeviceModal && modalDevice && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-blue-200/60">
@@ -993,7 +1153,9 @@ export default function DeviceManagementPage() {
                             <div className="flex items-center gap-3 flex-wrap">
                               <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg font-black border-2 border-indigo-300/60 shadow-sm">
                                 <Clock className="w-4 h-4 text-indigo-600" />
-                                <span className="text-indigo-900">{schedule.time}</span>
+                                <span className="text-indigo-900">
+                                  {schedule.startTime || schedule.time} - {schedule.endTime || 'N/A'}
+                                </span>
                               </span>
                               <div className="flex gap-2 flex-wrap">
                                 {schedule.days.map(day => (

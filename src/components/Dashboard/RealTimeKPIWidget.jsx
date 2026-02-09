@@ -20,18 +20,32 @@ function safeNumber(v, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-// Auto-scale energy values (kW -> MW -> GW)
+// Auto-scale energy values (kWh -> MWh -> GWh)
 function autoScaleEnergy(value) {
   const numValue = parseFloat(value);
-  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
+  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kWh' };
   
   const absValue = Math.abs(numValue);
   if (absValue >= 1000000) {
-    return { value: formatWithCommas(numValue / 1000000), unit: 'GW' };
+    return { value: formatWithCommas(numValue / 1000000), unit: 'GWh' };
   } else if (absValue >= 1000) {
-    return { value: formatWithCommas(numValue / 1000), unit: 'MW' };
+    return { value: formatWithCommas(numValue / 1000), unit: 'MWh' };
   }
-  return { value: formatWithCommas(numValue), unit: 'kW' };
+  return { value: formatWithCommas(numValue), unit: 'kWh' };
+}
+
+// Auto-scale currency values (Baht -> KBaht -> MBaht)
+function autoScaleBaht(value) {
+  const numValue = parseFloat(value);
+  if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'Baht' };
+  
+  const absValue = Math.abs(numValue);
+  if (absValue >= 1000000) {
+    return { value: formatWithCommas(numValue / 1000000), unit: 'MBaht' };
+  } else if (absValue >= 1000) {
+    return { value: formatWithCommas(numValue / 1000), unit: 'KBaht' };
+  }
+  return { value: formatWithCommas(numValue), unit: 'Baht' };
 }
 
 /* ---------------------------
@@ -50,13 +64,20 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
   }, [siteInfo?.latitude, siteInfo?.longitude]);
 
   const summary = useMemo(() => {
+    const monthSaving = safeNumber(wsData?.summary?.saving_summary?.month_saving, 0);
+    const avgSaving = safeNumber(wsData?.summary?.saving_summary?.today_saving, 0);
     const electricUsage = safeNumber(wsData?.houseLoad?.daily, 0);
+    
+    const scaledMonthSaving = autoScaleBaht(monthSaving);
+    const scaledAvgSaving = autoScaleBaht(avgSaving);
     const scaledUsage = autoScaleEnergy(electricUsage);
     
     return {
-      monthSaving: safeNumber(wsData?.summary?.saving_summary?.month_saving, 0),
-      avgSaving: safeNumber(wsData?.summary?.saving_summary?.today_saving, 0),
+      monthSaving,
+      avgSaving,
       electricUsage,
+      scaledMonthSaving,
+      scaledAvgSaving,
       scaledUsage,
     };
   }, [wsData]);
@@ -134,9 +155,9 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
           </div>
           <div className="flex items-baseline gap-1 flex-wrap">
             <span className="font-black text-slate-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
-              {formatWithCommas(summary.monthSaving)}
+              {summary.scaledMonthSaving.value}
             </span>
-            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">Baht</span>
+            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">{summary.scaledMonthSaving.unit}</span>
           </div>
         </div>
 
@@ -150,9 +171,9 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
           </div>
           <div className="flex items-baseline gap-1 flex-wrap">
             <span className="font-black text-slate-900" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}>
-              {formatWithCommas(summary.avgSaving)}
+              {summary.scaledAvgSaving.value}
             </span>
-            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">Baht/hr</span>
+            <span className="text-xs text-slate-700 font-bold whitespace-nowrap">{summary.scaledAvgSaving.unit}/hr</span>
           </div>
         </div>
 

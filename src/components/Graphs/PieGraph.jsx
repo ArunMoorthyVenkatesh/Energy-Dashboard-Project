@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './piegraph.module.css';
 
 // Svg helpers
@@ -60,9 +60,22 @@ function cleanLabel(label) {
  * @param {string | number} line1 - line 1 text in center
  * @param {string | number} line2 - line 2 text in center
  * @param {string | number} line3 - line 3 text in center
+ * @param {function} onRefresh - callback function to refresh data
  */
-export default function PieGraph({ data, line1, line2, line3 }) {
+export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    if (!onRefresh) return;
+
+    const intervalId = setInterval(() => {
+      onRefresh();
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, [onRefresh]);
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
   let cumulativeAngle = 0;

@@ -1,207 +1,147 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import styles from './SolarPanelWidget.module.css';
+import { formatFixed2 } from '../../utils/FormatUtil';
 
-/* ===== Icons ===== */
-const SunIcon = ({ size = 36, className = '', style = {} }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    style={style}
-  >
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 2v2" />
-    <path d="M12 20v2" />
-    <path d="m4.93 4.93 1.41 1.41" />
-    <path d="m17.66 17.66 1.41 1.41" />
-    <path d="M2 12h2" />
-    <path d="M20 12h2" />
-    <path d="m6.34 17.66-1.41 1.41" />
-    <path d="m19.07 4.93-1.41 1.41" />
-  </svg>
-);
+const STATUS_CONFIG = {
+  Online: {
+    fg: '#059669',
+    bg: '#d1fae5',
+    borderColor: '#10b981',
+  },
+  Offline: {
+    fg: '#64748b',
+    bg: '#f1f5f9',
+    borderColor: '#94a3b8',
+  },
+};
 
-const ChevronIcon = ({ size = 14 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <path
-      d="M6 9l6 6 6-6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+// Helper function to format and scale energy values
+function formatEnergy(kwh) {
+  if (kwh == null || !Number.isFinite(Number(kwh))) {
+    return { value: '-', unit: 'kWh' };
+  }
 
-/* ===== Pill Dropdown (same style for both widgets) ===== */
-function PillDropdown({ options, value, onChange, placeholder = 'Select' }) {
-  const [open, setOpen] = useState(false);
-  const selected = options.find((o) => String(o.value) === String(value));
+  const value = Number(kwh);
 
-  useEffect(() => {
-    const onDoc = (e) => {
-      // close if click outside
-      if (!e.target.closest?.('[data-pill="root"]')) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, []);
+  if (value < 1000) {
+    return { value: formatFixed2(value), unit: 'kWh' };
+  }
+  return { value: formatFixed2(value / 1000), unit: 'MWh' };
+}
+
+/**
+ * data: solar device object (from /devices or mapped WS)
+ * energyData: wsData.energyData (daily/monthly/lifetime totals)
+ */
+export default function SolarPanelWidget({ data, energyData }) {
+  const pv = data ?? null;
+
+  // Status: support multiple shapes
+  const pvOnline =
+    pv?.power?.now?.online === true ||
+    pv?.status === 'normal' ||
+    pv?.status === 'active' ||
+    pv?.status === 'Online';
+
+  const pvStatus = pvOnline ? 'Online' : 'Offline';
+  const statusStyle = STATUS_CONFIG[pvStatus];
+
+  // ✅ Yield values priority:
+  // 1) pv.power.*.import_kwh (if exists)
+  // 2) energyData.*.solar (your WS/site totals)
+  const todayKwh =
+    pv?.power?.day?.import_kwh ??
+    energyData?.daily?.solar ??
+    energyData?.day?.solar;
+
+  const monthKwh =
+    pv?.power?.month?.import_kwh ??
+    energyData?.monthly?.solar ??
+    energyData?.month?.solar;
+
+  const lifetimeKwh =
+    pv?.power?.lifetime?.import_kwh ??
+    energyData?.lifetime?.solar;
+
+  const yieldToday = formatEnergy(todayKwh);
+  const yieldMonth = formatEnergy(monthKwh);
+  const yieldLifetime = formatEnergy(lifetimeKwh);
 
   return (
-    <div className={styles.pillDropdown} data-pill="root">
-      <button
-        type="button"
-        className={styles.pillTrigger}
-        onClick={() => setOpen((s) => !s)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        <span className={styles.pillLabel}>{selected?.label ?? placeholder}</span>
-        <span className={styles.pillChevron} aria-hidden="true">
-          <ChevronIcon />
+    <div className="h-full flex flex-col gap-1.5 p-1.5 pt-4 overflow-hidden">
+      {/* Status Badge */}
+      <div className="flex items-center justify-between flex-shrink-0">
+        <span className="text-xs font-bold text-slate-900 truncate">
+          {pv?.name ?? 'PV unavailable'}
         </span>
-      </button>
-
-      {open && (
-        <div className={styles.pillMenu} role="listbox">
-          {options.map((opt) => {
-            const isActive = String(opt.value) === String(value);
-            return (
-              <button
-                key={String(opt.value)}
-                type="button"
-                className={`${styles.pillOption} ${isActive ? styles.pillOptionActive : ''}`}
-                onClick={() => {
-                  onChange(String(opt.value));
-                  setOpen(false);
-                }}
-              >
-                <span>{opt.label}</span>
-                {isActive ? <span className={styles.pillTick}>✓</span> : <span />}
-              </button>
-            );
-          })}
+        <div
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-bold text-xs shadow-sm border-2 transition-all duration-200 flex-shrink-0"
+          style={{
+            backgroundColor: statusStyle.bg,
+            color: statusStyle.fg,
+            borderColor: statusStyle.borderColor,
+          }}
+        >
+          <div
+            className="w-1.5 h-1.5 rounded-full animate-pulse shadow-sm"
+            style={{ backgroundColor: statusStyle.fg }}
+          />
+          <span>{pvStatus}</span>
         </div>
-      )}
-    </div>
-  );
-}
-
-function StatCard({ label, value, unit, subText, tone = 'neutral' }) {
-  return (
-    <div className={styles.statCard} data-tone={tone}>
-      <div className={styles.statLabel}>{label}</div>
-      <div className={styles.statValueRow}>
-        <div className={styles.statValue}>{value ?? '-'}</div>
-        {unit ? <div className={styles.statUnit}>{unit}</div> : null}
       </div>
-      {subText ? <div className={styles.statSub}>{subText}</div> : null}
-    </div>
-  );
-}
 
-function SolarPanelWidget({ data = [] }) {
-  const [selectedPvId, setSelectedPvId] = useState(null);
-
-  // options
-  const pvOptions = useMemo(
-    () => (data?.map((d) => ({ value: String(d.id), label: d.name })) ?? []),
-    [data]
-  );
-
-  // stable default selection (also handles missing id)
-  useEffect(() => {
-    if (!data?.length) {
-      if (selectedPvId !== null) setSelectedPvId(null);
-      return;
-    }
-    const exists =
-      selectedPvId != null && data.some((d) => String(d.id) === String(selectedPvId));
-    if (!exists) setSelectedPvId(String(data[0]?.id));
-  }, [data, selectedPvId]);
-
-  const pv = useMemo(() => {
-    if (!data?.length || selectedPvId == null) return null;
-    return data.find((d) => String(d.id) === String(selectedPvId)) ?? null;
-  }, [data, selectedPvId]);
-
-  const pvStatus = pv?.status === 'normal' ? 'Online' : 'Offline';
-  const isOnline = pvStatus === 'Online';
-
-  // ✅ animate only when selected PV values change
-  const [animate, setAnimate] = useState(false);
-  const lastRef = useRef({ id: null, daily: null, monthly: null, lifetime: null, status: null });
-
-  useEffect(() => {
-    const next = {
-      id: pv ? String(pv.id) : null,
-      daily: pv?.daily ?? null,
-      monthly: pv?.monthly ?? null,
-      lifetime: pv?.lifetime ?? null,
-      status: pv?.status ?? null,
-    };
-    const prev = lastRef.current;
-    const changed =
-      prev.id !== next.id ||
-      prev.daily !== next.daily ||
-      prev.monthly !== next.monthly ||
-      prev.lifetime !== next.lifetime ||
-      prev.status !== next.status;
-
-    if (!changed) return;
-
-    lastRef.current = next;
-    setAnimate(false);
-    const t = setTimeout(() => setAnimate(true), 50);
-    return () => clearTimeout(t);
-  }, [pv]);
-
-  return (
-    <div className={styles.wrap}>
-      {/* Top row: icon + title + dropdown */}
-      <div className={styles.topRow}>
-        <div className={styles.titleLeft}>
-          <div className={styles.iconCircle} data-online={isOnline}>
-            <SunIcon
-              size={34}
-              className={styles.solarIcon}
-              style={{ color: isOnline ? '#00af1a' : '#9ca3af' }}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-row gap-3 min-h-0 overflow-hidden">
+        {/* Panel Section */}
+        <div className="flex flex-col items-center justify-center w-20 flex-shrink-0">
+          <div className="w-full flex items-center justify-center">
+            <img
+              src="solar_panel.png"
+              alt="solar_panel"
+              className="w-full h-auto object-contain"
             />
           </div>
-
-          <div className={styles.titleText}>
-            <div className={styles.mainTitle}>{pv?.name ?? 'Solar panel'}</div>
-            <div className={styles.subTitle} data-online={isOnline}>
-              <span className={styles.dot} data-online={isOnline} />
-              {pvStatus}
-            </div>
-          </div>
         </div>
 
-        <div className={styles.topRight}>
-          <PillDropdown
-            options={pvOptions}
-            value={selectedPvId ?? ''}
-            onChange={setSelectedPvId}
-            placeholder="Select PV"
+        {/* Yield Section */}
+        <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
+          <YieldMetric
+            title="Yield today"
+            value={yieldToday.value}
+            unit={yieldToday.unit}
+            bgColor="from-blue-100 to-cyan-100"
+            borderColor="border-blue-300/60"
+          />
+          <YieldMetric
+            title="Yield monthly"
+            value={yieldMonth.value}
+            unit={yieldMonth.unit}
+            bgColor="from-emerald-100 to-teal-100"
+            borderColor="border-emerald-300/60"
+          />
+          <YieldMetric
+            title="Yield lifetime"
+            value={yieldLifetime.value}
+            unit={yieldLifetime.unit}
+            bgColor="from-purple-100 to-fuchsia-100"
+            borderColor="border-purple-300/60"
           />
         </div>
       </div>
-
-      {/* Stats grid */}
-      <div className={styles.statsGrid} data-animate={animate}>
-        <StatCard label="Yield Today" value={pv?.daily ?? '-'} unit="kW" />
-        <StatCard label="Yield Monthly" value={pv?.monthly ?? '-'} unit="kW" />
-        <StatCard label="Yield Lifetime" value={pv?.lifetime ?? '-'} unit="kW" />
-      </div>
     </div>
   );
 }
 
-export default memo(SolarPanelWidget);
+function YieldMetric({ title, value, unit, bgColor, borderColor }) {
+  return (
+    <div
+      className={`bg-gradient-to-br ${bgColor} rounded-lg p-1.5 border-2 ${borderColor} shadow-sm hover:shadow-md transition-all duration-200`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-slate-700">{title}</span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-sm font-black text-slate-900">{value}</span>
+          <span className="text-xs font-bold text-slate-600">{unit}</span>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,6 @@
 /**
  * Map a site_realtime_state WebSocket event into dashboard view models without computing new values.
+ * This mapper handles site-level data since individual device data comes from the API fetch.
  * @param {any} event
  * @returns {import("./viewModels.js").SiteRealtimeViewModel|null}
  */
@@ -18,6 +19,13 @@ export function mapSiteRealtimeEvent(event) {
     return Number.isFinite(num) ? num / 1000 : 0;
   };
 
+  // ✅ Helper to convert watts to MWh (for display)
+  const toMWh = (value) => {
+    if (value === null || value === undefined) return 0;
+    const num = Number(value);
+    return Number.isFinite(num) ? num / 1000000 : 0;
+  };
+
   const mapBucket = (bucket) => {
     if (!bucket) {
       return {
@@ -29,17 +37,15 @@ export function mapSiteRealtimeEvent(event) {
       };
     }
 
-    // ✅ FIXED: Use actual WebSocket field names
     return {
       pv: toKw(bucket.solar),
-      bess: toKw(bucket.battery_discharge) - toKw(bucket.battery_charge), // Net battery (discharge - charge)
-      grid_import: toKw(bucket.grid_import),      // ✅ FIXED: was bucket.grid
-      grid_export: toKw(bucket.grid_export),      // ✅ FIXED: now using actual field
+      bess: toKw(bucket.battery_discharge) - toKw(bucket.battery_charge),
+      grid_import: toKw(bucket.grid_import),
+      grid_export: toKw(bucket.grid_export),
       load: toKw(bucket.load)
     };
   };
 
-  // ✅ Map live/real-time data for the Energy In/Out widget
   const mapLiveData = (nowBucket) => {
     if (!nowBucket) {
       return {
@@ -56,30 +62,65 @@ export function mapSiteRealtimeEvent(event) {
       solar: toKw(nowBucket.solar),
       battery: toKw(nowBucket.battery_discharge) - toKw(nowBucket.battery_charge),
       battery_charge: toKw(nowBucket.battery_charge),
-      grid_import: toKw(nowBucket.grid_import),   // ✅ FIXED
+      grid_import: toKw(nowBucket.grid_import),
       load: toKw(nowBucket.load),
-      grid_export: toKw(nowBucket.grid_export),   // ✅ FIXED
+      grid_export: toKw(nowBucket.grid_export),
     };
   };
 
-  // ✅ Map solar panels (PV devices)
+  // ✅ Create site-level solar data that can be used to update individual devices
+  // This will be merged with fetched device data in HomePage
+  const siteLevelSolarData = {
+    power: {
+      now: {
+        online: (payload.devices?.online ?? 0) > 0,
+        solar: toKw(power.now?.solar),
+      },
+      day: {
+        import_kwh: toMWh(power.day?.solar), // Convert to MWh
+      },
+      month: {
+        import_kwh: toMWh(power.month?.solar), // Convert to MWh
+      },
+      lifetime: {
+        import_kwh: toMWh(power.lifetime?.solar), // Convert to MWh
+      }
+    }
+  };
+
+  // ✅ Map individual solar panels if they exist in payload
   const solarPanels = Array.isArray(payload.solar_panels)
     ? payload.solar_panels.map((panel) => ({
         id: panel.id ?? panel.deviceId ?? null,
+        deviceId: panel.deviceId ?? panel.id ?? null,
         name: panel.name ?? panel.deviceId ?? 'Solar Panel',
+        role: 'solar',
         status: panel.status ?? 'unknown',
-        power_kw: panel.power_kw ?? panel.power ?? null,
-        daily: panel.daily ?? null,
-        monthly: panel.monthly ?? null,
-        lifetime: panel.lifetime ?? null,
+        power: {
+          now: {
+            online: panel.status === 'active' || panel.status === 'online',
+            solar: panel.power_kw ?? panel.power ?? 0,
+          },
+          day: {
+            import_kwh: panel.daily ?? 0,
+          },
+          month: {
+            import_kwh: panel.monthly ?? 0,
+          },
+          lifetime: {
+            import_kwh: panel.lifetime ?? 0,
+          }
+        }
       }))
     : [];
 
-  // ✅ Map batteries with proper structure
+  // ✅ Map individual batteries if they exist in payload
   const batteries = Array.isArray(payload.batteries)
     ? payload.batteries.map((batt) => ({
         id: batt.id ?? batt.deviceId ?? null,
+        deviceId: batt.deviceId ?? batt.id ?? null,
         name: batt.name ?? batt.deviceId ?? 'Battery',
+        role: 'battery',
         battery_percent: batt.battery_percent ?? batt.state_of_charge ?? null,
         voltage: batt.voltage ?? null,
         current: batt.current ?? null,
@@ -96,7 +137,6 @@ export function mapSiteRealtimeEvent(event) {
 
   return {
     energyData: {
-      // ✅ Live power data for EnergyInOutWidget
       power: {
         now: mapLiveData(power.now),
         row: mapLiveData(power.now),
@@ -105,7 +145,7 @@ export function mapSiteRealtimeEvent(event) {
       monthly: mapBucket(power.month),
       lifetime: {
         ...mapBucket(power.year),
-        solarPanels: solarPanels, // ✅ Add solar panels to lifetime data
+        solarPanels: solarPanels,
       }
     },
     houseLoad: {
@@ -121,7 +161,7 @@ export function mapSiteRealtimeEvent(event) {
         today_pv_energy: toKw(power.day?.solar),
         month_pv_energy: toKw(power.month?.solar),
         lifetime_pv_energy: toKw(power.year?.solar),
-        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid_import)) || 0,  // ✅ FIXED
+        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid_import)) || 0,
       }
     },
     carbonCredit: {
@@ -134,9 +174,12 @@ export function mapSiteRealtimeEvent(event) {
         today_pv_energy: toKw(power.day?.solar),
         month_pv_energy: toKw(power.month?.solar),
         lifetime_pv_energy: toKw(power.year?.solar),
-        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid_import)) || 0  // ✅ FIXED
+        lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid_import)) || 0
       }
     },
-    batteryData: batteries,
+    // ✅ Return combined array if individual devices exist, otherwise return site-level data for merging
+    batteryData: [...solarPanels, ...batteries],
+    // ✅ Include site-level solar data for merging with fetched devices
+    siteLevelSolarData: siteLevelSolarData,
   };
 }

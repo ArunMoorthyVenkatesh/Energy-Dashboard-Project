@@ -11,7 +11,7 @@ import { WeatherAPI } from '../../api/WeatherAPI';
 import { normalizeOneCallWeather } from '../../utils/WeatherUtil';
 import { fetchSiteGanttChart } from '../../api/ganttApi';
 import { mapGanttToNumberArray, mapGanttToTimelineData, resolveGranularity, todayIsoDate } from '../../mappers/ganttMapper';
-import { formatFixed2, formatPercent} from '../../utils/FormatUtil';
+import { formatWithCommas, formatPercent} from '../../utils/FormatUtil';
 
 /**
  * UI-only default data (no domain computation here).
@@ -276,7 +276,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
         <div className={styles.dataInfo}>
           <span className={styles.dataTitle}>Estimated monthly saved</span>
           <div className={styles.dataContent}>
-            <span className={styles.dataNum}>{formatFixed2(data.summary.month_cost)}</span>
+            <span className={styles.dataNum}>{formatWithCommas(data.summary.month_cost)}</span>
             <span className={styles.dataUnit}>Baht</span>
           </div>
         </div>
@@ -284,7 +284,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
         <div className={styles.dataInfo}>
           <span className={styles.dataTitle}>Average saved</span>
           <div className={styles.dataContent}>
-            <span className={styles.dataNum}>{formatFixed2(data.summary.avg_cost)}</span>
+            <span className={styles.dataNum}>{formatWithCommas(data.summary.avg_cost)}</span>
             <span className={styles.dataUnit}>Baht/hour</span>
           </div>
         </div>
@@ -308,7 +308,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
           <span className={styles.dataTitle}>Realtime electric usage</span>
           <div className={styles.dataContent}>
             <span className={styles.dataNum}>
-              {formatFixed2(data.summary.electric_usage)}
+              {formatWithCommas(data.summary.electric_usage)}
             </span>
             <span className={styles.dataUnit}>kW</span>
           </div>
@@ -347,7 +347,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
               </span>
               <div>
                 <span className={styles.usageValue}>
-                  {formatFixed2(energyBucket?.pv)} kW
+                  {formatWithCommas(energyBucket?.pv)} kW
                 </span>
                 <span className={styles.usagePercentage}>
                   ({formatPercent(
@@ -368,7 +368,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
               </div>
               <div>
                 <span className={styles.usageValue}>
-                  {formatFixed2(energyBucket?.grid_import)} kW
+                  {formatWithCommas(energyBucket?.grid_import)} kW
                 </span>
                 <span className={styles.usagePercentage}>
                   ({formatPercent(
@@ -389,7 +389,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
               </span>
               <div>
                 <span className={styles.usageValue}>
-                  {formatFixed2(energyBucket?.bess)} kW
+                  {formatWithCommas(energyBucket?.bess)} kW
                 </span>
                 <span className={styles.usagePercentage}>
                   ({formatPercent(
@@ -406,7 +406,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
               data={pieData}
               line1={
                 totalLoad != null
-                  ? formatWithCommas(formatFixed2(totalLoad))
+                  ? formatWithCommas(formatWithCommas(totalLoad))
                   : '-'
               }
               line2="kW"

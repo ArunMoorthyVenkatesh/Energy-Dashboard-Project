@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { niceScale } from '../../utils/GraphUtil';
 import styles from './timelinebarchart.module.css';
 
@@ -8,13 +8,27 @@ import styles from './timelinebarchart.module.css';
  * @param {string[]} yearLabels - only needed if timeRange is set to 'year'
  * @param {string} timeRange - 'day' | 'month' | 'lifetime'
  * @param {function} tooltipFormatter - optional formatter for tooltip values
+ * @param {function} onRefresh - callback function to refresh data
  */
 export default function TimelineBarchart({
   yAxisLabel,
   data = [],
   tooltipFormatter,
+  onRefresh,
 }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    if (!onRefresh) return;
+
+    const intervalId = setInterval(() => {
+      onRefresh();
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, [onRefresh]);
 
   const xTicks = data.map(item => item.key);
   const safeValues = data.map(item => item.value ?? 0);

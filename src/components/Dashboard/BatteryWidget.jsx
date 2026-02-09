@@ -1,267 +1,136 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PieGraph from '../Graphs/PieGraph';
-import styles from './batterywidget.module.css';
+import { formatWithCommas } from '../../utils/FormatUtil';
 
-/* ===== Icons ===== */
-const BatteryIcon = ({ size = 34, className = '', style = {} }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    style={style}
-  >
-    <rect x="2" y="7" width="18" height="10" rx="2" ry="2" />
-    <path d="M22 11v2" />
-  </svg>
-);
+export default function BatteryWidget({ data }) {
+  const battery = data ?? null;
 
-const ChevronIcon = ({ size = 14 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <path
-      d="M6 9l6 6 6-6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+  // Match old code data structure
+  const chargePercentage =
+    Number.isFinite(Number(battery?.battery_percent))
+      ? Number(battery.battery_percent)
+      : 0;
 
-/* ===== Same pill dropdown ===== */
-function PillDropdown({ options, value, onChange, placeholder = 'Select' }) {
-  const [open, setOpen] = useState(false);
-  const selected = options.find((o) => String(o.value) === String(value));
+  const pieData = [
+    {
+      label: 'Empty',
+      value: 100 - chargePercentage,
+      unit: '%',
+      color: '#e2e8f0',
+    },
+    {
+      label: 'Charged',
+      value: chargePercentage,
+      unit: '%',
+      color: '#10b981',
+    },
+  ];
 
-  useEffect(() => {
-    const onDoc = (e) => {
-      if (!e.target.closest?.('[data-pill="root"]')) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, []);
+  const isDischarging =
+    Number.isFinite(Number(battery?.active_power)) &&
+    Number(battery.active_power) < 0;
 
   return (
-    <div className={styles.pillDropdown} data-pill="root">
-      <button
-        type="button"
-        className={styles.pillTrigger}
-        onClick={() => setOpen((s) => !s)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        <span className={styles.pillLabel}>{selected?.label ?? placeholder}</span>
-        <span className={styles.pillChevron} aria-hidden="true">
-          <ChevronIcon />
-        </span>
-      </button>
-
-      {open && (
-        <div className={styles.pillMenu} role="listbox">
-          {options.map((opt) => {
-            const isActive = String(opt.value) === String(value);
-            return (
-              <button
-                key={String(opt.value)}
-                type="button"
-                className={`${styles.pillOption} ${isActive ? styles.pillOptionActive : ''}`}
-                onClick={() => {
-                  onChange(String(opt.value));
-                  setOpen(false);
-                }}
-              >
-                <span>{opt.label}</span>
-                {isActive ? <span className={styles.pillTick}>✓</span> : <span />}
-              </button>
-            );
-          })}
+    <div className="h-full flex flex-row gap-3 p-1.5 pt-4 overflow-hidden">
+      {/* Metrics Section - Ultra Compact */}
+      <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+        {/* Row 1: Voltage, Current, Temperature */}
+        <div className="grid grid-cols-3 gap-1.5">
+          <MetricCard
+            title="Voltage"
+            value={formatWithCommas(battery?.voltage)}
+            unit="V"
+            bgColor="from-emerald-100 to-teal-100"
+            borderColor="border-emerald-300/60"
+          />
+          <MetricCard
+            title="Current"
+            value={formatWithCommas(battery?.current)}
+            unit="A"
+            bgColor="from-blue-100 to-cyan-100"
+            borderColor="border-blue-300/60"
+          />
+          <MetricCard
+            title="Temp"
+            value={formatWithCommas(battery?.temperature)}
+            unit="°C"
+            bgColor="from-orange-100 to-amber-100"
+            borderColor="border-orange-300/60"
+          />
         </div>
-      )}
-    </div>
-  );
-}
 
-function StatCard({ label, value, unit, subText }) {
-  return (
-    <div className={styles.statCard}>
-      <div className={styles.statLabel}>{label}</div>
-      <div className={styles.statValueRow}>
-        <div className={styles.statValue}>{value ?? '-'}</div>
-        {unit ? <div className={styles.statUnit}>{unit}</div> : null}
-      </div>
-      {subText ? <div className={styles.statSub}>{subText}</div> : null}
-    </div>
-  );
-}
-
-function BatteryWidget({ data = [] }) {
-  const [selectedBatteryId, setSelectedBatteryId] = useState(null);
-
-  const batteryOptions = useMemo(
-    () => (data?.map((d) => ({ value: String(d.id), label: d.name })) ?? []),
-    [data]
-  );
-
-  // stable default selection + handle missing id
-  useEffect(() => {
-    if (!data?.length) {
-      if (selectedBatteryId !== null) setSelectedBatteryId(null);
-      return;
-    }
-    const exists =
-      selectedBatteryId != null && data.some((d) => String(d.id) === String(selectedBatteryId));
-    if (!exists) setSelectedBatteryId(String(data[0]?.id));
-  }, [data, selectedBatteryId]);
-
-  const battery = useMemo(() => {
-    if (!data?.length || selectedBatteryId == null) return null;
-    return data.find((d) => String(d.id) === String(selectedBatteryId)) ?? null;
-  }, [data, selectedBatteryId]);
-
-  const chargePercentageRaw = battery?.battery_percent;
-  const chargePercentage = Number.isFinite(chargePercentageRaw)
-    ? Math.max(0, Math.min(100, chargePercentageRaw))
-    : null;
-
-  const activePower = battery?.active_power;
-  const chargingText = Number.isFinite(activePower)
-    ? activePower < 0
-      ? 'discharging'
-      : 'charging'
-    : '-';
-
-  const showPie =
-    battery &&
-    chargePercentage != null &&
-    chargePercentage >= 0 &&
-    chargePercentage <= 100;
-
-  const pieData = useMemo(() => {
-    const cp = chargePercentage ?? 0;
-    return [
-      { label: 'Empty', value: 100 - cp, unit: '%', color: '#D0D0D0' },
-      { label: 'Charged', value: cp, unit: '%', color: '#37F040' },
-    ];
-  }, [chargePercentage]);
-
-  // ✅ animate only when key values change
-  const [animate, setAnimate] = useState(false);
-  const lastRef = useRef({
-    id: null,
-    voltage: null,
-    current: null,
-    temperature: null,
-    active_power: null,
-    daily: null,
-    monthly: null,
-    lifetime: null,
-    battery_percent: null,
-  });
-
-  useEffect(() => {
-    const next = {
-      id: battery ? String(battery.id) : null,
-      voltage: battery?.voltage ?? null,
-      current: battery?.current ?? null,
-      temperature: battery?.temperature ?? null,
-      active_power: battery?.active_power ?? null,
-      daily: battery?.daily ?? null,
-      monthly: battery?.monthly ?? null,
-      lifetime: battery?.lifetime ?? null,
-      battery_percent: battery?.battery_percent ?? null,
-    };
-    const prev = lastRef.current;
-
-    const changed = Object.keys(next).some((k) => next[k] !== prev[k]);
-    if (!changed) return;
-
-    lastRef.current = next;
-    setAnimate(false);
-    const t = setTimeout(() => setAnimate(true), 50);
-    return () => clearTimeout(t);
-  }, [battery]);
-
-  return (
-    <div className={styles.wrap} style={{ padding: 0, margin: 0 }}>
-      {/* Top row: icon + title + dropdown */}
-      <div className={styles.topRow} style={{ flexWrap: 'wrap', gap: '8px', padding: '12px' }}>
-        <div className={styles.titleLeft}>
-          <div className={styles.iconCircle}>
-            <BatteryIcon size={34} className={styles.battIcon} />
-          </div>
-
-          <div className={styles.titleText}>
-            <div className={styles.mainTitle}>{battery?.name ?? 'Battery'}</div>
-            <div className={styles.subTitle}>
-              {showPie ? `${chargePercentage}% charged` : 'Charge unavailable'}
+        {/* Row 2: Power */}
+        <div className="bg-gradient-to-br from-purple-100 to-fuchsia-100 rounded-lg p-1.5 border-2 border-purple-300/60 shadow-sm">
+          <div className="flex items-center justify-between flex-wrap gap-1">
+            <span className="text-xs font-semibold text-slate-700">Power</span>
+            <div className="flex items-baseline gap-1">
+              <div className="flex items-baseline gap-1">
+                <span className="text-sm font-black text-slate-900">
+                  {formatWithCommas(battery?.active_power)}
+                </span>
+                <span className="text-xs font-bold text-slate-600">kW</span>
+              </div>
+              <span className={`text-xs font-bold px-1.5 py-0.5 rounded border ${
+                isDischarging 
+                  ? 'bg-red-500 text-white border-red-600' 
+                  : 'bg-green-500 text-white border-green-600'
+              }`}>
+                {isDischarging ? 'discharge' : 'charge'}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className={styles.topRight}>
-          <PillDropdown
-            options={batteryOptions}
-            value={selectedBatteryId ?? ''}
-            onChange={setSelectedBatteryId}
-            placeholder="Select battery"
+        {/* Row 3: Daily, Monthly, Lifetime */}
+        <div className="grid grid-cols-3 gap-1.5">
+          <MetricCard
+            title="Daily"
+            value={formatWithCommas(battery?.daily)}
+            unit="kWh"
+            bgColor="from-rose-100 to-pink-100"
+            borderColor="border-rose-300/60"
+          />
+          <MetricCard
+            title="Monthly"
+            value={formatWithCommas(battery?.monthly)}
+            unit="kWh"
+            bgColor="from-green-100 to-lime-100"
+            borderColor="border-green-300/60"
+          />
+          <MetricCard
+            title="Lifetime"
+            value={formatWithCommas(battery?.lifetime)}
+            unit="kWh"
+            bgColor="from-indigo-100 to-purple-100"
+            borderColor="border-indigo-300/60"
           />
         </div>
       </div>
 
-      {/* Body grid */}
-      <div className={styles.bodyGrid} data-animate={animate} style={{ 
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        gap: '12px',
-        padding: '0 12px 12px 12px'
-      }}>
-        <div className={styles.statsGrid} style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: '8px'
-        }}>
-          <StatCard label="Voltage" value={battery?.voltage ?? '-'} unit="V" />
-          <StatCard label="Current" value={battery?.current ?? '-'} unit="A" />
-          <StatCard label="Temperature" value={battery?.temperature ?? '-'} unit="°C" />
-          <StatCard
-            label="Power"
-            value={battery?.active_power ?? '-'}
-            unit="kW"
-            subText={`(${chargingText})`}
+      {/* Pie Chart Section - Compact */}
+      <div className="w-20 flex-shrink-0 flex items-center justify-center">
+        <div className="bg-white/80 backdrop-blur-sm rounded-lg p-1 shadow-md border border-blue-200/40 w-full">
+          <PieGraph
+            data={pieData}
+            line1={`${formatWithCommas(chargePercentage)} %`}
+            line2='charged'
+            line3=''
           />
-          <StatCard label="Daily charging" value={battery?.daily ?? '-'} unit="kWh" />
-          <StatCard label="Monthly charging" value={battery?.monthly ?? '-'} unit="kWh" />
-          <StatCard label="Lifetime charging" value={battery?.lifetime ?? '-'} unit="kWh" />
-        </div>
-
-        <div className={styles.graphBox} style={{ 
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '200px'
-        }}>
-          {showPie ? (
-            <PieGraph
-              data={pieData}
-              line1={`${chargePercentage}%`}
-              line2="charged"
-              line3=""
-            />
-          ) : (
-            <div className={styles.piePlaceholder}>
-              <div className={styles.piePlaceholderTitle}>Battery charge</div>
-              <div className={styles.piePlaceholderText}>No pie data available</div>
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
 }
 
-export default memo(BatteryWidget);
+function MetricCard({ title, value, unit, bgColor, borderColor }) {
+  return (
+    <div className={`bg-gradient-to-br ${bgColor} rounded-lg p-1.5 border-2 ${borderColor} shadow-sm hover:shadow-md transition-all duration-200`}>
+      <div className="flex flex-col gap-0.5">
+        <span className="text-xs font-semibold text-slate-700 truncate">{title}</span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-sm font-black text-slate-900">{value}</span>
+          <span className="text-xs font-bold text-slate-600">{unit}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
