@@ -15,3 +15,21 @@
 .profileName {
   color: var(--primary-gray);
 }
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .profilePic {
+    padding: 12px 14px;
+    font-size: 0.875rem;
+  }
+
+  .profileName {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .profilePic {
+    padding: 14px 16px;
+  }
+}

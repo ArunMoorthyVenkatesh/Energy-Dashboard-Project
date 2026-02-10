@@ -45,3 +45,28 @@
   font-weight: 300;
   font-size: 1.3cqh;
 }
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .centerSection {
+    height: 70%;
+  }
+
+  .centerLine1 {
+    font-size: 2cqh;
+  }
+
+  .centerLine2 {
+    font-size: 1.4cqh;
+  }
+
+  .centerLine3 {
+    font-size: 1.1cqh;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .centerSection {
+    height: 72%;
+  }
+}
