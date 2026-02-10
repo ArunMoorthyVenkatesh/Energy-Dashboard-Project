@@ -1,0 +1,35 @@
+/* DeviceManagementPage Responsive Styles */
+
+/* Mobile: Improve filter button layouts */
+@media (max-width: 767px) {
+  /* Make filter buttons full-width on small screens */
+  .filterButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Ensure filter containers stack properly */
+  .filterContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Adjust padding for mobile */
+  .deviceCard {
+    padding: 12px;
+  }
+
+  /* Make modals full-screen on mobile */
+  .modal {
+    width: 100%;
+    max-height: 90vh;
+    margin: 0 8px;
+  }
+}
+
+/* Tablet: Adjust grid spacing */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .deviceCard {
+    padding: 16px;
+  }
+}

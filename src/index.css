@@ -44,6 +44,10 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   /* Prevent pull-to-refresh on mobile */
   overscroll-behavior-y: contain;
+  /* Prevent text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Responsive font sizing with smoother transitions */

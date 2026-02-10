@@ -1,12 +1,16 @@
+/* LandingPage.module.css */
+
 /* Main container */
 .container {
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
   background: linear-gradient(135deg, #f3e7ff 0%, #dbeafe 50%, #cffafe 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
 }
 
 /* Animated background blobs */
@@ -18,39 +22,39 @@
 
 .blob {
   position: absolute;
-  width: 320px;
-  height: 320px;
+  width: clamp(200px, 40vw, 320px);
+  height: clamp(200px, 40vw, 320px);
   border-radius: 50%;
   mix-blend-mode: multiply;
-  filter: blur(64px);
+  filter: blur(clamp(40px, 8vw, 64px));
   opacity: 0.3;
   animation: blob 7s infinite;
 }
 
 .blob1 {
-  top: -160px;
-  left: -160px;
+  top: clamp(-100px, -20vw, -160px);
+  left: clamp(-100px, -20vw, -160px);
   background-color: #d8b4fe;
   animation-delay: 0s;
 }
 
 .blob2 {
-  top: -160px;
-  right: -160px;
+  top: clamp(-100px, -20vw, -160px);
+  right: clamp(-100px, -20vw, -160px);
   background-color: #93c5fd;
   animation-delay: 2s;
 }
 
 .blob3 {
-  bottom: -160px;
-  left: 80px;
+  bottom: clamp(-100px, -20vw, -160px);
+  left: clamp(20px, 10vw, 80px);
   background-color: #fbcfe8;
   animation-delay: 4s;
 }
 
 .blob4 {
-  bottom: -160px;
-  right: 80px;
+  bottom: clamp(-100px, -20vw, -160px);
+  right: clamp(20px, 10vw, 80px);
   background-color: #a5f3fc;
   animation-delay: 6s;
 }
@@ -60,6 +64,9 @@
   position: relative;
   z-index: 10;
   text-align: center;
+  width: 100%;
+  max-width: clamp(320px, 95vw, 600px);
+  padding: clamp(0.5rem, 3vw, 1.5rem);
 }
 
 /* Logo container */
@@ -69,14 +76,15 @@
 }
 
 .logo {
-  height: 240px;
+  height: clamp(120px, 30vw, 240px);
   width: auto;
+  max-width: 90%;
   margin: 0 auto;
   display: block;
   object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
   transition: transform 0.5s ease;
-  margin-bottom: -8px; /* ✅ Pull logo closer to title */
+  margin-bottom: clamp(-4px, -1vw, -8px);
 }
 
 .logo:hover {
@@ -85,44 +93,51 @@
 
 /* Welcome section */
 .welcomeSection {
-  margin-top: 0; /* ✅ Remove top gap */
-  margin-bottom: 32px;
+  margin-top: 0;
+  margin-bottom: clamp(1rem, 4vw, 2.5rem);
   animation: fadeInUp 0.8s ease-out 0.3s forwards;
   opacity: 0;
 }
 
 .title {
-  font-size: 48px;
+  font-size: clamp(1.75rem, 6vw, 3rem);
   font-weight: 700;
   background: linear-gradient(90deg, #2563eb 0%, #9333ea 50%, #ec4899 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 16px;
+  margin-bottom: clamp(0.75rem, 2vw, 1rem);
+  line-height: 1.2;
+  padding: 0 1rem;
 }
 
 .subtitle {
-  font-size: 20px;
+  font-size: clamp(1rem, 3vw, 1.25rem);
   color: #475569;
   font-weight: 500;
+  padding: 0 1rem;
+  line-height: 1.4;
 }
 
 /* Progress section */
 .progressSection {
-  width: 320px;
+  width: 100%;
+  max-width: clamp(280px, 90vw, 400px);
   margin: 0 auto;
   animation: fadeInUp 0.8s ease-out 0.6s forwards;
   opacity: 0;
+  padding: 0 1rem;
 }
 
 .progressBarContainer {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(24px);
   border-radius: 9999px;
-  height: 12px;
+  height: clamp(8px, 2vw, 14px);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: height 0.3s ease;
 }
 
 .progressBar {
@@ -143,25 +158,25 @@
 }
 
 .progressText {
-  font-size: 14px;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
   color: #64748b;
   font-weight: 500;
-  margin-top: 12px;
+  margin-top: clamp(0.5rem, 2vw, 0.75rem);
 }
 
 /* Dots animation */
 .dotsContainer {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 32px;
+  gap: clamp(6px, 1.5vw, 10px);
+  margin-top: clamp(1rem, 4vw, 2rem);
   animation: fadeInUp 0.8s ease-out 0.9s forwards;
   opacity: 0;
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
+  width: clamp(8px, 2vw, 12px);
+  height: clamp(8px, 2vw, 12px);
   border-radius: 50%;
   animation: bounce 1s infinite;
 }
@@ -211,5 +226,228 @@
   }
   50% {
     transform: translateY(-10px);
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
+
+  .content {
+    padding: 2rem;
+  }
+
+  .title {
+    padding: 0;
+  }
+
+  .subtitle {
+    padding: 0;
+  }
+
+  .progressSection {
+    padding: 0;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .container {
+    padding: 3rem;
+  }
+
+  .content {
+    padding: 3rem;
+  }
+}
+
+/* Small mobile optimization */
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .content {
+    padding: 0.5rem;
+  }
+
+  .logo {
+    max-width: 85%;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .welcomeSection {
+    margin-bottom: 1.5rem;
+  }
+
+  .dotsContainer {
+    margin-top: 1.5rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .content {
+    padding: 0.25rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+    padding: 0 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    padding: 0 0.5rem;
+  }
+
+  .logo {
+    height: 100px;
+    max-width: 80%;
+  }
+
+  .progressSection {
+    max-width: 240px;
+  }
+}
+
+/* Landscape mobile fix */
+@media (max-height: 600px) and (orientation: landscape) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .content {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2rem;
+    max-width: 900px;
+  }
+
+  .logoContainer {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .logo {
+    height: 80px;
+    margin-bottom: 0;
+  }
+
+  .welcomeSection {
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
+  .progressSection {
+    margin-bottom: 0.75rem;
+  }
+
+  .dotsContainer {
+    margin-top: 1rem;
+  }
+
+  .blob {
+    filter: blur(30px);
+  }
+}
+
+/* Very wide screens */
+@media (min-width: 1440px) {
+  .content {
+    max-width: 700px;
+  }
+
+  .logo {
+    height: 280px;
+  }
+
+  .progressSection {
+    max-width: 450px;
+  }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 1920px) {
+  .content {
+    max-width: 800px;
+  }
+
+  .logo {
+    height: 320px;
+  }
+
+  .title {
+    font-size: 3.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+  }
+
+  .progressSection {
+    max-width: 500px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .dot,
+  .logoContainer,
+  .welcomeSection,
+  .progressSection,
+  .dotsContainer {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  .logo:hover {
+    transform: none;
+  }
+
+  .progressBar {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .title {
+    background: none;
+    -webkit-text-fill-color: #1e40af;
+    color: #1e40af;
+  }
+
+  .progressBarContainer {
+    border: 2px solid #1e40af;
+  }
+
+  .progressBar {
+    background: #1e40af;
   }
 }
