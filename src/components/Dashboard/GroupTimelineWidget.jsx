@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Activity, RefreshCw } from 'lucide-react';
 import DoubleLineGraph from '../Graphs/DoubleLineGraph';
 import { fetchGroupGanttChart } from '../../api/ganttApi';
@@ -29,7 +29,7 @@ export default function GroupTimelineWidget({ data }) {
     }
   }, [grpDropdownOptions, selectedGrp]);
 
-  async function updateSourceData() {
+  const updateSourceData = useCallback(async () => {
     if (selectedGrp === null) return;
     
     const granularity = resolveGranularity(timeRange);
@@ -92,23 +92,13 @@ export default function GroupTimelineWidget({ data }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [selectedGrp, timeRange]);
 
   useEffect(() => {
     if (selectedGrp === null) return;
-    
-    let cancelled = false;
 
-    async function load() {
-      await updateSourceData();
-    }
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedGrp, timeRange]);
+    updateSourceData();
+  }, [selectedGrp, timeRange, updateSourceData]);
 
   async function handleRefresh() {
     if (isRefreshing || loading) return;

@@ -111,7 +111,7 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
   /* ---------------------------
    * DERIVED ENERGY VALUES (memoized)
    * --------------------------- */
-  const { load, pv, gridImport, bess, gridPct, bessPct, pvPct, pieData, scaledValues } = useMemo(() => {
+  const { load, gridPct, bessPct, pvPct, pieData, scaledValues } = useMemo(() => {
     const load = safeNumber(energyBucket?.load, 0);
     const pv = safeNumber(energyBucket?.pv, 0);
     const gridImport = safeNumber(energyBucket?.grid_import, 0);
@@ -135,9 +135,6 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
 
     return { 
       load, 
-      pv, 
-      gridImport, 
-      bess, 
       gridPct, 
       bessPct, 
       pvPct, 
