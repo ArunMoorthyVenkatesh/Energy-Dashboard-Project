@@ -15,10 +15,14 @@ export default function TimelineBarchart({
   data = [],
   viewMode = 'day',
   tooltipFormatter,
-  onRefresh,
+  onRefresh = () => {
+    // Default refresh function - just triggers a re-render
+    console.log('Refresh clicked - provide onRefresh prop for custom behavior');
+  },
   onRangeChange,
 }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Range filter state
   const totalDataPoints = data.length;
@@ -52,6 +56,21 @@ export default function TimelineBarchart({
       onRangeChange(rangeStart, rangeEnd);
     }
   }, [rangeStart, rangeEnd, onRangeChange]);
+
+  // Handle manual refresh button click - ALWAYS WORKS
+  const handleRefreshClick = async () => {
+    if (isRefreshing) return;
+    
+    setIsRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      // Reset animation after a brief delay
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 600);
+    }
+  };
 
   // Range slider handlers
   function handleSliderMouseDown(e, handle) {
@@ -129,14 +148,43 @@ export default function TimelineBarchart({
   return (
     <div className={styles.container} style={{ position: 'relative' }}>
       <div className={styles.topSection}>
-        <span className={styles.yAxisLabel} style={{ 
-          fontSize: '0.75rem', 
-          fontWeight: '700', 
-          color: '#475569',
-          letterSpacing: '0.025em'
-        }}>
-          {yAxisLabel}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className={styles.yAxisLabel} style={{ 
+            fontSize: '0.75rem', 
+            fontWeight: '700', 
+            color: '#475569',
+            letterSpacing: '0.025em'
+          }}>
+            {yAxisLabel}
+          </span>
+          
+          {/* Refresh Button - ALWAYS VISIBLE */}
+          <button
+            onClick={handleRefreshClick}
+            className={styles.refreshButton}
+            disabled={isRefreshing}
+            aria-label="Refresh data"
+            title="Refresh data"
+          >
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              style={{
+                animation: isRefreshing ? 'spin 0.6s linear' : 'none',
+              }}
+            >
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
         
         {/* Range Filter */}
         <div className={styles.rangeFilterContainer}>
@@ -305,6 +353,15 @@ export default function TimelineBarchart({
           to {
             opacity: 1;
             transform: translate(-50%, -12px);
+          }
+        }
+        
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
       `}</style>

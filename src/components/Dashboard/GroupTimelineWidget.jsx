@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, RefreshCw } from 'lucide-react';
 import DoubleLineGraph from '../Graphs/DoubleLineGraph';
 import { fetchGroupGanttChart } from '../../api/ganttApi';
 import { mapGroupGanttSeries, resolveGranularity, todayIsoDate } from '../../mappers/ganttMapper';
@@ -10,6 +10,7 @@ export default function GroupTimelineWidget({ data }) {
   const [consumptionData, setConsumptionData] = useState([]);
   const [selectedGrp, setSelectedGrp] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const timeDropdownOptions = [
     { value: 'day', label: 'Day' },
@@ -28,85 +29,99 @@ export default function GroupTimelineWidget({ data }) {
     }
   }, [grpDropdownOptions, selectedGrp]);
 
+  async function updateSourceData() {
+    if (selectedGrp === null) return;
+    
+    const granularity = resolveGranularity(timeRange);
+    const date = todayIsoDate();
+    
+    if (!granularity || !date) {
+      setSourceData([]);
+      setConsumptionData([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const raw = await fetchGroupGanttChart({
+        groupId: selectedGrp,
+        granularity,
+        date,
+        tz: 'Asia/Ho_Chi_Minh',
+      });
+      
+      const mapped = mapGroupGanttSeries(raw || []);
+      
+      const upper = [
+        {
+          id: 'grid',
+          color: '#F59E0B',
+          name: 'Grid',
+          data: mapped.grid || [],
+        },
+        {
+          id: 'solar',
+          color: '#10B981',
+          name: 'Solar',
+          data: mapped.pv || [],
+        },
+        {
+          id: 'battery',
+          color: '#3B82F6',
+          name: 'Battery (+ charge, - discharge)',
+          data: mapped.bess || [],
+        },
+      ];
+      
+      setSourceData(upper);
+      setConsumptionData([
+        {
+          id: 'consumption1',
+          color: '#EF4444',
+          name: 'Internal electric load',
+          data: (mapped.home_load || []).map((item) => ({
+            key: item.key,
+            value: item.value ? -item.value : 0,
+          })),
+        },
+      ]);
+    } catch (e) {
+      console.error('Error loading graph data', e);
+      setSourceData([]);
+      setConsumptionData([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (selectedGrp === null) return;
     
     let cancelled = false;
 
-    async function updateSourceData() {
-      const granularity = resolveGranularity(timeRange);
-      const date = todayIsoDate();
-      
-      if (!granularity || !date) {
-        setSourceData([]);
-        setConsumptionData([]);
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const raw = await fetchGroupGanttChart({
-          groupId: selectedGrp,
-          granularity,
-          date,
-          tz: 'Asia/Ho_Chi_Minh',
-        });
-        
-        if (cancelled) return;
-        
-        const mapped = mapGroupGanttSeries(raw || []);
-        
-        const upper = [
-          {
-            id: 'grid',
-            color: '#F59E0B',
-            name: 'Grid',
-            data: mapped.grid || [],
-          },
-          {
-            id: 'solar',
-            color: '#10B981',
-            name: 'Solar',
-            data: mapped.pv || [],
-          },
-          {
-            id: 'battery',
-            color: '#3B82F6',
-            name: 'Battery (+ charge, - discharge)',
-            data: mapped.bess || [],
-          },
-        ];
-        
-        setSourceData(upper);
-        setConsumptionData([
-          {
-            id: 'consumption1',
-            color: '#EF4444',
-            name: 'Internal electric load',
-            data: (mapped.home_load || []).map((item) => ({
-              key: item.key,
-              value: item.value ? -item.value : 0,
-            })),
-          },
-        ]);
-      } catch (e) {
-        if (cancelled) return;
-        console.error('Error loading graph data', e);
-        setSourceData([]);
-        setConsumptionData([]);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
+    async function load() {
+      await updateSourceData();
     }
 
-    updateSourceData();
+    load();
 
     return () => {
       cancelled = true;
     };
   }, [selectedGrp, timeRange]);
+
+  async function handleRefresh() {
+    if (isRefreshing || loading) return;
+    
+    setIsRefreshing(true);
+    try {
+      await updateSourceData();
+    } finally {
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 600);
+    }
+  }
 
   function selectGrp(value) {
     setSelectedGrp(value);
@@ -129,6 +144,19 @@ export default function GroupTimelineWidget({ data }) {
           <h2 className="text-lg font-bold text-slate-900">
             Group Energy Supply / Consumption Timeline
           </h2>
+          
+          {/* Refresh Button */}
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing || loading}
+            className="flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-slate-200/60 text-violet-600 hover:bg-violet-50 hover:border-violet-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            title="Refresh data"
+            aria-label="Refresh data"
+          >
+            <RefreshCw 
+              className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+          </button>
         </div>
 
         {/* Toggle Buttons - wrapped with onClick stopPropagation */}
