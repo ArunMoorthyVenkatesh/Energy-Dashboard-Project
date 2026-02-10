@@ -258,47 +258,4 @@
   .modalBody .toggleRow {
     margin-bottom: 6px;
   }
-
-/* =========================================================
-   RESPONSIVE DESIGN
-   ========================================================= */
-
-@media (max-width: 767px) {
-  .container {
-    border-radius: 12px;
-  }
-
-  .header {
-    padding: 8px 10px 10px;
-  }
-
-  .title {
-    font-size: 13px;
-    padding: 2px 40px 0;
-  }
-
-  .segBtn {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-
-  .body {
-    padding: 8px;
-  }
-
-  .modalContent {
-    width: 95vw;
-    height: 95vh;
-  }
-
-  .modalBody {
-    padding: 12px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .segBtn {
-    padding: 7px 11px;
-  }
-}
   

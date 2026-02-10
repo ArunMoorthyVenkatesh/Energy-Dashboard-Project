@@ -33,34 +33,3 @@
   display: block;
   flex-shrink: 0;
 }
-
-/* Responsive Design */
-@media (max-width: 767px) {
-  .weatherBox {
-    gap: 6px;
-  }
-
-  .weatherIcon {
-    width: 32px;
-    height: 32px;
-  }
-
-  .currentTemp {
-    font-size: 16px;
-  }
-
-  .minMaxTemp {
-    font-size: 10px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .weatherIcon {
-    width: 36px;
-    height: 36px;
-  }
-
-  .currentTemp {
-    font-size: 18px;
-  }
-}

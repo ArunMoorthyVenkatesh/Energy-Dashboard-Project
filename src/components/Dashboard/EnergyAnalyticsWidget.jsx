@@ -236,7 +236,7 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
       </div>
 
       {/* Usage Breakdown Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+      <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
         {/* Breakdown list */}
         <div className="flex flex-col">
           <h3 className="text-sm font-bold text-slate-900 mb-3">Electric Usage Breakdown</h3>

@@ -6,7 +6,6 @@ import PowerSvg from '../../assets/svg/PowerSvg';
 import RoundRightArrowSvg from '../../assets/svg/RoundRightArrowSvg';
 import SolarSvg from '../../assets/svg/SolarSvg';
 import { formatWithCommas } from '../../utils/FormatUtil';
-import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const COLOR = {
   solar: '#77A668',
@@ -50,7 +49,6 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
 
   const [lines, setLines] = useState([]);
   const [timeRange, setTimeRange] = useState('live');
-  const isMobile = useIsMobile();
 
   const TIME_OPTIONS = [
     { value: 'live', label: 'Live' },
@@ -258,43 +256,41 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         </div>
       </div>
 
-      {/* Arrows SVG - Hidden on mobile */}
-      {!isMobile && (
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          style={{ zIndex: 1 }}
-        >
-          <defs>
-            {lines.map((l, i) => (
-              <marker
-                key={i}
-                id={`arrowhead-${i}`}
-                markerWidth="8"
-                markerHeight="8"
-                refX="7"
-                refY="2.5"
-                orient="auto"
-              >
-                <polygon points="0 0, 8 2.5, 0 5" fill={l.color} />
-              </marker>
-            ))}
-          </defs>
-
+      {/* Arrows SVG */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ zIndex: 1 }}
+      >
+        <defs>
           {lines.map((l, i) => (
-            <line
+            <marker
               key={i}
-              x1={l.x1}
-              y1={l.y1}
-              x2={l.x2}
-              y2={l.y2}
-              stroke={l.color}
-              strokeWidth={isExpanded ? '2' : '1.5'}
-              strokeDasharray="5,5"
-              markerEnd={`url(#arrowhead-${i})`}
-            />
+              id={`arrowhead-${i}`}
+              markerWidth="8"
+              markerHeight="8"
+              refX="7"
+              refY="2.5"
+              orient="auto"
+            >
+              <polygon points="0 0, 8 2.5, 0 5" fill={l.color} />
+            </marker>
           ))}
-        </svg>
-      )}
+        </defs>
+
+        {lines.map((l, i) => (
+          <line
+            key={i}
+            x1={l.x1}
+            y1={l.y1}
+            x2={l.x2}
+            y2={l.y2}
+            stroke={l.color}
+            strokeWidth={isExpanded ? '2' : '1.5'}
+            strokeDasharray="5,5"
+            markerEnd={`url(#arrowhead-${i})`}
+          />
+        ))}
+      </svg>
 
       {/* Content */}
       <div
@@ -307,7 +303,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         }}
       >
         {/* Top Row - Energy Sources */}
-        <div className="flex flex-col md:flex-row justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0 gap-3 md:gap-4">
+        <div className="flex justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0">
           <ValueBlock refEl={solarRef} scaled={displayData.pv} color={COLOR.solar} isExpanded={isExpanded}>
             <SolarSvg style={{ fill: COLOR.solar }} /> solar cells
           </ValueBlock>
@@ -331,7 +327,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         </div>
 
         {/* Bottom Row - Usage & Export */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0 gap-3 md:gap-8">
+        <div className="flex justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0" style={{ gap: 'clamp(2rem, 10vw, 4rem)' }}>
           <ValueBlock refEl={usageRef} scaled={displayData.load} color={COLOR.usage} isExpanded={isExpanded}>
             <OutletSvg style={{ fill: COLOR.usage }} /> usage
           </ValueBlock>

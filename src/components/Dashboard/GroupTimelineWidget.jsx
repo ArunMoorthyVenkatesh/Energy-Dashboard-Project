@@ -160,69 +160,33 @@ export default function GroupTimelineWidget({ data }) {
         </div>
 
         {/* Toggle Buttons - wrapped with onClick stopPropagation */}
-        <div
-          className="flex flex-col md:flex-row md:items-center gap-3"
+        <div 
+          className="flex items-center gap-3"
           onClick={(e) => e.stopPropagation()} // Prevent expansion when clicking toggles
         >
           {/* Group Selection */}
           {grpDropdownOptions.length > 0 && (
-            <div className="w-full md:w-auto overflow-x-auto">
-              <div
-                className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60 min-w-max"
-                style={{
-                  boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
-                }}
-              >
-                {grpDropdownOptions.map((opt) => {
-                  const active = selectedGrp === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => selectGrp(opt.value)}
-                      className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
-                        active
-                          ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                      }`}
-                      style={
-                        active
-                          ? {
-                              boxShadow: '0 2px 8px rgba(139, 92, 246, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
-                            }
-                          : {}
-                      }
-                    >
-                      <span className="relative z-10">{opt.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Time Range Selection */}
-          <div className="w-full md:w-auto overflow-x-auto">
             <div
-              className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60 min-w-max"
+              className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
               style={{
                 boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
               }}
             >
-              {timeDropdownOptions.map((opt) => {
-                const active = timeRange === opt.value;
+              {grpDropdownOptions.map((opt) => {
+                const active = selectedGrp === opt.value;
                 return (
                   <button
                     key={opt.value}
-                    onClick={() => selectTimeRange(opt.value)}
+                    onClick={() => selectGrp(opt.value)}
                     className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
                       active
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
+                        ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                     }`}
                     style={
                       active
                         ? {
-                            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
+                            boxShadow: '0 2px 8px rgba(139, 92, 246, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
                           }
                         : {}
                     }
@@ -232,6 +196,38 @@ export default function GroupTimelineWidget({ data }) {
                 );
               })}
             </div>
+          )}
+
+          {/* Time Range Selection */}
+          <div
+            className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
+            style={{
+              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08)',
+            }}
+          >
+            {timeDropdownOptions.map((opt) => {
+              const active = timeRange === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => selectTimeRange(opt.value)}
+                  className={`relative px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 whitespace-nowrap ${
+                    active
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  }`}
+                  style={
+                    active
+                      ? {
+                          boxShadow: '0 2px 8px rgba(59, 130, 246, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1)',
+                        }
+                      : {}
+                  }
+                >
+                  <span className="relative z-10">{opt.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

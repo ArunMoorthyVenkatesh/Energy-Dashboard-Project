@@ -7,17 +7,3 @@
   border-radius: 5px;
   padding: 20px;
 }
-
-/* Responsive Design */
-@media (max-width: 767px) {
-  .container {
-    padding: 12px;
-    border-radius: 8px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .container {
-    padding: 16px;
-  }
-}

@@ -71,29 +71,3 @@
   object-fit: contain;
   transition: transform 0.3s ease;
 }
-
-/* ===== Responsive Design ===== */
-
-/* Mobile: Stack vertically, enlarge building */
-@media (max-width: 767px) {
-  .buildingImage img {
-    max-width: 75%;
-    max-height: 160px;
-  }
-
-  .infoValue {
-    font-size: 1rem;
-  }
-
-  .energySource {
-    font-size: 0.8rem;
-  }
-}
-
-/* Tablet: Adjust building size */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .buildingImage img {
-    max-width: 70%;
-    max-height: 180px;
-  }
-}

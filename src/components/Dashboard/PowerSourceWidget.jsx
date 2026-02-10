@@ -53,7 +53,7 @@ export default function PowerSourceWidget({ devices = [] }) {
 
         {/* Custom Dropdown - Left aligned with better styling */}
         {deviceOptions.length > 0 && (
-          <div className="relative w-full md:flex-1 md:max-w-xs">
+          <div className="relative flex-1 max-w-xs">
             <select
               value={selectedDeviceId || ''}
               onChange={(e) => setSelectedDeviceId(e.target.value)}
