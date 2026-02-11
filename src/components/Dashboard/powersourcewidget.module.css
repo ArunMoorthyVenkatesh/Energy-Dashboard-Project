@@ -1,12 +1,35 @@
 .container {
   width: 100%;
   height: 100%;
-
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  gap: 12px;
-
+  display: flex;
+  flex-direction: column;
   min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.deviceDropdown {
+  min-width: 200px;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .card {

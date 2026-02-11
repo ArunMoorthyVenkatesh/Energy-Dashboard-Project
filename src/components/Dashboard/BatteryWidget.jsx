@@ -1,34 +1,50 @@
-import { formatWithCommas } from '../../utils/FormatUtil';
+import { autoScalePower, autoScaleEnergy } from '../../utils/FormatUtil';
+import { Battery } from 'lucide-react';
+
+const STATUS_CONFIG = {
+  active: {
+    fg: '#059669',
+    bg: '#d1fae5',
+    borderColor: '#10b981',
+  },
+  inactive: {
+    fg: '#64748b',
+    bg: '#f1f5f9',
+    borderColor: '#94a3b8',
+  },
+};
 
 export default function BatteryWidget({ data }) {
   const device = data ?? null;
-
-  const STATUS_CONFIG = {
-    active: {
-      fg: '#059669',
-      bg: '#d1fae5',
-      borderColor: '#10b981',
-    },
-    inactive: {
-      fg: '#64748b',
-      bg: '#f1f5f9',
-      borderColor: '#94a3b8',
-    },
-  };
-
-  const isActive = device?.status === 'active';
-  const statusLabel = isActive ? 'Active' : 'Inactive';
   const statusStyle = STATUS_CONFIG[device?.status] || STATUS_CONFIG.inactive;
+  const statusLabel = device?.status === 'active' ? 'Active' : 'Inactive';
+
+  const energyToday = autoScaleEnergy(device?.power?.day?.import_kwh || 0);
+  const energyMonthly = autoScaleEnergy(device?.power?.month?.import_kwh || 0);
+  const energyLifetime = autoScaleEnergy(device?.power?.lifetime?.import_kwh || 0);
+  const currentPower = autoScalePower(device?.power?.now?.import_kw || 0);
+  const batteryLevel = device?.power?.now?.soc;
 
   return (
-    <div className="h-full flex flex-col gap-1.5 p-1.5 pt-4 overflow-hidden">
-      {/* Status Badge */}
-      <div className="flex items-center justify-between flex-shrink-0">
-        <span className="text-xs font-bold text-slate-900 truncate">
-          {device?.name ?? 'Device unavailable'}
-        </span>
+    <div className="h-full flex items-center gap-3 px-2">
+      {/* Battery Icon with Status Badge - Left Side */}
+      <div className="flex-shrink-0 flex items-center justify-center relative">
+        <div className="relative">
+          <Battery
+            className="w-24 h-24 text-slate-700"
+            strokeWidth={1.5}
+          />
+          {batteryLevel != null && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl font-black text-slate-900">
+                {batteryLevel}%
+              </span>
+            </div>
+          )}
+        </div>
+        {/* Status Badge */}
         <div
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-bold text-xs shadow-sm border-2 transition-all duration-200 flex-shrink-0"
+          className="absolute -top-1 -right-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-xs shadow-md border-2"
           style={{
             backgroundColor: statusStyle.bg,
             color: statusStyle.fg,
@@ -36,95 +52,61 @@ export default function BatteryWidget({ data }) {
           }}
         >
           <div
-            className="w-1.5 h-1.5 rounded-full animate-pulse shadow-sm"
+            className="w-1.5 h-1.5 rounded-full animate-pulse"
             style={{ backgroundColor: statusStyle.fg }}
           />
           <span>{statusLabel}</span>
         </div>
       </div>
 
-      {/* Device Info Grid */}
+      {/* Metrics - Stacked Vertically on Right */}
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-        <div className="grid grid-cols-2 gap-1.5">
-          <MetricCard
-            title="Device ID"
-            value={device?.deviceId || '-'}
-            unit=""
-            bgColor="from-emerald-100 to-teal-100"
-            borderColor="border-emerald-300/60"
-          />
-          <MetricCard
-            title="Site ID"
-            value={device?.siteId || '-'}
-            unit=""
-            bgColor="from-blue-100 to-cyan-100"
-            borderColor="border-blue-300/60"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-1.5">
-          <MetricCard
-            title="Type"
-            value={device?.deviceType || '-'}
-            unit=""
-            bgColor="from-orange-100 to-amber-100"
-            borderColor="border-orange-300/60"
-          />
-          <MetricCard
-            title="Role"
-            value={device?.energy?.role || '-'}
-            unit=""
-            bgColor="from-purple-100 to-fuchsia-100"
-            borderColor="border-purple-300/60"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-1.5">
-          <MetricCard
-            title="Direction"
-            value={device?.energy?.direction || '-'}
-            unit=""
-            bgColor="from-rose-100 to-pink-100"
-            borderColor="border-rose-300/60"
-          />
-          <MetricCard
-            title="Source"
-            value={device?.energy?.source || '-'}
-            unit=""
-            bgColor="from-green-100 to-lime-100"
-            borderColor="border-green-300/60"
-          />
-        </div>
-
-        {/* Timestamps */}
-        <div className="grid grid-cols-2 gap-1.5 mt-2">
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-1.5 border border-slate-200/60">
-            <div className="text-xs font-semibold text-slate-600 mb-0.5">Created</div>
-            <div className="text-xs text-slate-500 truncate">
-              {device?.createdAt ? new Date(device.createdAt).toLocaleDateString() : '-'}
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-1.5 border border-slate-200/60">
-            <div className="text-xs font-semibold text-slate-600 mb-0.5">Updated</div>
-            <div className="text-xs text-slate-500 truncate">
-              {device?.updatedAt ? new Date(device.updatedAt).toLocaleDateString() : '-'}
-            </div>
-          </div>
-        </div>
+        <MetricCard
+          title="Today"
+          value={energyToday.value}
+          unit={energyToday.unit}
+          bgColor="from-blue-50 to-cyan-50"
+          borderColor="border-blue-200/70"
+          textColor="text-blue-900"
+        />
+        <MetricCard
+          title="Monthly"
+          value={energyMonthly.value}
+          unit={energyMonthly.unit}
+          bgColor="from-emerald-50 to-teal-50"
+          borderColor="border-emerald-200/70"
+          textColor="text-emerald-900"
+        />
+        <MetricCard
+          title="Lifetime"
+          value={energyLifetime.value}
+          unit={energyLifetime.unit}
+          bgColor="from-purple-50 to-fuchsia-50"
+          borderColor="border-purple-200/70"
+          textColor="text-purple-900"
+        />
+        <MetricCard
+          title="Power"
+          value={currentPower.value}
+          unit={currentPower.unit}
+          bgColor="from-amber-50 to-orange-50"
+          borderColor="border-amber-200/70"
+          textColor="text-amber-900"
+        />
       </div>
     </div>
   );
 }
 
-function MetricCard({ title, value, unit, bgColor, borderColor }) {
+function MetricCard({ title, value, unit, bgColor, borderColor, textColor }) {
   return (
-    <div className={`bg-gradient-to-br ${bgColor} rounded-lg p-1.5 border-2 ${borderColor} shadow-sm hover:shadow-md transition-all duration-200`}>
-      <div className="flex flex-col gap-0.5">
-        <span className="text-xs font-semibold text-slate-700 truncate">{title}</span>
-        <div className="flex items-baseline gap-1">
-          <span className="text-sm font-black text-slate-900 truncate">{value}</span>
-          {unit && <span className="text-xs font-bold text-slate-600">{unit}</span>}
-        </div>
+    <div
+      className={`bg-gradient-to-br ${bgColor} rounded-lg px-3 py-1.5 border ${borderColor} shadow-sm hover:shadow transition-all duration-200 flex items-center justify-between`}
+    >
+      <div className="text-xs font-bold text-slate-700">{title}</div>
+      <div className="flex items-baseline gap-1.5">
+        <span className={`text-base font-black ${textColor}`}>{value}</span>
+        {unit && <span className="text-xs font-bold text-slate-600">{unit}</span>}
       </div>
     </div>
   );

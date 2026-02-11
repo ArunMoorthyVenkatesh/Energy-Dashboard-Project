@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { X, Clock, Calendar } from 'lucide-react';
 import { loadRuntimeConfig } from '../config/RuntimeConfig';
 import { mapSiteRealtimeEvent } from '../mappers/realtimeSiteMapper';
-import { fetchGroupsForSite, fetchSiteMetadata } from '../api';
+import { fetchGroupsForSite, fetchSiteMetadata, fetchSiteDevices } from '../api';
 import RealTimeKPIWidget from '../components/Dashboard/RealTimeKPIWidget';
 import EnergyAnalyticsWidget from '../components/Dashboard/EnergyAnalyticsWidget';
 import EnergyInOutWidget from '../components/Dashboard/EnergyInOutWidget';
@@ -29,56 +29,23 @@ function shallowPatchEqual(prevObj, patchObj) {
   return true;
 }
 
-async function fetchRealtimeFallback(siteId, apiKey, apiUrl) {
-  // ✅ prevent Safari 304 "error loading resource" by forcing a fresh URL
-  const url = `${apiUrl}/devices?ts=${Date.now()}`;
+async function fetchRealtimeFallback(siteId) {
+  try {
+    const deviceList = await fetchSiteDevices(siteId);
 
-  const res = await fetch(url, {
-    method: 'GET',
-    cache: 'no-store', // ✅ important
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'X-api-key': apiKey,
-      'Accept': 'application/json',
-      // ✅ bypass cache revalidation / ETag -> 304
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-    },
-  });
+    const deviceMap = {};
+    deviceList.forEach(device => {
+      deviceMap[device.deviceId] = {
+        ...device,
+        status: device.power?.now?.online ? 'active' : 'inactive',
+      };
+    });
 
-  // ✅ safer parsing (handles empty/non-json)
-  const contentType = res.headers.get('content-type') || '';
-  const text = await res.text();
-  if (!res.ok) throw new Error(`Devices fetch failed: ${res.status} ${text.slice(0, 200)}`);
-  if (!contentType.includes('application/json')) {
-    throw new Error(`Devices response not JSON: ${contentType} ${text.slice(0, 200)}`);
+    return deviceMap;
+  } catch (error) {
+    console.error('Failed to fetch devices in fallback:', error);
+    return {};
   }
-
-  const json = JSON.parse(text);
-  if (!json.success) throw new Error('Failed to fetch device data');
-
-  const items = Array.isArray(json.data) ? json.data : [];
-  const totalLoad = items.filter((d) => d.role === 'load').length;
-  const totalSolar = items.filter((d) => d.role === 'solar').length;
-  const totalGrid = items.filter((d) => d.role === 'grid').length;
-
-  return {
-    energyData: {
-      daily: { solar: totalSolar, load: totalLoad, grid: totalGrid },
-      monthly: {},
-      lifetime: {},
-    },
-    batteryData: [],
-    houseLoad: { daily: totalLoad },
-    summary: {
-      saving_summary: {},
-      energy_summary: { load: totalLoad, solar: totalSolar, grid: totalGrid },
-    },
-    carbonCredit: {
-      saving_summary: {},
-      energy_summary: { reduction: totalSolar * 0.2 },
-    },
-  };
 }
 
 function WidgetWrapper({ children, onExpand, compact = true, showExpand = true, noScroll = false }) {
@@ -132,6 +99,7 @@ export default function HomePage() {
     summary: { saving_summary: {}, energy_summary: {} },
     carbonCredit: { saving_summary: {}, energy_summary: {} },
   });
+  const [devices, setDevices] = useState({});
 
   const [siteInfo, setSiteInfo] = useState(null);
   const [groupData, setGroupData] = useState([]);
@@ -172,78 +140,34 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    if (!configLoaded) {
-      console.log('⏳ Waiting for config to load...');
+    if (!configLoaded || !siteId) {
+      console.log('⏳ Waiting for config and siteId to load...');
       return;
     }
 
-    const apiKey = runtimeConfigRef.current.API_KEY || process.env.REACT_APP_API_KEY || 'dev-ws-key';
-    const apiUrl = runtimeConfigRef.current.API_URL || process.env.REACT_APP_API_URL || 'https://api-semply.semply.cloud/api/v1/iot';
-
-    const fetchDevices = async () => {
+    const loadDevices = async () => {
       try {
-        // ✅ prevent Safari 304 "error loading resource" by forcing a fresh URL
-        const url = `${apiUrl}/devices?ts=${Date.now()}`;
+        const deviceList = await fetchSiteDevices(siteId);
+        console.log('📡 Fetched devices:', deviceList);
 
-        const response = await fetch(url, {
-          method: 'GET',
-          cache: 'no-store', // ✅ important
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'X-api-key': apiKey,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            // ✅ bypass cache revalidation / ETag -> 304
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-          }
+        // Normalize devices into a map by deviceId
+        const deviceMap = {};
+        deviceList.forEach(device => {
+          deviceMap[device.deviceId] = {
+            ...device,
+            status: device.power?.now?.online ? 'active' : 'inactive',
+          };
         });
 
-        // ✅ safer parsing (handles empty/non-json)
-        const contentType = response.headers.get('content-type') || '';
-        const rawText = await response.text();
-
-        if (!response.ok) {
-          console.error('❌ devices fetch failed:', response.status, rawText.slice(0, 300));
-          return;
-        }
-
-        if (!contentType.includes('application/json')) {
-          console.error('❌ devices response not JSON:', contentType, rawText.slice(0, 300));
-          return;
-        }
-
-        const json = JSON.parse(rawText);
-
-        console.log('📡 API Response:', json);
-
-        if (json.success && json.data) {
-          // ✅ Safety check: ensure json.data is an array
-          const dataArray = Array.isArray(json.data) ? json.data : [];
-
-          const allDevices = dataArray.map(device => ({
-            deviceId: device.deviceId,
-            id: device.id,
-            name: device.name,
-            role: device.role,
-            power: device.power,
-            status: device.power?.now?.online ? 'normal' : 'offline',
-          }));
-
-          console.log('✅ Mapped devices:', allDevices);
-
-          setWsData(prev => ({
-            ...prev,
-            batteryData: allDevices
-          }));
-        }
+        console.log('✅ Normalized device map:', deviceMap);
+        setDevices(deviceMap);
       } catch (error) {
         console.error('❌ Failed to fetch devices:', error);
       }
     };
 
-    fetchDevices();
-  }, [configLoaded]);
+    loadDevices();
+  }, [configLoaded, siteId]);
 
   useEffect(() => {
     if (!siteId) return;
@@ -281,15 +205,12 @@ export default function HomePage() {
   }, []);
 
   const startPollingFallback = useCallback(() => {
-    const apiKey = runtimeConfigRef.current.API_KEY || process.env.REACT_APP_API_KEY || 'dev-ws-key';
-    const apiUrl = runtimeConfigRef.current.API_URL || process.env.REACT_APP_API_URL || 'https://api-semply.semply.cloud/api/v1/iot';
-
     if (pollingRef.current) return;
 
     pollingRef.current = setInterval(async () => {
       try {
-        const data = await fetchRealtimeFallback(siteId, apiKey, apiUrl);
-        setWsData((prev) => (shallowPatchEqual(prev, data) ? prev : { ...prev, ...data }));
+        const deviceMap = await fetchRealtimeFallback(siteId);
+        setDevices(deviceMap);
       } catch (err) {
         console.warn('Polling failed', err);
       }
@@ -349,37 +270,27 @@ export default function HomePage() {
 
         setWsData((prev) => {
           const updated = { ...prev, ...mapped };
-
-          console.log('🔄 Before merge - batteryData:', prev.batteryData?.length);
-
-          if (prev.batteryData && prev.batteryData.length > 0) {
-            const updatedDevices = prev.batteryData.map(device => {
-              if (device.role === 'solar' && mapped.siteLevelSolarData) {
-                return {
-                  ...device,
-                  power: mapped.siteLevelSolarData.power,
-                  status: mapped.siteLevelSolarData.power.now.online ? 'normal' : 'offline'
-                };
-              }
-
-              if (device.role === 'battery' && mapped.batteryData) {
-                const wsDevice = mapped.batteryData.find(
-                  wd => String(wd.id) === String(device.id) || String(wd.deviceId) === String(device.deviceId)
-                );
-                if (wsDevice) {
-                  return { ...device, ...wsDevice, name: device.name, deviceId: device.deviceId };
-                }
-              }
-
-              return device;
-            });
-
-            updated.batteryData = updatedDevices;
-          }
-
-          console.log('🔄 After merge - batteryData:', updated.batteryData?.length);
-
           return shallowPatchEqual(prev, updated) ? prev : updated;
+        });
+      }
+
+      if (event.type === 'device_realtime_state') {
+        // Update individual device data in real-time
+        const deviceId = event.deviceId;
+        if (!deviceId) return;
+
+        setDevices((prev) => {
+          const existingDevice = prev[deviceId];
+          if (!existingDevice) return prev;
+
+          return {
+            ...prev,
+            [deviceId]: {
+              ...existingDevice,
+              power: event.power || existingDevice.power,
+              status: event.power?.now?.online ? 'active' : 'inactive',
+            },
+          };
         });
       }
     };
@@ -412,7 +323,7 @@ export default function HomePage() {
       case 'carbon_credit':
         return <CarbonCreditWidget data={wsData.carbonCredit} isExpanded={isExpanded} />;
       case 'battery':
-        return <PowerSourceWidget devices={wsData.batteryData || []} />;
+        return <PowerSourceWidget devices={Object.values(devices)} />;
       case 'group_energy_usage':
         return <GroupUsageWidget data={groupData} />;
       case 'group_energy_timeline':

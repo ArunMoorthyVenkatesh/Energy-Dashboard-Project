@@ -62,3 +62,19 @@ export async function fetchGroupTimeline({ groupId, timeRange, timeZone = DEFAUL
   const payload = res?.data?.data ?? res?.data ?? [];
   return mapGroupGanttResponse(payload);
 }
+
+/**
+ * Fetch all devices for a site.
+ * @param {number|string} siteId
+ * @returns {Promise<Array>}
+ */
+export async function fetchSiteDevices(siteId) {
+  if (!siteId) return [];
+  const res = await API({
+    method: "GET",
+    url: `/sites/${siteId}/devices`
+  });
+  // Response structure: { success: true, data: [...array...], error: null }
+  const payload = res?.data?.data ?? [];
+  return Array.isArray(payload) ? payload : [];
+}
