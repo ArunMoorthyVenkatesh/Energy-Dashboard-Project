@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Home, Settings, ChevronLeft, ChevronRight, Menu, X, Network } from "lucide-react";
+import { Home, Settings, ChevronLeft, ChevronRight, Menu, X, Network, MapPin, Video } from "lucide-react";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -171,23 +171,50 @@ export default function DashboardLayout() {
             </div>
           </button>
 
-          {/* Group and Site Management Button */}
+          {/* Site Management Button */}
+          <button
+            onClick={() => onClickPage("/iot-dashboard/sites")}
+            className={`w-full flex items-center ${
+              isCollapsed ? "lg:justify-center lg:px-4" : "gap-3 lg:gap-4"
+            } px-4 lg:px-5 py-3 lg:py-4 rounded-2xl transition-all duration-300 font-semibold text-sm group relative overflow-hidden ${
+              activePage === "/iot-dashboard/sites" || activePage === "/iot-dashboard/sites/"
+                ? "bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-600/20"
+                : "text-slate-700 hover:bg-slate-50 hover:shadow-md"
+            }`}
+            title={isCollapsed ? "Site Management" : ""}
+          >
+            {!(activePage === "/iot-dashboard/sites" || activePage === "/iot-dashboard/sites/") && (
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+            )}
+            <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
+              <MapPin className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
+                activePage === "/iot-dashboard/sites" || activePage === "/iot-dashboard/sites/" ? "" : "group-hover:text-white"
+              }`} />
+              {!isCollapsed && (
+                <span className={`transition-colors ${
+                  activePage === "/iot-dashboard/sites" || activePage === "/iot-dashboard/sites/" ? "" : "group-hover:text-white"
+                }`}>
+                  Site Management
+                </span>
+              )}
+            </div>
+          </button>
+
+          {/* Group Management Button */}
           <button
             onClick={() => onClickPage("/iot-dashboard/groups")}
             className={`w-full flex items-center ${
               isCollapsed ? "lg:justify-center lg:px-4" : "gap-3 lg:gap-4"
             } px-4 lg:px-5 py-3 lg:py-4 rounded-2xl transition-all duration-300 font-semibold text-sm group relative overflow-hidden ${
               activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/"
-                ? "bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-600/20"
+                ? "bg-gradient-to-r from-teal-600 to-cyan-700 text-white shadow-lg shadow-teal-600/20"
                 : "text-slate-700 hover:bg-slate-50 hover:shadow-md"
             }`}
-            title={isCollapsed ? "Group and Site Management" : ""}
+            title={isCollapsed ? "Group Management" : ""}
           >
-            {/* Hover effect overlay */}
             {!(activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/") && (
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
             )}
-
             <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
               <Network className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
                 activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/" ? "" : "group-hover:text-white"
@@ -196,7 +223,36 @@ export default function DashboardLayout() {
                 <span className={`transition-colors ${
                   activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/" ? "" : "group-hover:text-white"
                 }`}>
-                  Group & Site Management
+                  Group Management
+                </span>
+              )}
+            </div>
+          </button>
+
+          {/* CCTV Management Button */}
+          <button
+            onClick={() => onClickPage("/iot-dashboard/cctv")}
+            className={`w-full flex items-center ${
+              isCollapsed ? "lg:justify-center lg:px-4" : "gap-3 lg:gap-4"
+            } px-4 lg:px-5 py-3 lg:py-4 rounded-2xl transition-all duration-300 font-semibold text-sm group relative overflow-hidden ${
+              activePage === "/iot-dashboard/cctv" || activePage === "/iot-dashboard/cctv/"
+                ? "bg-gradient-to-r from-slate-600 to-gray-700 text-white shadow-lg shadow-slate-600/20"
+                : "text-slate-700 hover:bg-slate-50 hover:shadow-md"
+            }`}
+            title={isCollapsed ? "CCTV Management" : ""}
+          >
+            {!(activePage === "/iot-dashboard/cctv" || activePage === "/iot-dashboard/cctv/") && (
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-500 to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+            )}
+            <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
+              <Video className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
+                activePage === "/iot-dashboard/cctv" || activePage === "/iot-dashboard/cctv/" ? "" : "group-hover:text-white"
+              }`} />
+              {!isCollapsed && (
+                <span className={`transition-colors ${
+                  activePage === "/iot-dashboard/cctv" || activePage === "/iot-dashboard/cctv/" ? "" : "group-hover:text-white"
+                }`}>
+                  CCTV Management
                 </span>
               )}
             </div>

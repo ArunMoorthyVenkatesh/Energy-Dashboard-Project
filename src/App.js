@@ -3,8 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
-import DeviceManagementPage from './pages/DeviceManagementPage'; // ✨ ADD THIS
-import GroupSiteManagementPage from './pages/GroupSiteManagementPage';
+import DeviceManagementPage from './pages/DeviceManagementPage';
+import SiteManagementPage from './pages/SiteManagementPage';
+import GroupManagementPage from './pages/GroupManagementPage';
+import CCTVManagementPage from './pages/CCTVManagementPage';
 
 // 🌍 Helper to safely read environment variables with defaults
 const getEnv = (key, fallback) => process.env[key] || fallback;
@@ -35,8 +37,10 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="iot-dashboard" element={<DashboardLayout />}>
           <Route index element={<HomePage />} />
-          <Route path="devices" element={<DeviceManagementPage />} /> {/* ✨ ADD THIS LINE */}
-          <Route path="groups" element={<GroupSiteManagementPage />} />
+          <Route path="devices" element={<DeviceManagementPage />} />
+          <Route path="sites" element={<SiteManagementPage />} />
+          <Route path="groups" element={<GroupManagementPage />} />
+          <Route path="cctv" element={<CCTVManagementPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

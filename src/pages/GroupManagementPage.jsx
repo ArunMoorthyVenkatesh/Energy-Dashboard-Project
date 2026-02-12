@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Network, MapPin, Cpu, ChevronDown, Zap, RefreshCw, AlertCircle, Loader2, BarChart3, X, Activity, Clock, Shield } from 'lucide-react';
+import { Network, Cpu, ChevronDown, Zap, RefreshCw, AlertCircle, Loader2, BarChart3, X, Activity, Clock, Shield, MapPin } from 'lucide-react';
 import { fetchSiteMetadata, fetchGroupsForSite, fetchSiteDevices } from '../api';
 import { fetchGroupGanttChart } from '../api/ganttApi';
 import API from '../api/BaseAPI';
@@ -53,9 +53,8 @@ const DataTile = ({ label, value, icon: Icon, colorClass, labelColor }) => (
   </motion.div>
 );
 
-export default function GroupSiteManagementPage() {
+export default function GroupManagementPage() {
   const [siteId, setSiteId] = useState('TKKHEAD01');
-  const [siteInfo, setSiteInfo] = useState(null);
   const [groups, setGroups] = useState([]);
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,8 +72,7 @@ export default function GroupSiteManagementPage() {
     setLoading(true);
     setError(null);
     try {
-      const [siteMeta, groupList, deviceList] = await Promise.all([
-        fetchSiteMetadata(currentSiteId),
+      const [groupList, deviceList] = await Promise.all([
         fetchGroupsForSite(currentSiteId),
         fetchSiteDevices(currentSiteId),
       ]);
@@ -91,12 +89,11 @@ export default function GroupSiteManagementPage() {
         console.warn('Failed to fetch raw energy-usage-list:', e);
       }
 
-      setSiteInfo(siteMeta);
       setGroups(groupList);
       setDevices(deviceList);
       setRawGroupData(rawItems);
     } catch (err) {
-      console.error('Failed to load group & site data:', err);
+      console.error('Failed to load group data:', err);
       setError('Failed to load data. Please try again.');
     } finally {
       setLoading(false);
@@ -205,8 +202,6 @@ export default function GroupSiteManagementPage() {
     return devices.filter((d) => ids.includes(String(d.deviceId)) || ids.includes(String(d.id)));
   };
 
-  const onlineDevices = devices.filter((d) => d.power?.now?.online);
-
   const ROLE_COLORS = {
     load: 'bg-orange-100 text-orange-700 border-orange-300',
     solar: 'bg-yellow-100 text-yellow-700 border-yellow-300',
@@ -231,7 +226,7 @@ export default function GroupSiteManagementPage() {
           </div>
           <div className="text-center">
             <p className="text-emerald-800 font-bold text-base">Loading data...</p>
-            <p className="text-teal-600 text-sm mt-1">Fetching groups & site information</p>
+            <p className="text-teal-600 text-sm mt-1">Fetching group information</p>
           </div>
         </motion.div>
       </div>
@@ -284,7 +279,7 @@ export default function GroupSiteManagementPage() {
           </motion.div>
           <div>
             <h1 className="text-2xl lg:text-3xl font-extrabold text-emerald-950 tracking-tight">
-              Group & Site Management
+              Group Management
             </h1>
             <p className="text-sm text-teal-600 font-semibold mt-0.5">Manage your energy groups and devices</p>
           </div>
@@ -300,54 +295,6 @@ export default function GroupSiteManagementPage() {
           <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
         </motion.button>
       </motion.div>
-
-      {/* Site Info Card */}
-      {siteInfo && (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          custom={1}
-          variants={fadeIn}
-          className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-3xl shadow-md shadow-emerald-100/40 border border-emerald-200/30 p-7 lg:p-9 mb-10"
-        >
-          {/* Decorative elements */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-gradient-to-br from-emerald-200/25 to-teal-200/25 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-gradient-to-br from-cyan-200/20 to-teal-200/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-t-3xl" />
-
-          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: -6 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-                className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 shadow-xl shadow-emerald-300/30"
-              >
-                <MapPin className="w-7 h-7 text-white" />
-              </motion.div>
-              <div>
-                <h2 className="text-xl font-extrabold text-emerald-950 tracking-tight">
-                  {siteInfo.name || 'Unknown Site'}
-                </h2>
-                <p className="text-sm text-teal-700 mt-1 flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-emerald-800 bg-white/70 backdrop-blur-sm px-2 py-0.5 rounded-md border border-emerald-200/50 text-xs">
-                    {siteId}
-                  </span>
-                  {siteInfo.address && (
-                    <span className="text-teal-600 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" /> {siteInfo.address}
-                    </span>
-                  )}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <StatCard value={groups.length} label="Groups" color="text-emerald-600" icon={Network} />
-              <StatCard value={devices.length} label="Devices" color="text-teal-600" icon={Cpu} />
-              <StatCard value={onlineDevices.length} label="Online" color="text-cyan-600" icon={Activity} />
-            </div>
-          </div>
-        </motion.div>
-      )}
 
       {/* Groups List */}
       <motion.div initial="hidden" animate="visible" custom={2} variants={fadeIn}>
@@ -397,7 +344,6 @@ export default function GroupSiteManagementPage() {
                       : 'border-emerald-100/60 hover:shadow-lg hover:border-emerald-200/60 shadow-sm'
                   }`}
                 >
-                  {/* Top accent bar when expanded */}
                   <div className={`h-0.5 transition-all duration-300 ${isExpanded ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400' : 'bg-transparent'}`} />
 
                   {/* Group Header */}
@@ -484,7 +430,6 @@ export default function GroupSiteManagementPage() {
                                 </span>
                               </h4>
 
-                              {/* Horizontal scroll container */}
                               <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
                                 {entry.devices.map((dev, devIdx) => {
                                   const siteDevice = devices.find((d) => String(d.deviceId) === String(dev.deviceId));
@@ -567,7 +512,6 @@ export default function GroupSiteManagementPage() {
 
                                         return (
                                           <div>
-                                            {/* Device header */}
                                             <div className="flex items-center justify-between mb-6">
                                               <div className="flex items-center gap-4">
                                                 <motion.div
@@ -603,7 +547,6 @@ export default function GroupSiteManagementPage() {
                                               </motion.button>
                                             </div>
 
-                                            {/* Device data grid */}
                                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                                               <DataTile
                                                 label="Status"
