@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Network, Cpu, ChevronDown, Zap, RefreshCw, AlertCircle, Loader2, BarChart3, X, Activity, Clock, Shield, MapPin } from 'lucide-react';
-import { fetchSiteMetadata, fetchGroupsForSite, fetchSiteDevices } from '../api';
+import { Network, Cpu, ChevronDown, Zap, RefreshCw, AlertCircle, Loader2, BarChart3, X, Activity, Clock, Shield, Search } from 'lucide-react';
+import { fetchGroupsForSite, fetchSiteDevices } from '../api';
 import { fetchGroupGanttChart } from '../api/ganttApi';
 import API from '../api/BaseAPI';
 import { loadRuntimeConfig } from '../config/RuntimeConfig';
@@ -25,18 +25,6 @@ const scaleIn = {
   hidden: { opacity: 0, scale: 0.92 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
 };
-
-const StatCard = ({ value, label, color, icon: Icon }) => (
-  <motion.div
-    whileHover={{ scale: 1.06, y: -3 }}
-    transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-    className="bg-white/80 backdrop-blur-md px-5 py-3.5 rounded-2xl border border-white/50 text-center shadow-sm hover:shadow-lg transition-all"
-  >
-    {Icon && <Icon className={`w-4 h-4 mx-auto mb-1 ${color}`} />}
-    <p className={`text-2xl font-black ${color}`}>{value}</p>
-    <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-widest mt-0.5">{label}</p>
-  </motion.div>
-);
 
 const DataTile = ({ label, value, icon: Icon, colorClass, labelColor }) => (
   <motion.div
@@ -67,6 +55,8 @@ export default function GroupManagementPage() {
   const [deviceEnergyLoading, setDeviceEnergyLoading] = useState({});
   const [rawGroupData, setRawGroupData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
+  const [groupDeviceSearchQuery, setGroupDeviceSearchQuery] = useState('');
 
   const loadData = useCallback(async (currentSiteId) => {
     setLoading(true);
@@ -129,6 +119,7 @@ export default function GroupManagementPage() {
     }
     setExpandedGroup(groupId);
     setExpandedDevice(null);
+    setGroupDeviceSearchQuery('');
 
     if (!groupGanttData[groupId]) {
       setGanttLoading((prev) => ({ ...prev, [groupId]: true }));
@@ -308,22 +299,50 @@ export default function GroupManagementPage() {
           </span>
         </h2>
 
-        {groups.length === 0 ? (
-          <motion.div
-            variants={scaleIn}
-            initial="hidden"
-            animate="visible"
-            className="bg-white/80 backdrop-blur-sm rounded-3xl border border-emerald-100 p-12 text-center shadow-sm"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center mx-auto mb-5 shadow-md">
-              <Network className="w-8 h-8 text-emerald-300" />
+        {/* Group Search */}
+        <div className="relative mb-5">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
+          <input
+            type="text"
+            placeholder="Search groups by name or ID..."
+            value={groupSearchQuery}
+            onChange={(e) => setGroupSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200/60 rounded-xl text-sm text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 transition-all shadow-sm"
+          />
+        </div>
+
+        {(() => {
+          const filteredGroups = groups.filter((g) => {
+            if (!groupSearchQuery) return true;
+            const q = groupSearchQuery.toLowerCase();
+            return (g.name || '').toLowerCase().includes(q) || String(g.id || '').toLowerCase().includes(q);
+          });
+
+          if (groups.length === 0) return (
+            <motion.div
+              variants={scaleIn}
+              initial="hidden"
+              animate="visible"
+              className="bg-white/80 backdrop-blur-sm rounded-3xl border border-emerald-100 p-12 text-center shadow-sm"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center mx-auto mb-5 shadow-md">
+                <Network className="w-8 h-8 text-emerald-300" />
+              </div>
+              <p className="text-emerald-700 font-semibold text-base">No groups found for this site</p>
+              <p className="text-teal-500 text-sm mt-1">Groups will appear here once configured</p>
+            </motion.div>
+          );
+
+          if (filteredGroups.length === 0) return (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-emerald-100 p-8 text-center shadow-sm">
+              <Search className="w-6 h-6 text-emerald-200 mx-auto mb-2" />
+              <p className="text-sm text-teal-600 font-medium">No groups match "{groupSearchQuery}"</p>
             </div>
-            <p className="text-emerald-700 font-semibold text-base">No groups found for this site</p>
-            <p className="text-teal-500 text-sm mt-1">Groups will appear here once configured</p>
-          </motion.div>
-        ) : (
+          );
+
+          return (
           <div className="space-y-5">
-            {groups.map((group, groupIndex) => {
+            {filteredGroups.map((group, groupIndex) => {
               const isExpanded = expandedGroup === group.id;
               const devicesByType = getDevicesByType(group);
               const matchedSiteDevices = getMatchedSiteDevices(group);
@@ -412,8 +431,28 @@ export default function GroupManagementPage() {
                         className="overflow-hidden"
                       >
                         <div className="border-t border-emerald-100 p-6 bg-gradient-to-b from-emerald-50/40 via-white/60 to-white/40 space-y-7">
+                          {/* Device Search within Group */}
+                          <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
+                            <input
+                              type="text"
+                              placeholder="Search devices in this group..."
+                              value={groupDeviceSearchQuery}
+                              onChange={(e) => setGroupDeviceSearchQuery(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-full pl-11 pr-4 py-2.5 bg-white/80 backdrop-blur-sm border border-emerald-200/60 rounded-xl text-sm text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 transition-all shadow-sm"
+                            />
+                          </div>
+
                           {/* Devices grouped by type */}
-                          {devicesByType.length > 0 && devicesByType.map((entry, typeIdx) => (
+                          {devicesByType.length > 0 && devicesByType.map((entry, typeIdx) => {
+                            const filteredEntryDevices = entry.devices.filter((dev) => {
+                              if (!groupDeviceSearchQuery) return true;
+                              const q = groupDeviceSearchQuery.toLowerCase();
+                              return (dev.name || '').toLowerCase().includes(q) || String(dev.deviceId || '').toLowerCase().includes(q);
+                            });
+                            if (filteredEntryDevices.length === 0) return null;
+                            return (
                             <motion.div
                               key={entry.type}
                               initial={{ opacity: 0, y: 12 }}
@@ -426,12 +465,12 @@ export default function GroupManagementPage() {
                                 </div>
                                 {entry.type}
                                 <span className="text-[11px] bg-teal-100 text-teal-700 px-2.5 py-0.5 rounded-full font-bold">
-                                  {entry.devices.length}
+                                  {filteredEntryDevices.length}
                                 </span>
                               </h4>
 
                               <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
-                                {entry.devices.map((dev, devIdx) => {
+                                {filteredEntryDevices.map((dev, devIdx) => {
                                   const siteDevice = devices.find((d) => String(d.deviceId) === String(dev.deviceId));
                                   const isOnline = siteDevice?.power?.now?.online;
                                   const isDevExpanded = expandedDevice === dev.deviceId;
@@ -474,7 +513,7 @@ export default function GroupManagementPage() {
 
                               {/* Expanded device detail panel */}
                               <AnimatePresence>
-                                {entry.devices.some((dev) => expandedDevice === dev.deviceId) && (
+                                {filteredEntryDevices.some((dev) => expandedDevice === dev.deviceId) && (
                                   <motion.div
                                     initial={{ opacity: 0, y: -10, height: 0 }}
                                     animate={{ opacity: 1, y: 0, height: 'auto' }}
@@ -484,7 +523,7 @@ export default function GroupManagementPage() {
                                   >
                                     <div className="mt-4 bg-white rounded-2xl border border-emerald-200/50 p-6 shadow-lg shadow-emerald-50/50">
                                       {(() => {
-                                        const dev = entry.devices.find((d) => expandedDevice === d.deviceId);
+                                        const dev = filteredEntryDevices.find((d) => expandedDevice === d.deviceId);
                                         if (!dev) return null;
                                         const devData = deviceEnergyData[dev.deviceId];
                                         const isLoading = deviceEnergyLoading[dev.deviceId];
@@ -711,7 +750,8 @@ export default function GroupManagementPage() {
                                 )}
                               </AnimatePresence>
                             </motion.div>
-                          ))}
+                            );
+                          })}
 
                           {/* Gantt Chart Data */}
                           <motion.div
@@ -783,7 +823,8 @@ export default function GroupManagementPage() {
               );
             })}
           </div>
-        )}
+          );
+        })()}
       </motion.div>
     </div>
   );

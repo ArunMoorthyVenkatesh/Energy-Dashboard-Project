@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Cpu, Network, RefreshCw, AlertCircle, Loader2, Activity, Clock, Shield, Zap, X } from 'lucide-react';
-import { fetchSiteMetadata, fetchSiteDevices } from '../api';
+import { MapPin, Cpu, Network, RefreshCw, AlertCircle, Loader2, Activity, Clock, Shield, X, Search } from 'lucide-react';
+import { fetchSiteMetadata, fetchSiteDevices, fetchGroupsForSite } from '../api';
 import { loadRuntimeConfig } from '../config/RuntimeConfig';
 
 const fadeIn = {
@@ -11,11 +12,6 @@ const fadeIn = {
     y: 0,
     transition: { delay: i * 0.07, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
   }),
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.92 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const StatCard = ({ value, label, color, icon: Icon }) => (
@@ -46,24 +42,29 @@ const DataTile = ({ label, value, icon: Icon, colorClass, labelColor }) => (
 );
 
 export default function SiteManagementPage() {
+  const navigate = useNavigate();
   const [siteId, setSiteId] = useState('TKKHEAD01');
   const [siteInfo, setSiteInfo] = useState(null);
   const [devices, setDevices] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedDevice, setExpandedDevice] = useState(null);
+  const [deviceSearchQuery, setDeviceSearchQuery] = useState('');
 
   const loadData = useCallback(async (currentSiteId) => {
     setLoading(true);
     setError(null);
     try {
-      const [siteMeta, deviceList] = await Promise.all([
+      const [siteMeta, deviceList, groupList] = await Promise.all([
         fetchSiteMetadata(currentSiteId),
         fetchSiteDevices(currentSiteId),
+        fetchGroupsForSite(currentSiteId),
       ]);
       setSiteInfo(siteMeta);
       setDevices(deviceList);
+      setGroups(groupList);
     } catch (err) {
       console.error('Failed to load site data:', err);
       setError('Failed to load data. Please try again.');
@@ -92,6 +93,7 @@ export default function SiteManagementPage() {
   useEffect(() => {
     if (siteId) loadData(siteId);
   }, [siteId, loadData]);
+  
 
   const onlineDevices = devices.filter((d) => d.power?.now?.online);
 
@@ -228,6 +230,7 @@ export default function SiteManagementPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <StatCard value={groups.length} label="Groups" color="text-emerald-600" icon={Network} />
               <StatCard value={devices.length} label="Devices" color="text-teal-600" icon={Cpu} />
               <StatCard value={onlineDevices.length} label="Online" color="text-cyan-600" icon={Activity} />
             </div>
@@ -235,9 +238,59 @@ export default function SiteManagementPage() {
         </motion.div>
       )}
 
+      {/* Groups Overview */}
+      <motion.div initial="hidden" animate="visible" custom={2} variants={fadeIn} className="mb-10">
+        <h2 className="text-lg font-extrabold text-emerald-950 flex items-center gap-2.5 mb-5">
+          <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl shadow-sm">
+            <Network className="w-4.5 h-4.5 text-emerald-600" />
+          </div>
+          Groups
+          <span className="text-sm font-bold text-emerald-500 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+            {groups.length}
+          </span>
+        </h2>
+        {groups.length > 0 ? (
+          <div className="space-y-3">
+            {groups.map((group, idx) => {
+              const totalDevices = group.devices?.length || 0;
+              return (
+                <motion.button
+                  key={group.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05, duration: 0.35 }}
+                  whileHover={{ y: -2, scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() =>
+                    navigate('/groups', {
+                      state: { groupId: group.id },
+                    })
+                  }
+                                    className="w-full rounded-2xl border p-5 text-left bg-white border-emerald-100 hover:shadow-lg hover:border-emerald-200 shadow-sm transition-all duration-200 flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      {group.id || 'G'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-emerald-900">{group.name || `Group ${group.id}`}</p>
+                      <p className="text-[11px] text-teal-500 mt-0.5 font-semibold">
+                        {totalDevices} device{totalDevices !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-teal-500 font-medium">No groups configured</p>
+        )}
+      </motion.div>
+
       {/* All Devices List */}
-      <motion.div initial="hidden" animate="visible" custom={2} variants={fadeIn}>
-        <h2 className="text-lg font-extrabold text-emerald-950 flex items-center gap-2.5 mb-6">
+      <motion.div initial="hidden" animate="visible" custom={3} variants={fadeIn}>
+        <h2 className="text-lg font-extrabold text-emerald-950 flex items-center gap-2.5 mb-5">
           <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl shadow-sm">
             <Cpu className="w-4.5 h-4.5 text-emerald-600" />
           </div>
@@ -247,22 +300,43 @@ export default function SiteManagementPage() {
           </span>
         </h2>
 
-        {devices.length === 0 ? (
-          <motion.div
-            variants={scaleIn}
-            initial="hidden"
-            animate="visible"
-            className="bg-white/80 backdrop-blur-sm rounded-3xl border border-emerald-100 p-12 text-center shadow-sm"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center mx-auto mb-5 shadow-md">
-              <Cpu className="w-8 h-8 text-emerald-300" />
-            </div>
-            <p className="text-emerald-700 font-semibold text-base">No devices found for this site</p>
-            <p className="text-teal-500 text-sm mt-1">Devices will appear here once configured</p>
-          </motion.div>
+        {/* Device Search */}
+        <div className="relative mb-5">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
+          <input
+            type="text"
+            placeholder="Search devices by name or ID..."
+            value={deviceSearchQuery}
+            onChange={(e) => setDeviceSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200/60 rounded-xl text-sm text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 transition-all shadow-sm"
+          />
+        </div>
+
+        {(() => {
+          const filteredDevices = devices.filter((dev) => {
+            if (!deviceSearchQuery) return true;
+            const q = deviceSearchQuery.toLowerCase();
+            return (dev.name || '').toLowerCase().includes(q) || String(dev.deviceId || dev.id || '').toLowerCase().includes(q);
+          });
+
+          return filteredDevices.length === 0 ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-emerald-100 p-8 text-center shadow-sm">
+            {deviceSearchQuery ? (
+              <>
+                <Search className="w-6 h-6 text-emerald-200 mx-auto mb-2" />
+                <p className="text-sm text-teal-600 font-medium">No devices match "{deviceSearchQuery}"</p>
+              </>
+            ) : (
+              <>
+                <Cpu className="w-8 h-8 text-emerald-300 mx-auto mb-3" />
+                <p className="text-emerald-700 font-semibold text-base">No devices found for this site</p>
+                <p className="text-teal-500 text-sm mt-1">Devices will appear here once configured</p>
+              </>
+            )}
+          </div>
         ) : (
           <div className="flex gap-3 flex-wrap">
-            {devices.map((dev, devIdx) => {
+            {filteredDevices.map((dev, devIdx) => {
               const isOnline = dev.power?.now?.online;
               const isDevExpanded = expandedDevice === (dev.deviceId || dev.id);
               const role = dev.role || 'none';
@@ -302,7 +376,8 @@ export default function SiteManagementPage() {
               );
             })}
           </div>
-        )}
+        );
+        })()}
 
         {/* Expanded device detail */}
         {expandedDevice && (() => {
