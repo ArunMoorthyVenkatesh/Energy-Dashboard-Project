@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Home, Settings, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
+import { Home, Settings, ChevronLeft, ChevronRight, Menu, X, Network } from "lucide-react";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -166,6 +166,37 @@ export default function DashboardLayout() {
                   activePage === "/iot-dashboard/devices" || activePage === "/iot-dashboard/devices/" ? "" : "group-hover:text-white"
                 }`}>
                   Device Management
+                </span>
+              )}
+            </div>
+          </button>
+
+          {/* Group and Site Management Button */}
+          <button
+            onClick={() => onClickPage("/iot-dashboard/groups")}
+            className={`w-full flex items-center ${
+              isCollapsed ? "lg:justify-center lg:px-4" : "gap-3 lg:gap-4"
+            } px-4 lg:px-5 py-3 lg:py-4 rounded-2xl transition-all duration-300 font-semibold text-sm group relative overflow-hidden ${
+              activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/"
+                ? "bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-600/20"
+                : "text-slate-700 hover:bg-slate-50 hover:shadow-md"
+            }`}
+            title={isCollapsed ? "Group and Site Management" : ""}
+          >
+            {/* Hover effect overlay */}
+            {!(activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/") && (
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+            )}
+
+            <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
+              <Network className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
+                activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/" ? "" : "group-hover:text-white"
+              }`} />
+              {!isCollapsed && (
+                <span className={`transition-colors ${
+                  activePage === "/iot-dashboard/groups" || activePage === "/iot-dashboard/groups/" ? "" : "group-hover:text-white"
+                }`}>
+                  Group & Site Management
                 </span>
               )}
             </div>

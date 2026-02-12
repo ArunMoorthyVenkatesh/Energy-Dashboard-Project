@@ -4,6 +4,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
 import DeviceManagementPage from './pages/DeviceManagementPage'; // ✨ ADD THIS
+import GroupSiteManagementPage from './pages/GroupSiteManagementPage';
 
 // 🌍 Helper to safely read environment variables with defaults
 const getEnv = (key, fallback) => process.env[key] || fallback;
@@ -35,6 +36,7 @@ function App() {
         <Route path="iot-dashboard" element={<DashboardLayout />}>
           <Route index element={<HomePage />} />
           <Route path="devices" element={<DeviceManagementPage />} /> {/* ✨ ADD THIS LINE */}
+          <Route path="groups" element={<GroupSiteManagementPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
