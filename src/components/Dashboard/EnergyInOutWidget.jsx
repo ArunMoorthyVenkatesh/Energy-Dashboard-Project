@@ -205,20 +205,20 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
   }, [timeRange, isExpanded]);
 
   return (
-    <div 
-      className="h-full flex flex-col relative p-4"
+    <div
+      className="h-full flex flex-col relative p-2 sm:p-4"
       ref={containerRef}
     >
       {/* Header - Matching other widgets */}
-      <div 
-        className="flex flex-col gap-3 mb-3 pb-3 border-b border-slate-200/60 flex-shrink-0"
+      <div
+        className="flex flex-col gap-2 sm:gap-3 mb-2 sm:mb-3 pb-2 sm:pb-3 border-b border-slate-200/60 flex-shrink-0"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-amber-100 to-orange-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-amber-200/60">
-            <Zap className="w-5 h-5 text-amber-600" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="bg-gradient-to-br from-amber-100 to-orange-100 backdrop-blur-sm rounded-lg sm:rounded-xl p-1.5 sm:p-2 shadow-sm border border-amber-200/60 flex-shrink-0">
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
           </div>
-          <h2 className="text-base font-bold text-slate-900">Energy Input & Output</h2>
+          <h2 className="text-sm sm:text-base font-bold text-slate-900">Energy Input & Output</h2>
         </div>
 
         {/* Time Range Selector - Centered */}
@@ -326,7 +326,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
             src="toyota_building.png"
             alt="toyota building"
             className="w-auto h-auto object-contain transition-transform hover:scale-105"
-            style={{ maxWidth: '60%', maxHeight: 'clamp(120px, 25vh, 220px)' }}
+            style={{ maxWidth: '50%', maxHeight: 'clamp(80px, 20vh, 220px)' }}
           />
         </div>
 

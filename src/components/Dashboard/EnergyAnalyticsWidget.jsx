@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from 'react';
-import { TrendingUp } from 'lucide-react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { TrendingUp, RefreshCw } from 'lucide-react';
 import PieGraph from '../Graphs/PieGraph';
 import TimelineBarchart from '../Graphs/TimelineBarchart';
 import { formatWithCommas } from '../../utils/FormatUtil';
@@ -56,11 +56,12 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
   const [usageGraphData, setUsageGraphData] = useState([]);
   const [energyBucket, setEnergyBucket] = useState(null);
   const [loadingGantt, setLoadingGantt] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   /* ---------------------------
    * GANTT DATA LOAD
    * --------------------------- */
-  useEffect(() => {
+  const loadGanttData = useCallback(async (signal) => {
     const granularity = resolveGranularity(timeRange);
     const date = todayIsoDate();
 
@@ -69,30 +70,40 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
       return;
     }
 
-    const controller = new AbortController();
+    setLoadingGantt(true);
+    try {
+      const series = await fetchSiteGanttChart({
+        siteId,
+        granularity,
+        date,
+        tz: 'Asia/Ho_Chi_Minh',
+        signal,
+      });
 
-    (async () => {
-      setLoadingGantt(true);
-      try {
-        const series = await fetchSiteGanttChart({
-          siteId,
-          granularity,
-          date,
-          tz: 'Asia/Ho_Chi_Minh',
-          signal: controller.signal,
-        });
-
-        const usageSeries = mapGanttToTimelineData(series || [], ['load']);
-        setUsageGraphData(usageSeries || []);
-      } catch (err) {
-        if (err.name !== 'AbortError') console.error('Failed to load Gantt data', err);
-      } finally {
-        setLoadingGantt(false);
-      }
-    })();
-
-    return () => controller.abort();
+      const usageSeries = mapGanttToTimelineData(series || [], ['load']);
+      setUsageGraphData(usageSeries || []);
+    } catch (err) {
+      if (err.name !== 'AbortError') console.error('Failed to load Gantt data', err);
+    } finally {
+      setLoadingGantt(false);
+    }
   }, [siteId, timeRange]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadGanttData(controller.signal);
+    return () => controller.abort();
+  }, [loadGanttData]);
+
+  async function handleRefresh() {
+    if (isRefreshing || loadingGantt) return;
+    setIsRefreshing(true);
+    try {
+      await loadGanttData();
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600);
+    }
+  }
 
   /* ---------------------------
    * ENERGY BUCKET SELECTION
@@ -154,13 +165,23 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
    * RENDER
    * --------------------------- */
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 h-full flex flex-col">
+    <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-200/60 flex-shrink-0">
         <div className="bg-gradient-to-br from-indigo-100 to-purple-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-indigo-200/60">
           <TrendingUp className="w-5 h-5 text-indigo-600" />
         </div>
-        <h2 className="text-base font-bold text-slate-900">Energy Analytics</h2>
+        <h2 className="text-base font-bold text-slate-900 flex-1">Energy Analytics</h2>
+
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing || loadingGantt}
+          className="flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-slate-200/60 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          title="Refresh data"
+          aria-label="Refresh data"
+        >
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        </button>
       </div>
 
       {/* Time Range Selector */}
@@ -201,21 +222,21 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
       </div>
 
       {/* Usage Graph */}
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border-2 border-slate-200/60 mb-4 p-4 flex-shrink-0" style={{ minHeight: '300px' }}>
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border-2 border-slate-200/60 mb-3 sm:mb-4 p-2 sm:p-4 flex-shrink-0" style={{ minHeight: 'min(300px, 50vh)' }}>
         {loadingGantt ? (
-          <div className="flex items-center justify-center h-[280px] text-slate-400">
+          <div className="flex items-center justify-center h-[200px] sm:h-[280px] text-slate-400">
             <div className="flex flex-col items-center gap-2">
               <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
               <span className="text-sm font-medium">Loading data...</span>
             </div>
           </div>
         ) : hasGraph ? (
-          <div style={{ height: '280px', width: '100%' }}>
+          <div style={{ height: 'min(280px, 45vh)', width: '100%' }}>
             <TimelineBarchart
               key={timeRange}
               yAxisLabel="Usage"
               data={usageGraphData}
-              timeRange={timeRange}
+              viewMode={timeRange}
               showTooltip={true}
               tooltipFormatter={(value) => {
                 const scaled = autoScaleEnergy(value);
@@ -224,7 +245,7 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[280px] text-slate-400">
+          <div className="flex flex-col items-center justify-center h-[200px] sm:h-[280px] text-slate-400">
             <TrendingUp className="w-12 h-12 mb-2 opacity-30" />
             <div className="text-sm font-semibold mb-1">Usage Chart</div>
             <div className="text-xs">No usage data available</div>
@@ -233,7 +254,7 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
       </div>
 
       {/* Usage Breakdown Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 flex-1 min-h-0">
         {/* Breakdown list */}
         <div className="flex flex-col">
           <h3 className="text-sm font-bold text-slate-900 mb-3">Electric Usage Breakdown</h3>

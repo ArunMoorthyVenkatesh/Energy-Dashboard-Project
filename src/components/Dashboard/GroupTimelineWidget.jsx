@@ -241,6 +241,7 @@ export default function GroupTimelineWidget({ data }) {
               upperData={sourceData || []}
               lowerData={consumptionData || []}
               yAxisLabel="Power"
+              viewMode={timeRange}
             />
           </div>
         ) : (

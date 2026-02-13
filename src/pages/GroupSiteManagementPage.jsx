@@ -266,27 +266,27 @@ export default function GroupSiteManagementPage() {
   }
 
   return (
-    <div className="p-6 lg:p-10 min-h-screen">
+    <div className="p-3 sm:p-6 lg:p-10 min-h-screen">
       {/* Header */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="flex items-center justify-between mb-10"
+        className="flex items-center justify-between mb-6 sm:mb-10 gap-3"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <motion.div
             whileHover={{ rotate: 8, scale: 1.08 }}
             transition={{ type: 'spring', stiffness: 300 }}
-            className="p-4 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-2xl text-white shadow-xl shadow-emerald-300/40"
+            className="p-2.5 sm:p-4 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-xl sm:rounded-2xl text-white shadow-xl shadow-emerald-300/40 flex-shrink-0"
           >
-            <Network className="w-7 h-7" />
+            <Network className="w-5 h-5 sm:w-7 sm:h-7" />
           </motion.div>
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-extrabold text-emerald-950 tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-emerald-950 tracking-tight truncate">
               Group & Site Management
             </h1>
-            <p className="text-sm text-teal-600 font-semibold mt-0.5">Manage your energy groups and devices</p>
+            <p className="text-xs sm:text-sm text-teal-600 font-semibold mt-0.5">Manage your energy groups and devices</p>
           </div>
         </div>
         <motion.button
@@ -308,7 +308,7 @@ export default function GroupSiteManagementPage() {
           animate="visible"
           custom={1}
           variants={fadeIn}
-          className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-3xl shadow-md shadow-emerald-100/40 border border-emerald-200/30 p-7 lg:p-9 mb-10"
+          className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl sm:rounded-3xl shadow-md shadow-emerald-100/40 border border-emerald-200/30 p-4 sm:p-7 lg:p-9 mb-6 sm:mb-10"
         >
           {/* Decorative elements */}
           <div className="absolute -top-16 -right-16 w-48 h-48 bg-gradient-to-br from-emerald-200/25 to-teal-200/25 rounded-full blur-3xl pointer-events-none" />
@@ -340,7 +340,7 @@ export default function GroupSiteManagementPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-3">
               <StatCard value={groups.length} label="Groups" color="text-emerald-600" icon={Network} />
               <StatCard value={devices.length} label="Devices" color="text-teal-600" icon={Cpu} />
               <StatCard value={onlineDevices.length} label="Online" color="text-cyan-600" icon={Activity} />
@@ -419,7 +419,7 @@ export default function GroupSiteManagementPage() {
                       </motion.div>
                       <div>
                         <h3 className="text-base font-bold text-emerald-950">{group.name || `Group ${group.id}`}</h3>
-                        <div className="flex items-center gap-3 text-sm mt-1">
+                        <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm mt-1 flex-wrap">
                           <span className="flex items-center gap-1.5 text-teal-600 font-medium">
                             <Cpu className="w-3.5 h-3.5" />
                             {totalDevices} device{totalDevices !== 1 ? 's' : ''}
@@ -465,7 +465,7 @@ export default function GroupSiteManagementPage() {
                         exit="exit"
                         className="overflow-hidden"
                       >
-                        <div className="border-t border-emerald-100 p-6 bg-gradient-to-b from-emerald-50/40 via-white/60 to-white/40 space-y-7">
+                        <div className="border-t border-emerald-100 p-3 sm:p-6 bg-gradient-to-b from-emerald-50/40 via-white/60 to-white/40 space-y-5 sm:space-y-7">
                           {/* Devices grouped by type */}
                           {devicesByType.length > 0 && devicesByType.map((entry, typeIdx) => (
                             <motion.div
@@ -485,7 +485,7 @@ export default function GroupSiteManagementPage() {
                               </h4>
 
                               {/* Horizontal scroll container */}
-                              <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin">
+                              <div className="grid grid-cols-2 sm:flex sm:gap-3 sm:overflow-x-auto gap-2 pb-3 scrollbar-thin">
                                 {entry.devices.map((dev, devIdx) => {
                                   const siteDevice = devices.find((d) => String(d.deviceId) === String(dev.deviceId));
                                   const isOnline = siteDevice?.power?.now?.online;
@@ -501,7 +501,7 @@ export default function GroupSiteManagementPage() {
                                       whileHover={{ y: -4, scale: 1.03 }}
                                       whileTap={{ scale: 0.97 }}
                                       onClick={() => toggleDevice(dev.deviceId, group.id)}
-                                      className={`flex-shrink-0 w-52 rounded-2xl border p-4 text-left transition-all duration-200 ${
+                                      className={`sm:flex-shrink-0 sm:w-52 rounded-xl sm:rounded-2xl border p-3 sm:p-4 text-left transition-all duration-200 ${
                                         isDevExpanded
                                           ? 'bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-emerald-300 shadow-xl shadow-emerald-100/50 ring-2 ring-emerald-200/60'
                                           : 'bg-white border-emerald-100 hover:shadow-xl hover:border-emerald-200 shadow-sm'

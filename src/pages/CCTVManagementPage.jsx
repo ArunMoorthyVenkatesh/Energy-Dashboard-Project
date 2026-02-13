@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Video, RefreshCw, AlertCircle, Loader2, Activity, ChevronDown, MapPin, Eye, EyeOff, Clock, Shield } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Video, RefreshCw, AlertCircle, Loader2, MapPin, Eye, EyeOff, Clock, Shield } from 'lucide-react';
 import { fetchSiteDevices } from '../api';
 import { loadRuntimeConfig } from '../config/RuntimeConfig';
 
@@ -131,27 +131,27 @@ export default function CCTVManagementPage() {
   }
 
   return (
-    <div className="p-6 lg:p-10 min-h-screen">
+    <div className="p-3 sm:p-6 lg:p-10 min-h-screen">
       {/* Header */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="flex items-center justify-between mb-10"
+        className="flex items-center justify-between mb-6 sm:mb-10 gap-3"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <motion.div
             whileHover={{ rotate: 8, scale: 1.08 }}
             transition={{ type: 'spring', stiffness: 300 }}
-            className="p-4 bg-gradient-to-br from-slate-600 via-slate-700 to-gray-800 rounded-2xl text-white shadow-xl shadow-slate-300/40"
+            className="p-2.5 sm:p-4 bg-gradient-to-br from-slate-600 via-slate-700 to-gray-800 rounded-xl sm:rounded-2xl text-white shadow-xl shadow-slate-300/40 flex-shrink-0"
           >
-            <Video className="w-7 h-7" />
+            <Video className="w-5 h-5 sm:w-7 sm:h-7" />
           </motion.div>
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-950 tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-slate-950 tracking-tight truncate">
               CCTV Management
             </h1>
-            <p className="text-sm text-gray-600 font-semibold mt-0.5">Monitor and manage your security cameras</p>
+            <p className="text-xs sm:text-sm text-gray-600 font-semibold mt-0.5">Monitor and manage your security cameras</p>
           </div>
         </div>
         <motion.button
@@ -172,7 +172,7 @@ export default function CCTVManagementPage() {
         animate="visible"
         custom={1}
         variants={fadeIn}
-        className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-3xl shadow-md shadow-slate-100/40 border border-slate-200/30 p-7 lg:p-9 mb-10"
+        className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 rounded-2xl sm:rounded-3xl shadow-md shadow-slate-100/40 border border-slate-200/30 p-4 sm:p-7 lg:p-9 mb-6 sm:mb-10"
       >
         <div className="absolute -top-16 -right-16 w-48 h-48 bg-gradient-to-br from-slate-200/25 to-gray-200/25 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-slate-400 via-gray-400 to-zinc-400 rounded-t-3xl" />
@@ -195,7 +195,7 @@ export default function CCTVManagementPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-3">
             <StatCard value={cameras.length} label="Cameras" color="text-slate-600" icon={Video} />
             <StatCard value={onlineCameras.length} label="Online" color="text-green-600" icon={Eye} />
             <StatCard value={cameras.length - onlineCameras.length} label="Offline" color="text-red-500" icon={EyeOff} />

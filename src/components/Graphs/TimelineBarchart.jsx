@@ -7,7 +7,6 @@ import styles from './timelinebarchart.module.css';
  * @param {Array} data - array of objects with key and value properties
  * @param {string} viewMode - 'day' | 'month' | 'lifetime'
  * @param {function} tooltipFormatter - optional formatter for tooltip values
- * @param {function} onRefresh - callback function to refresh data
  * @param {function} onRangeChange - callback when range changes: (startIndex, endIndex) => void
  */
 export default function TimelineBarchart({
@@ -15,15 +14,10 @@ export default function TimelineBarchart({
   data = [],
   viewMode = 'day',
   tooltipFormatter,
-  onRefresh = () => {
-    // Default refresh function - just triggers a re-render
-    console.log('Refresh clicked - provide onRefresh prop for custom behavior');
-  },
   onRangeChange,
 }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Range filter state
   const totalDataPoints = data.length;
   const [rangeStart, setRangeStart] = useState(0);
@@ -38,39 +32,12 @@ export default function TimelineBarchart({
     }
   }, [totalDataPoints]);
 
-  // Auto-refresh every 5 minutes
-  useEffect(() => {
-    if (!onRefresh) return;
-
-    const intervalId = setInterval(() => {
-      onRefresh();
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
-
-    // Cleanup on unmount
-    return () => clearInterval(intervalId);
-  }, [onRefresh]);
-
   // Notify parent of range changes
   useEffect(() => {
     if (onRangeChange && rangeEnd !== null) {
       onRangeChange(rangeStart, rangeEnd);
     }
   }, [rangeStart, rangeEnd, onRangeChange]);
-
-  // Handle manual refresh button click - ALWAYS WORKS
-  const handleRefreshClick = async () => {
-    if (isRefreshing) return;
-    
-    setIsRefreshing(true);
-    try {
-      await onRefresh();
-    } finally {
-      // Reset animation after a brief delay
-      setTimeout(() => {
-        setIsRefreshing(false);
-      }, 600);
-    }
-  };
 
   // Range slider handlers
   function handleSliderMouseDown(e, handle) {
@@ -97,6 +64,7 @@ export default function TimelineBarchart({
     setIsDragging(null);
   }
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleSliderMove);
@@ -107,14 +75,46 @@ export default function TimelineBarchart({
       };
     }
   }, [isDragging, rangeStart, rangeEnd, totalDataPoints]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Get range label based on view mode
   function getRangeLabel(index) {
     const dataPoint = data[index];
     if (!dataPoint) return index;
 
-    // Just return the key as-is (x-axis value)
-    return dataPoint.key;
+    const key = dataPoint.key;
+    const mode = (viewMode || '').toLowerCase();
+
+    if (mode === 'day') {
+      // Keys are hours (0-23) → format as "00:00" to "23:00"
+      const hour = parseInt(key, 10);
+      if (!isNaN(hour)) {
+        return `${String(hour).padStart(2, '0')}:00`;
+      }
+    } else if (mode === 'month') {
+      // Keys are day numbers or dates → format as "dd/mm"
+      const now = new Date();
+      const dayNum = parseInt(key, 10);
+      if (!isNaN(dayNum)) {
+        return `${String(dayNum).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}`;
+      }
+    } else if (mode === 'lifetime') {
+      // Keys are month numbers or year-month → format as "mm/yyyy"
+      const num = parseInt(key, 10);
+      const now = new Date();
+      if (!isNaN(num) && num >= 1 && num <= 12) {
+        return `${String(num).padStart(2, '0')}/${now.getFullYear()}`;
+      }
+      // Handle "2024-01" format
+      if (typeof key === 'string' && key.includes('-')) {
+        const parts = key.split('-');
+        if (parts.length >= 2) {
+          return `${parts[1]}/${parts[0]}`;
+        }
+      }
+    }
+
+    return key;
   }
 
 
@@ -157,33 +157,6 @@ export default function TimelineBarchart({
           }}>
             {yAxisLabel}
           </span>
-          
-          {/* Refresh Button - ALWAYS VISIBLE */}
-          <button
-            onClick={handleRefreshClick}
-            className={styles.refreshButton}
-            disabled={isRefreshing}
-            aria-label="Refresh data"
-            title="Refresh data"
-          >
-            <svg 
-              width="16" 
-              height="16" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-              style={{
-                animation: isRefreshing ? 'spin 0.6s linear' : 'none',
-              }}
-            >
-              <polyline points="23 4 23 10 17 10"></polyline>
-              <polyline points="1 20 1 14 7 14"></polyline>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-          </button>
         </div>
         
         {/* Range Filter */}
@@ -353,15 +326,6 @@ export default function TimelineBarchart({
           to {
             opacity: 1;
             transform: translate(-50%, -12px);
-          }
-        }
-        
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
           }
         }
       `}</style>

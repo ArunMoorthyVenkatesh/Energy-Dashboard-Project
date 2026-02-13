@@ -337,29 +337,29 @@ export default function HomePage() {
     <>
       <div className={styles.pageContainer}>
         {!expandedWidget && (
-          <div className="mb-6">
-            <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-sm border border-slate-200/60 p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-3 shadow-lg">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mb-4 sm:mb-6">
+            <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-xl sm:rounded-2xl shadow-sm border border-slate-200/60 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl p-2 sm:p-3 shadow-lg flex-shrink-0">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <div>
-                    <h1 className="text-2xl font-black text-slate-900 mb-1">
+                  <div className="min-w-0">
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 mb-0.5 sm:mb-1 truncate">
                       {siteInfo?.name || 'Energy Management Dashboard'}
                     </h1>
-                    <div className="flex items-center gap-4 text-sm text-slate-600">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4" />
+                    <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 flex-wrap">
+                      <div className="flex items-center gap-1 sm:gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                         <span className="font-semibold">
                           {time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
                       </div>
-                      <div className="w-1 h-1 rounded-full bg-slate-400" />
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" />
+                      <div className="hidden sm:block w-1 h-1 rounded-full bg-slate-400" />
+                      <div className="flex items-center gap-1 sm:gap-1.5">
+                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                         <span className="font-semibold">
                           {time.toLocaleTimeString()}
                         </span>
@@ -368,12 +368,12 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-slate-200/60 shadow-sm">
+                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-slate-200/60 shadow-sm self-start sm:self-auto flex-shrink-0">
                   <div className="relative">
-                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-                    <div className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full opacity-75 animate-ping" />
+                    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-500 rounded-full animate-pulse" />
+                    <div className="absolute inset-0 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-500 rounded-full opacity-75 animate-ping" />
                   </div>
-                  <span className="text-sm font-bold text-slate-700">Live</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-700">Live</span>
                 </div>
               </div>
             </div>

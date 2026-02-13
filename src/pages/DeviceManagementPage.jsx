@@ -380,25 +380,25 @@ export default function DeviceManagementPage() {
   const offlineCount = devices.filter(d => d.status === 'offline').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-3 sm:p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Vibrant Header */}
-        <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-2xl shadow-lg border-2 border-blue-300/60 p-6 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-black text-slate-900 mb-2">
+        <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-300/60 p-4 sm:p-6 hover:shadow-xl transition-shadow duration-300">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 mb-1 sm:mb-2">
                 Device Management
               </h1>
-              <p className="text-slate-700 font-bold">Control and automate your connected devices</p>
+              <p className="text-sm sm:text-base text-slate-700 font-bold">Control and automate your connected devices</p>
             </div>
-            
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-100 backdrop-blur-sm border-2 border-emerald-400/70 rounded-xl shadow-sm">
+
+            <div className="flex sm:flex-col items-center sm:items-end gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-100 backdrop-blur-sm border-2 border-emerald-400/70 rounded-xl shadow-sm">
                 <div className="relative">
                   <div className="w-2 h-2 bg-emerald-600 rounded-full"></div>
                   <div className="absolute inset-0 w-2 h-2 bg-emerald-600 rounded-full animate-ping opacity-75"></div>
                 </div>
-                <span className="text-sm font-black text-emerald-800">Auto-saved</span>
+                <span className="text-xs sm:text-sm font-black text-emerald-800">Auto-saved</span>
               </div>
               {lastUpdated && (
                 <p className="text-xs text-slate-700 font-bold">
@@ -436,7 +436,7 @@ export default function DeviceManagementPage() {
           {!isDeviceListCollapsed && (
             <>
               {/* Device Filters */}
-              <div className="border-t-2 border-blue-200/60 p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-4">
+              <div className="border-t-2 border-blue-200/60 p-3 sm:p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-3 sm:space-y-4">
                 {/* Search Bar */}
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-indigo-500" />
@@ -458,8 +458,8 @@ export default function DeviceManagementPage() {
                 </div>
 
                 {/* Status Filter */}
-                <div className="flex items-start gap-3">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-blue-300/60 min-w-fit">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-blue-300/60 w-fit">
                     <Filter className="w-4 h-4 text-blue-600" />
                     <span className="text-sm font-black text-blue-900">Status</span>
                   </div>
@@ -513,9 +513,9 @@ export default function DeviceManagementPage() {
                 )}
               </div>
 
-              <div className="p-5 pt-0">
+              <div className="p-3 sm:p-5 pt-0">
                 {filteredDevices.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {filteredDevices.map(device => (
                       <div
                         key={device.id}
@@ -616,10 +616,10 @@ export default function DeviceManagementPage() {
           {!isSchedulesCollapsed && (
             <div className="border-t-2 border-purple-200/60">
               {/* Vibrant Filters */}
-              <div className="p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-4">
+              <div className="p-3 sm:p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-3 sm:space-y-4">
                 {/* Status Filter */}
-                <div className="flex items-start gap-3">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-indigo-300/60 min-w-fit">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-indigo-300/60 w-fit">
                     <Filter className="w-4 h-4 text-indigo-600" />
                     <span className="text-sm font-black text-indigo-900">Status</span>
                   </div>
@@ -658,8 +658,8 @@ export default function DeviceManagementPage() {
                 </div>
 
                 {/* Time Filter */}
-                <div className="flex items-start gap-3">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-purple-300/60 min-w-fit">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-purple-300/60 w-fit">
                     <Clock className="w-4 h-4 text-purple-600" />
                     <span className="text-sm font-black text-purple-900">Period</span>
                   </div>
@@ -712,7 +712,7 @@ export default function DeviceManagementPage() {
               </div>
 
               {/* Schedule List */}
-              <div className="p-5">
+              <div className="p-3 sm:p-5">
                 {allSchedules.length > 0 ? (
                   <div className="space-y-3">
                     {allSchedules.map(schedule => {
@@ -726,11 +726,11 @@ export default function DeviceManagementPage() {
                               : 'border-slate-300/60 bg-gradient-to-br from-slate-50 to-slate-100/30 hover:border-slate-400'
                           }`}
                         >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-0">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-3 flex-wrap">
-                                <h4 className="font-black text-base text-slate-900">{schedule.name}</h4>
-                                <span className="text-xs px-3 py-1.5 bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 rounded-lg font-black border-2 border-slate-300/60 shadow-sm">
+                                <h4 className="font-black text-sm sm:text-base text-slate-900">{schedule.name}</h4>
+                                <span className="text-xs px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800 rounded-lg font-black border-2 border-slate-300/60 shadow-sm">
                                   {schedule.deviceName}
                                 </span>
                                 {schedule.powerState && (
@@ -774,7 +774,7 @@ export default function DeviceManagementPage() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 ml-4">
+                            <div className="flex items-center gap-2 sm:ml-4 flex-shrink-0">
                               <label className="relative inline-flex items-center cursor-pointer">
                                 <input
                                   type="checkbox"
@@ -782,7 +782,7 @@ export default function DeviceManagementPage() {
                                   onChange={() => toggleSchedule(device, schedule.id)}
                                   className="sr-only peer"
                                 />
-                                <div className="w-12 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-600 shadow-lg"></div>
+                                <div className="w-11 h-6 sm:w-12 sm:h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-600 shadow-lg"></div>
                               </label>
                               <button
                                 onClick={() => handleEditSchedule(device, schedule)}
@@ -993,9 +993,9 @@ export default function DeviceManagementPage() {
 
       {/* Device Detail Modal - Same as before, just update the schedule time display */}
       {showDeviceModal && modalDevice && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-blue-200/60">
-            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-xl border-b-2 border-blue-200/60 p-5 rounded-t-2xl z-10">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border-2 border-blue-200/60">
+            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-xl border-b-2 border-blue-200/60 p-3 sm:p-5 rounded-t-xl sm:rounded-t-2xl z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl p-2.5 shadow-md border-2 border-blue-300/60">
@@ -1018,12 +1018,12 @@ export default function DeviceManagementPage() {
               </div>
             </div>
 
-            <div className="p-5 space-y-5">
+            <div className="p-3 sm:p-5 space-y-4 sm:space-y-5">
               {/* Current Status */}
               <div>
-                <h4 className="text-base font-black text-slate-900 mb-3">Current Status</h4>
+                <h4 className="text-sm sm:text-base font-black text-slate-900 mb-3">Current Status</h4>
                 {modalDevice.status === 'online' ? (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
                     {modalDevice.currentTemp && (
                       <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-xl p-4 border-2 border-blue-400/70 shadow-md">
                         <div className="flex items-center gap-2 text-blue-700 mb-2">

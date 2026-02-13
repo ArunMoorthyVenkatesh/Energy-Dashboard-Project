@@ -84,6 +84,7 @@ export default function DoubleLineGraph({
     setIsDragging(null);
   }
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleSliderMove);
@@ -94,6 +95,7 @@ export default function DoubleLineGraph({
       };
     }
   }, [isDragging, rangeStart, rangeEnd, totalDataPoints]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Get range label based on view mode
   function getRangeLabel(index) {
@@ -101,8 +103,39 @@ export default function DoubleLineGraph({
     const dataPoint = originalData[index];
     if (!dataPoint) return index;
 
-    // Just return the key as-is (x-axis value)
-    return dataPoint.key;
+    const key = dataPoint.key;
+    const mode = (viewMode || '').toLowerCase();
+
+    if (mode === 'day') {
+      // Keys are hours (0-23) → format as "00:00" to "23:00"
+      const hour = parseInt(key, 10);
+      if (!isNaN(hour)) {
+        return `${String(hour).padStart(2, '0')}:00`;
+      }
+    } else if (mode === 'month') {
+      // Keys are day numbers or dates → format as "dd/mm"
+      const now = new Date();
+      const dayNum = parseInt(key, 10);
+      if (!isNaN(dayNum)) {
+        return `${String(dayNum).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}`;
+      }
+    } else if (mode === 'lifetime') {
+      // Keys are month numbers or year-month → format as "mm/yyyy"
+      const num = parseInt(key, 10);
+      const now = new Date();
+      if (!isNaN(num) && num >= 1 && num <= 12) {
+        return `${String(num).padStart(2, '0')}/${now.getFullYear()}`;
+      }
+      // Handle "2024-01" format
+      if (typeof key === 'string' && key.includes('-')) {
+        const parts = key.split('-');
+        if (parts.length >= 2) {
+          return `${parts[1]}/${parts[0]}`;
+        }
+      }
+    }
+
+    return key;
   }
 
   // Filter data based on range

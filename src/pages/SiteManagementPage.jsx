@@ -156,27 +156,27 @@ export default function SiteManagementPage() {
   }
 
   return (
-    <div className="p-6 lg:p-10 min-h-screen">
+    <div className="p-3 sm:p-6 lg:p-10 min-h-screen">
       {/* Header */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="flex items-center justify-between mb-10"
+        className="flex items-center justify-between mb-6 sm:mb-10 gap-3"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <motion.div
             whileHover={{ rotate: 8, scale: 1.08 }}
             transition={{ type: 'spring', stiffness: 300 }}
-            className="p-4 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-2xl text-white shadow-xl shadow-emerald-300/40"
+            className="p-2.5 sm:p-4 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-xl sm:rounded-2xl text-white shadow-xl shadow-emerald-300/40 flex-shrink-0"
           >
-            <MapPin className="w-7 h-7" />
+            <MapPin className="w-5 h-5 sm:w-7 sm:h-7" />
           </motion.div>
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-extrabold text-emerald-950 tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-emerald-950 tracking-tight truncate">
               Site Management
             </h1>
-            <p className="text-sm text-teal-600 font-semibold mt-0.5">Manage your site and monitor devices</p>
+            <p className="text-xs sm:text-sm text-teal-600 font-semibold mt-0.5">Manage your site and monitor devices</p>
           </div>
         </div>
         <motion.button
@@ -198,7 +198,7 @@ export default function SiteManagementPage() {
           animate="visible"
           custom={1}
           variants={fadeIn}
-          className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-3xl shadow-md shadow-emerald-100/40 border border-emerald-200/30 p-7 lg:p-9 mb-10"
+          className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl sm:rounded-3xl shadow-md shadow-emerald-100/40 border border-emerald-200/30 p-4 sm:p-7 lg:p-9 mb-6 sm:mb-10"
         >
           <div className="absolute -top-16 -right-16 w-48 h-48 bg-gradient-to-br from-emerald-200/25 to-teal-200/25 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-gradient-to-br from-cyan-200/20 to-teal-200/20 rounded-full blur-3xl pointer-events-none" />
@@ -229,7 +229,7 @@ export default function SiteManagementPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-3">
               <StatCard value={groups.length} label="Groups" color="text-emerald-600" icon={Network} />
               <StatCard value={devices.length} label="Devices" color="text-teal-600" icon={Cpu} />
               <StatCard value={onlineDevices.length} label="Online" color="text-cyan-600" icon={Activity} />
@@ -335,7 +335,7 @@ export default function SiteManagementPage() {
             )}
           </div>
         ) : (
-          <div className="flex gap-3 flex-wrap">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {filteredDevices.map((dev, devIdx) => {
               const isOnline = dev.power?.now?.online;
               const isDevExpanded = expandedDevice === (dev.deviceId || dev.id);
@@ -351,7 +351,7 @@ export default function SiteManagementPage() {
                   whileHover={{ y: -4, scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setExpandedDevice(isDevExpanded ? null : (dev.deviceId || dev.id))}
-                  className={`flex-shrink-0 w-52 rounded-2xl border p-4 text-left transition-all duration-200 ${
+                  className={`rounded-2xl border p-3 sm:p-4 text-left transition-all duration-200 ${
                     isDevExpanded
                       ? 'bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-emerald-300 shadow-xl shadow-emerald-100/50 ring-2 ring-emerald-200/60'
                       : 'bg-white border-emerald-100 hover:shadow-xl hover:border-emerald-200 shadow-sm'

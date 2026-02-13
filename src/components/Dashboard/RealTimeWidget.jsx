@@ -329,7 +329,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
             key={timeRange}
             yAxisLabel="Usage (kW)"
             data={data.graph.usageGraphData}
-            timeRange={timeRange}
+            viewMode={timeRange}
           />
         </div>
 
