@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Settings, Thermometer, Droplets, Wind, Clock, Plus, Edit2, Trash2, Power, ChevronDown, ChevronUp, Filter, Sunrise, Sun, Sunset, Moon, X, Search } from 'lucide-react';
 import DeviceAPI from '../api/DeviceAPI';
 
-// Vibrant Scene Presets
 const SCENE_PRESETS = {
   Eco: {
     name: 'Eco',
@@ -35,29 +34,28 @@ const STORAGE_KEYS = {
   SCHEDULES: 'device_management_schedules'
 };
 
-// Time period configuration with vibrant gradients
 const TIME_PERIODS = {
-  morning: { 
-    icon: Sunrise, 
-    label: 'Morning', 
+  morning: {
+    icon: Sunrise,
+    label: 'Morning',
     range: '5AM - 12PM',
     gradient: 'from-amber-400 to-orange-500'
   },
-  afternoon: { 
-    icon: Sun, 
-    label: 'Afternoon', 
+  afternoon: {
+    icon: Sun,
+    label: 'Afternoon',
     range: '12PM - 5PM',
     gradient: 'from-orange-400 to-red-500'
   },
-  evening: { 
-    icon: Sunset, 
-    label: 'Evening', 
+  evening: {
+    icon: Sunset,
+    label: 'Evening',
     range: '5PM - 9PM',
     gradient: 'from-violet-400 to-purple-600'
   },
-  night: { 
-    icon: Moon, 
-    label: 'Night', 
+  night: {
+    icon: Moon,
+    label: 'Night',
     range: '9PM - 5AM',
     gradient: 'from-indigo-500 to-blue-700'
   }
@@ -72,35 +70,34 @@ export default function DeviceManagementPage() {
   const [showDeviceModal, setShowDeviceModal] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
-  
+
   const [isDeviceListCollapsed, setIsDeviceListCollapsed] = useState(false);
   const [isSchedulesCollapsed, setIsSchedulesCollapsed] = useState(false);
-  
+
   const [scheduleFilter, setScheduleFilter] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
   const [deviceFilter, setDeviceFilter] = useState('all');
 
-  // New device filters
   const [deviceSearchQuery, setDeviceSearchQuery] = useState('');
   const [deviceStatusFilter, setDeviceStatusFilter] = useState('all');
 
   useEffect(() => {
     loadDevices();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   useEffect(() => {
     if (devices.length > 0) {
       saveToLocalStorage();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [devices]);
 
   const loadDevices = async () => {
     setLoading(true);
     try {
       const savedDevices = loadFromLocalStorage();
-      
+
       if (savedDevices && savedDevices.length > 0) {
         console.log('📦 Loaded devices from localStorage:', savedDevices);
         setDevices(savedDevices);
@@ -174,7 +171,6 @@ export default function DeviceManagementPage() {
       return;
     }
 
-    // Validate time range
     if (editingSchedule.startTime >= editingSchedule.endTime) {
       alert('End time must be after start time');
       return;
@@ -182,7 +178,7 @@ export default function DeviceManagementPage() {
 
     try {
       const scheduleExists = selectedDevice.schedules?.find(s => s.id === editingSchedule.id);
-      
+
       if (scheduleExists) {
         await DeviceAPI.updateSchedule(
           selectedDevice.id,
@@ -205,7 +201,7 @@ export default function DeviceManagementPage() {
         if (scheduleExists) {
           return {
             ...device,
-            schedules: device.schedules.map(s => 
+            schedules: device.schedules.map(s =>
               s.id === editingSchedule.id ? editingSchedule : s
             )
           };
@@ -223,7 +219,7 @@ export default function DeviceManagementPage() {
     setShowScheduleModal(false);
     setEditingSchedule(null);
     setSelectedDevice(null);
-    
+
     alert('Schedule saved successfully!');
   };
 
@@ -246,12 +242,12 @@ export default function DeviceManagementPage() {
       });
 
       setDevices(updatedDevices);
-      
+
       if (modalDevice && modalDevice.id === device.id) {
         const updatedModalDevice = updatedDevices.find(d => d.id === device.id);
         setModalDevice(updatedModalDevice);
       }
-      
+
       alert('Schedule deleted successfully!');
     }
   };
@@ -270,7 +266,7 @@ export default function DeviceManagementPage() {
       if (d.id === device.id) {
         return {
           ...d,
-          schedules: d.schedules.map(s => 
+          schedules: d.schedules.map(s =>
             s.id === scheduleId ? { ...s, enabled: !s.enabled } : s
           )
         };
@@ -279,26 +275,23 @@ export default function DeviceManagementPage() {
     });
 
     setDevices(updatedDevices);
-    
+
     if (modalDevice && modalDevice.id === device.id) {
       const updatedModalDevice = updatedDevices.find(d => d.id === device.id);
       setModalDevice(updatedModalDevice);
     }
   };
 
-  // Filter devices based on search and status
   const getFilteredDevices = () => {
     let filtered = devices;
 
-    // Filter by status
     if (deviceStatusFilter !== 'all') {
       filtered = filtered.filter(d => d.status === deviceStatusFilter);
     }
 
-    // Filter by search query
     if (deviceSearchQuery.trim()) {
       const query = deviceSearchQuery.toLowerCase();
-      filtered = filtered.filter(d => 
+      filtered = filtered.filter(d =>
         d.name.toLowerCase().includes(query) ||
         d.id.toLowerCase().includes(query)
       );
@@ -320,41 +313,41 @@ export default function DeviceManagementPage() {
         });
       }
     });
-    
+
     let filteredSchedules = allSchedules;
     if (scheduleFilter === 'active') {
       filteredSchedules = allSchedules.filter(s => s.enabled);
     } else if (scheduleFilter === 'inactive') {
       filteredSchedules = allSchedules.filter(s => !s.enabled);
     }
-    
+
     if (timeFilter !== 'all') {
       filteredSchedules = filteredSchedules.filter(schedule => {
         const hour = parseInt(schedule.startTime?.split(':')[0] || schedule.time?.split(':')[0] || 0);
-        
+
         if (timeFilter === 'morning' && hour >= 5 && hour < 12) return true;
         if (timeFilter === 'afternoon' && hour >= 12 && hour < 17) return true;
         if (timeFilter === 'evening' && hour >= 17 && hour < 21) return true;
         if (timeFilter === 'night' && (hour >= 21 || hour < 5)) return true;
-        
+
         return false;
       });
     }
-    
+
     if (deviceFilter !== 'all') {
       filteredSchedules = filteredSchedules.filter(s => s.deviceId === deviceFilter);
     }
-    
+
     filteredSchedules.sort((a, b) => {
       const timeA = (a.startTime || a.time || '00:00').split(':').map(Number);
       const timeB = (b.startTime || b.time || '00:00').split(':').map(Number);
-      
+
       if (timeA[0] !== timeB[0]) {
         return timeA[0] - timeB[0];
       }
       return timeA[1] - timeB[1];
     });
-    
+
     return filteredSchedules;
   };
 
@@ -382,7 +375,7 @@ export default function DeviceManagementPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-3 sm:p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        {/* Vibrant Header */}
+        {}
         <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-300/60 p-4 sm:p-6 hover:shadow-xl transition-shadow duration-300">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
             <div className="min-w-0">
@@ -408,8 +401,8 @@ export default function DeviceManagementPage() {
             </div>
           </div>
         </div>
-        
-        {/* Device List with Vibrant Cards */}
+
+        {}
         <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-200/60">
           <button
             onClick={() => setIsDeviceListCollapsed(!isDeviceListCollapsed)}
@@ -435,9 +428,9 @@ export default function DeviceManagementPage() {
 
           {!isDeviceListCollapsed && (
             <>
-              {/* Device Filters */}
+              {}
               <div className="border-t-2 border-blue-200/60 p-3 sm:p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-3 sm:space-y-4">
-                {/* Search Bar */}
+                {}
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-indigo-500" />
                   <input
@@ -457,7 +450,7 @@ export default function DeviceManagementPage() {
                   )}
                 </div>
 
-                {/* Status Filter */}
+                {}
                 <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
                   <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-blue-300/60 w-fit">
                     <Filter className="w-4 h-4 text-blue-600" />
@@ -497,7 +490,7 @@ export default function DeviceManagementPage() {
                   </div>
                 </div>
 
-                {/* Clear Filters */}
+                {}
                 {(deviceStatusFilter !== 'all' || deviceSearchQuery) && (
                   <div className="pt-3 border-t-2 border-slate-200">
                     <button
@@ -525,8 +518,8 @@ export default function DeviceManagementPage() {
                         <div className="flex items-center justify-between mb-4">
                           <span className="font-black text-slate-900 text-base">{device.name}</span>
                           <span className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-black border-2 shadow-sm ${
-                            device.status === 'online' 
-                              ? 'bg-emerald-200 text-emerald-800 border-emerald-400/70' 
+                            device.status === 'online'
+                              ? 'bg-emerald-200 text-emerald-800 border-emerald-400/70'
                               : 'bg-slate-200 text-slate-700 border-slate-400/70'
                           }`}>
                             <div className={`w-2 h-2 rounded-full ${
@@ -535,8 +528,8 @@ export default function DeviceManagementPage() {
                             {device.status}
                           </span>
                         </div>
-                        
-                        {/* Online devices - show actual values */}
+
+                        {}
                         {device.status === 'online' && device.currentTemp && (
                           <div className="flex items-center gap-2 mb-4">
                             <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-orange-100 to-amber-100 rounded-lg border-2 border-orange-300/60 shadow-sm">
@@ -551,8 +544,8 @@ export default function DeviceManagementPage() {
                             )}
                           </div>
                         )}
-                        
-                        {/* Offline devices - show dashes */}
+
+                        {}
                         {device.status === 'offline' && (
                           <div className="flex items-center gap-2 mb-4">
                             <span className="flex items-center gap-2 px-3 py-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg border-2 border-slate-300/60 shadow-sm">
@@ -565,7 +558,7 @@ export default function DeviceManagementPage() {
                             </span>
                           </div>
                         )}
-                        
+
                         <div className="pt-4 border-t-2 border-blue-200/60 group-hover:border-blue-300 transition-colors">
                           <div className="flex items-center gap-2 text-sm text-slate-700 font-bold">
                             <Clock className="w-4 h-4" />
@@ -589,7 +582,7 @@ export default function DeviceManagementPage() {
           )}
         </div>
 
-        {/* All Schedules with Vibrant Filters */}
+        {}
         <div className="bg-white rounded-2xl shadow-lg border-2 border-purple-200/60">
           <button
             onClick={() => setIsSchedulesCollapsed(!isSchedulesCollapsed)}
@@ -615,9 +608,9 @@ export default function DeviceManagementPage() {
 
           {!isSchedulesCollapsed && (
             <div className="border-t-2 border-purple-200/60">
-              {/* Vibrant Filters */}
+              {}
               <div className="p-3 sm:p-5 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 space-y-3 sm:space-y-4">
-                {/* Status Filter */}
+                {}
                 <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
                   <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-indigo-300/60 w-fit">
                     <Filter className="w-4 h-4 text-indigo-600" />
@@ -657,7 +650,7 @@ export default function DeviceManagementPage() {
                   </div>
                 </div>
 
-                {/* Time Filter */}
+                {}
                 <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
                   <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl shadow-md border-2 border-purple-300/60 w-fit">
                     <Clock className="w-4 h-4 text-purple-600" />
@@ -694,7 +687,7 @@ export default function DeviceManagementPage() {
                   </div>
                 </div>
 
-                {/* Clear Filters */}
+                {}
                 {(scheduleFilter !== 'all' || timeFilter !== 'all' || deviceFilter !== 'all') && (
                   <div className="pt-3 border-t-2 border-slate-200">
                     <button
@@ -711,7 +704,7 @@ export default function DeviceManagementPage() {
                 )}
               </div>
 
-              {/* Schedule List */}
+              {}
               <div className="p-3 sm:p-5">
                 {allSchedules.length > 0 ? (
                   <div className="space-y-3">
@@ -806,7 +799,7 @@ export default function DeviceManagementPage() {
                   <div className="text-center py-16 text-slate-600 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl border-2 border-dashed border-slate-300">
                     <Clock className="w-14 h-14 mx-auto mb-3 opacity-40 text-slate-400" />
                     <p className="mb-2 font-black text-base text-slate-800">
-                      {scheduleFilter === 'all' 
+                      {scheduleFilter === 'all'
                         ? 'No schedules configured'
                         : `No ${scheduleFilter} schedules`}
                     </p>
@@ -823,14 +816,14 @@ export default function DeviceManagementPage() {
         </div>
       </div>
 
-      {/* Vibrant Schedule Modal */}
+      {}
       {showScheduleModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-gradient-to-br from-white to-blue-50/50 rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border-2 border-blue-200/60">
             <h3 className="text-2xl font-black text-slate-900 mb-6">
               {editingSchedule?.name ? 'Edit Schedule' : 'New Schedule'}
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-black text-slate-800 mb-2">
@@ -854,7 +847,7 @@ export default function DeviceManagementPage() {
                 />
               </div>
 
-              {/* Start and End Time */}
+              {}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-black text-slate-800 mb-2">
@@ -991,7 +984,7 @@ export default function DeviceManagementPage() {
         </div>
       )}
 
-      {/* Device Detail Modal - Same as before, just update the schedule time display */}
+      {}
       {showDeviceModal && modalDevice && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border-2 border-blue-200/60">
@@ -1019,7 +1012,7 @@ export default function DeviceManagementPage() {
             </div>
 
             <div className="p-3 sm:p-5 space-y-4 sm:space-y-5">
-              {/* Current Status */}
+              {}
               <div>
                 <h4 className="text-sm sm:text-base font-black text-slate-900 mb-3">Current Status</h4>
                 {modalDevice.status === 'online' ? (
@@ -1065,7 +1058,7 @@ export default function DeviceManagementPage() {
                 )}
               </div>
 
-              {/* Scene Presets */}
+              {}
               <div>
                 <h4 className="text-base font-black text-slate-900 mb-3">Scene Presets</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1091,7 +1084,7 @@ export default function DeviceManagementPage() {
                 </div>
               </div>
 
-              {/* Device Schedules */}
+              {}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-base font-black text-slate-900 flex items-center gap-2">

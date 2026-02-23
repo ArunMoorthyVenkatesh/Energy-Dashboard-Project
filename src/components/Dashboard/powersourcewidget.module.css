@@ -46,13 +46,11 @@
   overflow: hidden;
 }
 
-/* Optional expanded style (keeps it inside its grid cell) */
 .expanded {
-  /* Keep it visually “expanded” but NOT full screen */
+
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
-/* ===== Header bar (seamless embedded controls) ===== */
 .headerRow {
   display: flex;
   align-items: center;
@@ -69,14 +67,12 @@
   font-size: 14px;
 }
 
-/* Right side controls */
 .headerControls {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* The “embedded” dropdown container (pill) */
 .headerDropdown {
   height: 32px;
   display: flex;
@@ -87,11 +83,9 @@
   border: 1px solid #e6e6e6;
   background: #fafafa;
 
-  /* prevent dropdown overflow weirdness */
   min-width: 110px;
 }
 
-/* Make the expand button match the dropdown pill */
 .expandBtn {
   width: 32px;
   height: 32px;
@@ -112,7 +106,6 @@
   background: #f3f3f3;
 }
 
-/* ===== Body ===== */
 .body {
   flex: 1;
   min-height: 0;
@@ -190,7 +183,6 @@
   background: #fcfcfc;
 }
 
-/* Responsive Design */
 @media (max-width: 767px) {
   .container {
     grid-template-rows: auto auto;

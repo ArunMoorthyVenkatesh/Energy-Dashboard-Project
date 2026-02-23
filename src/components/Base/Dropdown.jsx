@@ -9,7 +9,7 @@ export default function Dropdown({
   placeholder = 'Select',
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isPositioned, setIsPositioned] = useState(false); // to prevent menu flashing on top left
+  const [isPositioned, setIsPositioned] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [menuPosition, setMenuPosition] = useState({
     top: 0,
@@ -25,14 +25,12 @@ export default function Dropdown({
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calculate menu position
   useEffect(() => {
     if (isOpen && dropdownRef.current && menuRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      // Get the actual rendered height of the menu
       const menuWidth = 200;
       const menuHeight = menuRef.current.offsetHeight;
 
@@ -43,9 +41,8 @@ export default function Dropdown({
         left = rect.right - menuWidth;
       }
 
-      // Check if menu would overflow viewport
       if (top + menuHeight > viewportHeight) {
-        // Position above the dropdown button
+
         top = rect.top - menuHeight - 4;
       }
 
@@ -61,7 +58,6 @@ export default function Dropdown({
     }
   }, [isOpen, filteredOptions]);
 
-  // Update position on scroll/resize
   useEffect(() => {
     if (!isOpen) return;
 
@@ -88,7 +84,7 @@ export default function Dropdown({
 
   useEffect(() => {
     function handleClickOutside(event) {
-      // Check if click is outside both the dropdown button and the menu
+
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target) &&

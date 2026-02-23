@@ -91,11 +91,11 @@ export default function CCTVManagementPage() {
       const cctvDevices = deviceList.filter(
         (d) => d.deviceType?.toLowerCase().includes('camera') || d.deviceType?.toLowerCase().includes('cctv')
       );
-      // Fall back to example cameras if the API returns nothing
+
       setCameras(cctvDevices.length > 0 ? cctvDevices : EXAMPLE_CAMERAS);
     } catch (err) {
       console.error('Failed to load CCTV data:', err);
-      // Show example cameras instead of an error so the UI is always usable
+
       setCameras(EXAMPLE_CAMERAS);
       setError(null);
     } finally {
@@ -115,7 +115,7 @@ export default function CCTVManagementPage() {
         const cfg = await loadRuntimeConfig();
         if (cfg?.SITE_ID) setSiteId(cfg.SITE_ID);
       } catch {
-        // use default siteId
+
       }
     })();
   }, []);
@@ -179,7 +179,7 @@ export default function CCTVManagementPage() {
 
   return (
     <div className="p-3 sm:p-6 lg:p-10 min-h-screen">
-      {/* Header */}
+      {}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -213,7 +213,7 @@ export default function CCTVManagementPage() {
         </motion.button>
       </motion.div>
 
-      {/* Stats */}
+      {}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -250,7 +250,7 @@ export default function CCTVManagementPage() {
         </div>
       </motion.div>
 
-      {/* Camera List */}
+      {}
       <motion.div initial="hidden" animate="visible" custom={2} variants={fadeIn}>
         <h2 className="text-lg font-extrabold text-slate-950 flex items-center gap-2.5 mb-6">
           <div className="p-2 bg-gradient-to-br from-slate-100 to-gray-100 rounded-xl shadow-sm">
@@ -295,7 +295,7 @@ export default function CCTVManagementPage() {
                       : 'border-slate-100 hover:shadow-lg hover:border-slate-200 shadow-sm'
                   }`}
                 >
-                  {/* Camera preview placeholder */}
+                  {}
                   <div className="relative h-40 bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 flex items-center justify-center">
                     <Video className="w-12 h-12 text-slate-500" />
                     <div className="absolute top-3 right-3 flex items-center gap-2">
@@ -317,7 +317,7 @@ export default function CCTVManagementPage() {
                     )}
                   </div>
 
-                  {/* Camera info */}
+                  {}
                   <div className="p-4">
                     <h3 className="text-sm font-bold text-slate-900 truncate">
                       {camera.name || `Camera ${camera.deviceId || camera.id}`}

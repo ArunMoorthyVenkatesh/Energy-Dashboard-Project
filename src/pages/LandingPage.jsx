@@ -7,7 +7,7 @@ export default function LandingPage() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Progress animation
+
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -18,7 +18,6 @@ export default function LandingPage() {
       });
     }, 100);
 
-    // Navigate after 5 seconds
     const timer = setTimeout(() => {
       navigate('/iot-dashboard');
     }, 5000);
@@ -31,7 +30,7 @@ export default function LandingPage() {
 
   return (
     <div className={styles.container}>
-      {/* Animated background */}
+      {}
       <div className={styles.background}>
         <div className={`${styles.blob} ${styles.blob1}`}></div>
         <div className={`${styles.blob} ${styles.blob2}`}></div>
@@ -39,9 +38,9 @@ export default function LandingPage() {
         <div className={`${styles.blob} ${styles.blob4}`}></div>
       </div>
 
-      {/* Main content */}
+      {}
       <div className={styles.content}>
-        {/* Logo */}
+        {}
         <div className={styles.logoContainer}>
           <img
             src={`${process.env.PUBLIC_URL}/semply-logo-2.png`}
@@ -54,13 +53,13 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* Welcome Text */}
+        {}
         <div className={styles.welcomeSection}>
           <h1 className={styles.title}>Welcome to SEMPLY</h1>
           <p className={styles.subtitle}>Energy Management & IoT Dashboard</p>
         </div>
 
-        {/* Progress Bar */}
+        {}
         <div className={styles.progressSection}>
           <div className={styles.progressBarContainer}>
             <div
@@ -71,7 +70,7 @@ export default function LandingPage() {
           <p className={styles.progressText}>Loading your dashboard...</p>
         </div>
 
-        {/* Dots animation */}
+        {}
         <div className={styles.dotsContainer}>
           <div className={`${styles.dot} ${styles.dot1}`}></div>
           <div className={`${styles.dot} ${styles.dot2}`}></div>

@@ -31,52 +31,42 @@ export function formatFixed2(value) {
   return Number.isFinite(num) ? num.toFixed(2) : '-';
 }
 
-/**
- * Auto-scale power units (kW -> W, MW, GW)
- * @param {number} kw - Power in kilowatts
- * @returns {{ value: string, unit: string }}
- */
 export function autoScalePower(kw) {
   if (kw == null || !Number.isFinite(kw)) return { value: '-', unit: '' };
 
   const absKw = Math.abs(kw);
 
   if (absKw >= 1000000) {
-    // GW (Gigawatts)
+
     return { value: (kw / 1000000).toFixed(2), unit: 'GW' };
   } else if (absKw >= 1000) {
-    // MW (Megawatts)
+
     return { value: (kw / 1000).toFixed(2), unit: 'MW' };
   } else if (absKw >= 1) {
-    // kW (Kilowatts)
+
     return { value: kw.toFixed(2), unit: 'kW' };
   } else {
-    // W (Watts)
+
     return { value: (kw * 1000).toFixed(2), unit: 'W' };
   }
 }
 
-/**
- * Auto-scale energy units (kWh -> Wh, MWh, GWh)
- * @param {number} kwh - Energy in kilowatt-hours
- * @returns {{ value: string, unit: string }}
- */
 export function autoScaleEnergy(kwh) {
   if (kwh == null || !Number.isFinite(kwh)) return { value: '-', unit: '' };
 
   const absKwh = Math.abs(kwh);
 
   if (absKwh >= 1000000) {
-    // GWh (Gigawatt-hours)
+
     return { value: (kwh / 1000000).toFixed(2), unit: 'GWh' };
   } else if (absKwh >= 1000) {
-    // MWh (Megawatt-hours)
+
     return { value: (kwh / 1000).toFixed(2), unit: 'MWh' };
   } else if (absKwh >= 1) {
-    // kWh (Kilowatt-hours)
+
     return { value: kwh.toFixed(2), unit: 'kWh' };
   } else {
-    // Wh (Watt-hours)
+
     return { value: (kwh * 1000).toFixed(2), unit: 'Wh' };
   }
 }

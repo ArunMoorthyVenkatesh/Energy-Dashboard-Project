@@ -8,10 +8,8 @@ import SiteManagementPage from './pages/SiteManagementPage';
 import GroupManagementPage from './pages/GroupManagementPage';
 import CCTVManagementPage from './pages/CCTVManagementPage';
 
-// 🌍 Helper to safely read environment variables with defaults
 const getEnv = (key, fallback) => process.env[key] || fallback;
 
-// ✅ Define runtime environment config
 const ENV = {
   API_URL: getEnv('REACT_APP_API_URL', 'https://api-semply.semply.cloud/api/v1/iot'),
   WS_URL: getEnv('REACT_APP_WEBSOCKET_URL', 'wss://api-semply.semply.cloud/api/v1/iot/realtime'),
@@ -21,15 +19,12 @@ const ENV = {
   PUBLIC_URL: getEnv('PUBLIC_URL', '/'),
 };
 
-// 🧠 Log environment table for quick verification
 console.log('=== ENV CHECK ===');
 console.table(ENV);
 console.log('=================');
 
-// ✅ Note: Connection tests removed - let HomePage handle the actual connections
 console.log('ℹ️ WebSocket and API connections will be established in HomePage');
 
-// ⚛️ React Router v6 setup
 function App() {
   return (
     <BrowserRouter basename="/v2">

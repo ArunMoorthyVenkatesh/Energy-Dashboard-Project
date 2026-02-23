@@ -3,11 +3,6 @@ import { mapGroupGanttResponse, mapGroupList, mapSiteMetadata } from "../mappers
 
 const DEFAULT_TIMEZONE = "Asia/Ho_Chi_Minh";
 
-/**
- * Fetch site metadata and map it for dashboard consumption.
- * @param {number|string} siteId
- * @returns {Promise<ReturnType<typeof mapSiteMetadata>>}
- */
 export async function fetchSiteMetadata(siteId) {
   if (!siteId) return mapSiteMetadata(null);
   const res = await API({
@@ -18,11 +13,6 @@ export async function fetchSiteMetadata(siteId) {
   return mapSiteMetadata(payload);
 }
 
-/**
- * Fetch groups scoped to a site and map them for UI dropdowns and usage widgets.
- * @param {number|string} siteId
- * @returns {Promise<ReturnType<typeof mapGroupList>>}
- */
 export async function fetchGroupsForSite(siteId) {
   const res = await API({
     method: "GET",
@@ -33,11 +23,6 @@ export async function fetchGroupsForSite(siteId) {
   return mapGroupList(payload);
 }
 
-/**
- * Map dashboard time range to gantt granularity and anchor date.
- * @param {"day"|"month"|"lifetime"} timeRange
- * @returns {{ granularity: "hour"|"day"|"month"|"year", date: string }}
- */
 function resolveGanttParams(timeRange) {
   const todayIso = new Date().toISOString().slice(0, 10);
   if (timeRange === "month") return { granularity: "day", date: todayIso };
@@ -45,11 +30,6 @@ function resolveGanttParams(timeRange) {
   return { granularity: "hour", date: todayIso };
 }
 
-/**
- * Fetch group gantt timeline and map deviceType series into UI categories.
- * @param {{ groupId: number|string, timeRange: "day"|"month"|"lifetime", timeZone?: string }} params
- * @returns {Promise<import("../mappers/viewModels.js").GroupTimelineViewModel>}
- */
 export async function fetchGroupTimeline({ groupId, timeRange, timeZone = DEFAULT_TIMEZONE }) {
   if (!groupId) return { grid: [], pv: [], bess: [], home_load: [] };
   const { granularity, date } = resolveGanttParams(timeRange);
@@ -63,18 +43,13 @@ export async function fetchGroupTimeline({ groupId, timeRange, timeZone = DEFAUL
   return mapGroupGanttResponse(payload);
 }
 
-/**
- * Fetch all devices for a site.
- * @param {number|string} siteId
- * @returns {Promise<Array>}
- */
 export async function fetchSiteDevices(siteId) {
   if (!siteId) return [];
   const res = await API({
     method: "GET",
     url: `/sites/${siteId}/devices`
   });
-  // Response structure: { success: true, data: [...array...], error: null }
+
   const payload = res?.data?.data ?? [];
   return Array.isArray(payload) ? payload : [];
 }

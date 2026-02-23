@@ -85,7 +85,7 @@ export default function SiteManagementPage() {
         const cfg = await loadRuntimeConfig();
         if (cfg?.SITE_ID) setSiteId(cfg.SITE_ID);
       } catch {
-        // use default siteId
+
       }
     })();
   }, []);
@@ -93,7 +93,6 @@ export default function SiteManagementPage() {
   useEffect(() => {
     if (siteId) loadData(siteId);
   }, [siteId, loadData]);
-  
 
   const onlineDevices = devices.filter((d) => d.power?.now?.online);
 
@@ -157,7 +156,7 @@ export default function SiteManagementPage() {
 
   return (
     <div className="p-3 sm:p-6 lg:p-10 min-h-screen">
-      {/* Header */}
+      {}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -191,7 +190,7 @@ export default function SiteManagementPage() {
         </motion.button>
       </motion.div>
 
-      {/* Site Info Card */}
+      {}
       {siteInfo && (
         <motion.div
           initial="hidden"
@@ -238,7 +237,7 @@ export default function SiteManagementPage() {
         </motion.div>
       )}
 
-      {/* Groups Overview */}
+      {}
       <motion.div initial="hidden" animate="visible" custom={2} variants={fadeIn} className="mb-10">
         <h2 className="text-lg font-extrabold text-emerald-950 flex items-center gap-2.5 mb-5">
           <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl shadow-sm">
@@ -288,7 +287,7 @@ export default function SiteManagementPage() {
         )}
       </motion.div>
 
-      {/* All Devices List */}
+      {}
       <motion.div initial="hidden" animate="visible" custom={3} variants={fadeIn}>
         <h2 className="text-lg font-extrabold text-emerald-950 flex items-center gap-2.5 mb-5">
           <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl shadow-sm">
@@ -300,7 +299,7 @@ export default function SiteManagementPage() {
           </span>
         </h2>
 
-        {/* Device Search */}
+        {}
         <div className="relative mb-5">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
           <input
@@ -379,7 +378,7 @@ export default function SiteManagementPage() {
         );
         })()}
 
-        {/* Expanded device detail */}
+        {}
         {expandedDevice && (() => {
           const dev = devices.find((d) => String(d.deviceId || d.id) === String(expandedDevice));
           if (!dev) return null;

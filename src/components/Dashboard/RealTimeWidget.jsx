@@ -1,4 +1,3 @@
-// src/components/RealTimeWidget/RealTimeWidget.jsx
 import { useEffect, useState, useMemo } from 'react';
 import Card from '../Base/Card';
 import PieGraph from '../Graphs/PieGraph';
@@ -13,10 +12,6 @@ import { fetchSiteGanttChart } from '../../api/ganttApi';
 import { mapGanttToNumberArray, mapGanttToTimelineData, resolveGranularity, todayIsoDate } from '../../mappers/ganttMapper';
 import { formatWithCommas, formatPercent} from '../../utils/FormatUtil';
 
-/**
- * UI-only default data (no domain computation here).
- * Missing backend fields must be treated as 0/null to keep UI stable.
- */
 const defaultData = {
   summary: {
     month_cost: null,
@@ -37,19 +32,13 @@ const defaultData = {
   },
 };
 
-/**
- * RealTimeWidget
- * - siteInfo: fetched from REST (nexus-management) { name, latitude, longitude }
- * - wsData: realtime payload from WebSocket (nexus-management fan-out)
- */
 export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
-  const [timeRange, setTimeRange] = useState('day'); // day | month | lifetime
+  const [timeRange, setTimeRange] = useState('day');
   const [data, setData] = useState(defaultData);
   const [weather, setWeather] = useState(null);
   const [energyBucket, setEnergyBucket] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  // REST-based coords (no longer from wsData)
   const coords = useMemo(() => {
     const lat = parseFloat(siteInfo?.latitude);
     const lon = parseFloat(siteInfo?.longitude);
@@ -61,13 +50,11 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
     return { lat, lon };
   }, [siteInfo?.latitude, siteInfo?.longitude]);
 
-  // Weather fetch (client-side only), uses coords from siteInfo
   useEffect(() => {
     const STORAGE_KEY = 'data_weather_one_call_storage';
 
     if (!Number.isFinite(coords.lat) || !Number.isFinite(coords.lon)) return;
 
-    // Load cached weather first (fast UI)
     const cached = localStorage.getItem(STORAGE_KEY);
     if (cached) {
       try {
@@ -85,7 +72,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
         const res = await WeatherAPI.getOneCall({
           lat: coords.lat,
           lon: coords.lon,
-          units: 'metric', // IMPORTANT: return °C, not Kelvin
+          units: 'metric',
         });
 
         if (!cancelled && res?.data) {
@@ -106,7 +93,6 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
     };
   }, [coords.lat, coords.lon]);
 
-  // Realtime summary mapping (keep as-is, sourced from wsData)
   useEffect(() => {
     if (!wsData) return;
     setData((prev) => ({
@@ -138,7 +124,6 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
     setTimeRange(range);
   }
 
-  // REST-driven gantt chart (no computation, just mapping backend series)
   useEffect(() => {
     const granularity = resolveGranularity(timeRange);
     const date = todayIsoDate();
@@ -174,7 +159,6 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
     };
   }, [siteId, timeRange]);
 
-  // Debug wsData structure
   useEffect(() => {
     console.log('🔍 DEBUG wsData:', {
       hasWsData: !!wsData,
@@ -213,21 +197,18 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
     setEnergyBucket(selectedBucket);
   }, [timeRange, wsData?.energyData]);
 
-  // Calculate total from components if load is missing or incorrect
   const totalLoad = useMemo(() => {
     if (!energyBucket) return null;
-    
+
     const pv = Number(energyBucket.pv) || 0;
     const gridImport = Number(energyBucket.grid_import) || 0;
     const bess = Number(energyBucket.bess) || 0;
     const reportedLoad = Number(energyBucket.load);
-    
-    // Calculate expected total from components
+
     const calculatedTotal = pv + gridImport + bess;
-    
-    // Use reported load if it exists and is reasonable, otherwise use calculated
+
     if (Number.isFinite(reportedLoad) && reportedLoad > 0) {
-      // If there's a significant mismatch, log it for debugging
+
       if (Math.abs(reportedLoad - calculatedTotal) > 0.01) {
         console.warn('⚠️ Load mismatch detected:', {
           reported: reportedLoad,
@@ -237,7 +218,7 @@ export default function RealTimeWidget({ wsData, siteInfo, siteId }) {
       }
       return reportedLoad;
     }
-    
+
     return calculatedTotal > 0 ? calculatedTotal : null;
   }, [energyBucket]);
 

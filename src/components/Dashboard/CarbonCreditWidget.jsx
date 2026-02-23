@@ -5,7 +5,6 @@ import { formatWithCommas } from '../../utils/FormatUtil';
 export default function CarbonCreditWidget({ data, isExpanded = false }) {
   const safeNumber = (value) => (Number.isFinite(value) ? value : 0);
 
-  // Auto-scale energy values (kW -> MW -> GW)
   const autoScaleEnergy = (value) => {
     const absValue = Math.abs(value);
     if (absValue >= 1000000) {
@@ -16,7 +15,6 @@ export default function CarbonCreditWidget({ data, isExpanded = false }) {
     return { value, unit: 'kW' };
   };
 
-  // Auto-scale CO2 values (kg -> tonnes)
   const autoScaleCO2 = (value) => {
     const absValue = Math.abs(value);
     if (absValue >= 1000) {
@@ -29,7 +27,6 @@ export default function CarbonCreditWidget({ data, isExpanded = false }) {
     const energy = data?.energy_summary || {};
     const saving = data?.saving_summary || {};
 
-    // Auto-scale values
     const dailyCO2 = autoScaleCO2(safeNumber(saving.today_co2_saving));
     const monthlyCO2 = autoScaleCO2(safeNumber(saving.month_co2_saving));
     const lifetimeCO2 = autoScaleCO2(safeNumber(saving.lifetime_co2_saving));
@@ -113,7 +110,7 @@ export default function CarbonCreditWidget({ data, isExpanded = false }) {
 
   return (
     <div className="p-6">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3 pb-6 border-b border-slate-200/60 mb-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-slate-200/60">
           <Leaf className="w-5 h-5 text-green-600" />
@@ -123,7 +120,7 @@ export default function CarbonCreditWidget({ data, isExpanded = false }) {
         </h2>
       </div>
 
-      {/* Grid of Cards */}
+      {}
       <div
         className={`grid gap-4 transition-all duration-300 ease-in-out ${
           isExpanded ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'
@@ -147,8 +144,8 @@ export default function CarbonCreditWidget({ data, isExpanded = false }) {
               </div>
 
               <div className="flex items-baseline gap-1 flex-wrap">
-                <span 
-                  className="font-black text-slate-900" 
+                <span
+                  className="font-black text-slate-900"
                   style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)' }}
                 >
                   {formatWithCommas(section.dataValue)}

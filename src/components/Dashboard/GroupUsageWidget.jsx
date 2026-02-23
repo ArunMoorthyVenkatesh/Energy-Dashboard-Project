@@ -10,13 +10,13 @@ export default function GroupUsageWidget({
   rightSlot = null,
 }) {
   const hasData = useMemo(() => Array.isArray(data) && data.length > 0, [data]);
-  
+
   return (
-    <div 
-      className={`p-4 h-full flex flex-col ${className}`.trim()} 
+    <div
+      className={`p-4 h-full flex flex-col ${className}`.trim()}
       aria-label={title}
     >
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-br from-blue-100 to-indigo-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-blue-200/60">
@@ -24,11 +24,11 @@ export default function GroupUsageWidget({
           </div>
           <h3 className="text-base font-bold text-slate-900">{title}</h3>
         </div>
-        {/* Optional area for dropdowns / buttons */}
+        {}
         {rightSlot && <div className="flex items-center gap-2">{rightSlot}</div>}
       </div>
-      
-      {/* Content */}
+
+      {}
       <div className="flex-1 min-h-0">
         {hasData ? (
           <UsageGraph data={data} />

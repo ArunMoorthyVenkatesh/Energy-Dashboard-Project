@@ -8,7 +8,6 @@
   padding: 20px;
 }
 
-/* Responsive Design */
 @media (max-width: 767px) {
   .container {
     padding: 12px;

@@ -6,12 +6,11 @@
 }
 
 .centerSection {
-  /* container-type: inline-size; */
+
   position: absolute;
   left: 50%;
   top: 50%;
-  /* width: auto; */
-  /* width: 75%; */
+
   height: 75%;
   aspect-ratio: 1/1;
   transform: translate(-50%, -50%);
@@ -27,26 +26,25 @@
 
 .centerLine1 {
   color: #545454;
-  /* font-size: 120%; */
+
   font-weight: 500;
   font-size: 2.4cqh;
 }
 
 .centerLine2 {
   color: #606060;
-  /* font-size: 90%; */
+
   font-weight: 400;
   font-size: 1.6cqh;
 }
 
 .centerLine3 {
   color: #7d7d7d;
-  /* font-size: 70%; */
+
   font-weight: 300;
   font-size: 1.3cqh;
 }
 
-/* Responsive Design */
 @media (max-width: 767px) {
   .centerSection {
     height: 70%;

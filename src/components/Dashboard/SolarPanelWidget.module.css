@@ -1,300 +1,291 @@
-/* ===============================
-   Shared "Power Sources" widget skin
-   =============================== */
-
    .wrap {
     width: 100%;
     height: 100%;
     min-height: 0;
-  
+
     display: flex;
     flex-direction: column;
     gap: 12px;
-  
+
     overflow: hidden;
   }
-  
+
   .topRow {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-  
+
     padding: 10px 12px;
     border-bottom: 1px solid #eeeeee;
     background: #ffffff;
   }
-  
+
   .titleLeft {
     display: flex;
     align-items: center;
     gap: 10px;
     min-width: 0;
   }
-  
+
   .iconCircle {
     width: 42px;
     height: 42px;
     border-radius: 14px;
-  
+
     border: 1px solid #eeeeee;
     background: #ffffff;
-  
+
     display: flex;
     align-items: center;
     justify-content: center;
-  
+
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
     flex: 0 0 auto;
   }
-  
+
   .iconCircle[data-online="true"] {
     border-color: #dff5e3;
   }
-  
+
   .solarIcon {
     display: block;
   }
-  
+
   .titleText {
     display: flex;
     flex-direction: column;
     gap: 4px;
     min-width: 0;
   }
-  
+
   .mainTitle {
     font-weight: 700;
     font-size: 14px;
     color: #3f3f3f;
-  
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
   }
-  
+
   .subTitle {
     display: flex;
     align-items: center;
     gap: 6px;
-  
+
     font-size: 12px;
     font-weight: 600;
     color: #757575;
   }
-  
+
   .subTitle[data-online="true"] {
     color: #00af1a;
   }
-  
+
   .dot {
     width: 7px;
     height: 7px;
     border-radius: 999px;
     background: #9ca3af;
   }
-  
+
   .dot[data-online="true"] {
     background: #00af1a;
     animation: blink 1.5s ease-in-out infinite;
   }
-  
+
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
   }
-  
-  /* ===== Right side (pill dropdown) ===== */
+
   .topRight {
     flex: 0 0 auto;
   }
-  
-  /* Pill dropdown */
+
   .pillDropdown {
     position: relative;
     min-width: 160px;
   }
-  
+
   .pillTrigger {
     width: 170px;
     height: 34px;
-  
+
     border-radius: 999px;
     border: 1px solid #e8e8e8;
     background: #ffffff;
-  
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-  
+
     padding: 0 12px;
     cursor: pointer;
     outline: none;
-  
+
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
   }
-  
+
   .pillTrigger:hover {
     background: #fbfbfb;
   }
-  
+
   .pillLabel {
     font-size: 13px;
     font-weight: 600;
     color: #4a4a4a;
-  
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 140px;
   }
-  
+
   .pillChevron {
     color: #6a6a6a;
     display: flex;
     align-items: center;
   }
-  
+
   .pillMenu {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
     width: 100%;
-  
+
     background: #ffffff;
     border: 1px solid #ededed;
     border-radius: 14px;
-  
+
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10);
     padding: 6px;
-  
+
     z-index: 50;
   }
-  
+
   .pillOption {
     width: 100%;
     border: 0;
     background: transparent;
-  
+
     padding: 10px 10px;
     border-radius: 12px;
     cursor: pointer;
-  
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-  
+
     font-size: 13px;
     color: #4a4a4a;
   }
-  
+
   .pillOption:hover {
     background: #f5f7ff;
   }
-  
+
   .pillOptionActive {
     background: #eef2ff;
     font-weight: 650;
   }
-  
+
   .pillTick {
     font-size: 13px;
     color: var(--primary-blue, #667eea);
   }
-  
-  /* ===== Stats grid ===== */
+
   .statsGrid {
     flex: 1;
     min-height: 0;
-  
+
     padding: 12px;
-  
+
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
-  
+
     overflow: auto;
     scrollbar-gutter: stable;
   }
-  
+
   .statCard {
     background: #ffffff;
     border: 1px solid #eeeeee;
     border-radius: 14px;
     padding: 12px 14px;
-  
+
     display: flex;
     flex-direction: column;
     gap: 8px;
-  
+
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
-  
+
     opacity: 0;
     transform: translateY(6px);
     transition: opacity 220ms ease, transform 220ms ease, box-shadow 180ms ease, border-color 180ms ease;
   }
-  
+
   .statsGrid[data-animate="true"] .statCard {
     opacity: 1;
     transform: translateY(0);
   }
-  
+
   .statCard:hover {
     background: #fbfbfb;
     border-color: #dedede;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
   }
-  
+
   .statLabel {
     font-size: 12px;
     font-weight: 600;
     color: #6b6b6b;
   }
-  
+
   .statValueRow {
     display: flex;
     align-items: baseline;
     gap: 8px;
   }
-  
+
   .statValue {
     font-size: 20px;
     font-weight: 750;
     color: #3f3f3f;
   }
-  
+
   .statUnit {
     font-size: 12px;
     font-weight: 450;
     color: #8a8a8a;
   }
-  
+
   .statSub {
     font-size: 12px;
     color: #8a8a8a;
     font-weight: 500;
   }
-  
-  /* Responsive */
+
   @media (max-width: 900px) {
     .topRow {
       flex-direction: column;
       align-items: stretch;
       gap: 10px;
     }
-  
+
     .pillTrigger {
       width: 100%;
     }
-  
+
     .pillDropdown {
       min-width: 0;
       width: 100%;
     }
-  
+
     .statsGrid {
       grid-template-columns: 1fr;
     }
   }
-  

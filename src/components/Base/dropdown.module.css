@@ -93,8 +93,7 @@
 
 .dropdownSearchInput:focus {
   outline: none;
-  /* ring: 2px;
-  ring-color: #3b82f6; */
+
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
@@ -166,14 +165,13 @@
   font-size: 0.875rem;
 }
 
-/* Responsive Design */
 @media (max-width: 767px) {
   .container {
     width: 100%;
   }
 
   .dropdownButton {
-    height: 44px; /* Touch-friendly */
+    height: 44px;
     font-size: 0.875rem;
   }
 

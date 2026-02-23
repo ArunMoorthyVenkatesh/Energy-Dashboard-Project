@@ -1,5 +1,5 @@
 export function getCurrentTimestamp() {
-  const tzOffset = localStorage.getItem('selectedTimeZone'); // e.g. "+07:00"
+  const tzOffset = localStorage.getItem('selectedTimeZone');
 
   let date = new Date();
 
@@ -13,7 +13,7 @@ export function getCurrentTimestamp() {
 }
 
 function parseTimezoneOffset(offset) {
-  // "+07:00" → 420
+
   const match = offset.match(/([+-])(\d{2}):(\d{2})/);
   if (!match) return 0;
 

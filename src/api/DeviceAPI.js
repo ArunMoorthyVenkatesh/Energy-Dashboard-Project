@@ -1,7 +1,6 @@
-// Mock API implementation - Replace with actual API calls later
 class DeviceAPI {
   static async getDevices() {
-    // Simulate API delay
+
     await new Promise(resolve => setTimeout(resolve, 800));
     return [
       {
@@ -230,7 +229,6 @@ class DeviceAPI {
     ];
   }
 
-  // Add more API methods as needed
   static async updateDevice(deviceId, updates) {
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true };

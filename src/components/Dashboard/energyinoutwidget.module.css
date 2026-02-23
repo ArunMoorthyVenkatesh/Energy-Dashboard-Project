@@ -1,4 +1,3 @@
-/* ===== Container ===== */
 .container {
   position: relative;
   width: 100%;
@@ -12,7 +11,6 @@
   overscroll-behavior: contain;
 }
 
-/* ===== Row layout ===== */
 .row {
   margin-inline: auto;
   width: 100%;
@@ -23,7 +21,6 @@
   gap: 16px;
 }
 
-/* ===== Value + Icon ===== */
 .infoWrapper {
   display: flex;
   flex-direction: column;
@@ -53,7 +50,6 @@
   height: clamp(14px, 1.5vw, 20px);
 }
 
-/* ===== Building image ===== */
 .buildingImage {
   flex: 0 1 auto;
   display: flex;
@@ -72,9 +68,6 @@
   transition: transform 0.3s ease;
 }
 
-/* ===== Responsive Design ===== */
-
-/* Mobile: Stack vertically, enlarge building */
 @media (max-width: 767px) {
   .buildingImage img {
     max-width: 75%;
@@ -90,7 +83,6 @@
   }
 }
 
-/* Tablet: Adjust building size */
 @media (min-width: 768px) and (max-width: 1023px) {
   .buildingImage img {
     max-width: 70%;

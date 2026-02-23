@@ -1,4 +1,3 @@
-// Ref: https://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
 export function niceScale(min, max, maxTicks = 5) {
   const range = niceNum(max - min, false);
   const tickSpacing = niceNum(range / (maxTicks - 1), true);

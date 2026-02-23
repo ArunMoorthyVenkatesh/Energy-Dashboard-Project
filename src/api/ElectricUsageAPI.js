@@ -15,7 +15,6 @@ const getSiteEnergy = async ({ site_id, granularity = 'day' }) => {
   });
 };
 
-
 const getGroupList = async ({site_id}) => {
   return await API({
     method: 'GET',
@@ -28,7 +27,7 @@ const getGroupGraph = async ({group_id, time_range}) => {
   return await API({
     method: 'GET',
     url: `/groups/${group_id}/gantt-chart`,
-    params: { 
+    params: {
       data_set: time_range,
       granularity: "hour",
       date: 29,

@@ -13,7 +13,6 @@
   overscroll-behavior: contain;
 }
 
-/* ===== Expand button ===== */
 .expandBtn {
   position: absolute;
   top: 10px;
@@ -36,7 +35,6 @@
   background: #ffffff;
 }
 
-/* ===== Header ===== */
 .titleSection {
   display: flex;
   align-items: center;
@@ -51,14 +49,12 @@
   line-height: 1.2;
 }
 
-/* ===== Content ===== */
 .content {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
 }
 
-/* ===== KPI cards ===== */
 .dataSection {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -108,7 +104,6 @@
   color: #8a8a8a;
 }
 
-/* ===== Modal overlay ===== */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -120,7 +115,6 @@
   padding: 18px;
 }
 
-/* ✅ AUTO-SIZING MODAL */
 .modalContent {
   width: min(1100px, 94vw);
 
@@ -164,7 +158,6 @@
   background: #f7f7f7;
 }
 
-/* ✅ Body shrinks to content */
 .modalBody {
   flex: 0 0 auto;
   max-height: calc(90vh - 60px);
@@ -179,14 +172,12 @@
   background: #fff;
 }
 
-/* Expanded grid */
 .dataSectionModal {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
   padding: 6px;
 }
 
-/* Responsive */
 @media (max-width: 1100px) {
   .dataSectionModal {
     grid-template-columns: repeat(2, minmax(0, 1fr));

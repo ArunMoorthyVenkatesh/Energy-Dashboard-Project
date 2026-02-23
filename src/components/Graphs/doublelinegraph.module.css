@@ -22,7 +22,6 @@
   color: #4b5563;
 }
 
-/* Range Filter Styles */
 .rangeFilterContainer {
   display: flex;
   flex-direction: column;
@@ -253,7 +252,6 @@
   color: #6b7280;
 }
 
-/* Tooltip styles */
 .tooltip {
   position: fixed;
   background-color: white;
@@ -329,7 +327,6 @@
   white-space: nowrap;
 }
 
-/* Responsive Design */
 @media (max-width: 767px) {
   .container {
     min-height: 250px;

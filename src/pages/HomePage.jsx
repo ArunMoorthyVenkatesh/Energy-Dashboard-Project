@@ -150,7 +150,6 @@ export default function HomePage() {
         const deviceList = await fetchSiteDevices(siteId);
         console.log('📡 Fetched devices:', deviceList);
 
-        // Normalize devices into a map by deviceId
         const deviceMap = {};
         deviceList.forEach(device => {
           deviceMap[device.deviceId] = {
@@ -275,7 +274,7 @@ export default function HomePage() {
       }
 
       if (event.type === 'device_realtime_state') {
-        // Update individual device data in real-time
+
         const deviceId = event.deviceId;
         if (!deviceId) return;
 

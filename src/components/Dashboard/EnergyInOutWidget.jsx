@@ -16,26 +16,25 @@ const COLOR = {
   export: '#E5A44E',
 };
 
-// Auto-scale energy values with proper units (kW/kWh -> MW/MWh -> GW/GWh)
 function autoScaleEnergy(value, isEnergy = false) {
   const numValue = parseFloat(value);
   if (!Number.isFinite(numValue)) return { value: '0.00', unit: isEnergy ? 'kWh' : 'kW' };
-  
+
   const absValue = Math.abs(numValue);
   if (absValue >= 1000000) {
-    return { 
-      value: formatWithCommas((numValue / 1000000).toFixed(2)), 
-      unit: isEnergy ? 'GWh' : 'GW' 
+    return {
+      value: formatWithCommas((numValue / 1000000).toFixed(2)),
+      unit: isEnergy ? 'GWh' : 'GW'
     };
   } else if (absValue >= 1000) {
-    return { 
-      value: formatWithCommas((numValue / 1000).toFixed(2)), 
-      unit: isEnergy ? 'MWh' : 'MW' 
+    return {
+      value: formatWithCommas((numValue / 1000).toFixed(2)),
+      unit: isEnergy ? 'MWh' : 'MW'
     };
   }
-  return { 
-    value: formatWithCommas(numValue.toFixed(2)), 
-    unit: isEnergy ? 'kWh' : 'kW' 
+  return {
+    value: formatWithCommas(numValue.toFixed(2)),
+    unit: isEnergy ? 'kWh' : 'kW'
   };
 }
 
@@ -70,14 +69,13 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
 
   function getData() {
     let selectedData;
-    
-    // ✅ Handle Live mode separately
+
     if (timeRange === 'live') {
-      // Live data from power.now or power.row
+
       selectedData = data?.power?.now || data?.power?.row || null;
-      
+
       if (selectedData) {
-        // Live data is in Watts, convert to kW
+
         return {
           pv: safeNum(selectedData.solar),
           battery: (safeNum(selectedData.battery_discharge) - safeNum(selectedData.battery_charge)),
@@ -87,8 +85,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         };
       }
     }
-    
-    // ✅ Day/Month/Lifetime from energyData (already in kW from mapper)
+
     switch (timeRange) {
       case 'day':
         selectedData = data?.daily;
@@ -103,7 +100,6 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         selectedData = data?.daily;
     }
 
-    // Data from mapper is already in kW with pv/bess fields
     return {
       pv: safeNum(selectedData?.pv),
       battery: safeNum(selectedData?.bess),
@@ -115,10 +111,8 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
 
   const rawData = getData();
 
-  // Determine if we're showing energy (kWh) or power (kW)
   const isEnergy = timeRange !== 'live';
 
-  // Auto-scale all values with appropriate units
   const displayData = {
     pv: autoScaleEnergy(rawData.pv, isEnergy),
     battery: autoScaleEnergy(rawData.battery, isEnergy),
@@ -209,7 +203,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
       className="h-full flex flex-col relative p-2 sm:p-4"
       ref={containerRef}
     >
-      {/* Header - Matching other widgets */}
+      {}
       <div
         className="flex flex-col gap-2 sm:gap-3 mb-2 sm:mb-3 pb-2 sm:pb-3 border-b border-slate-200/60 flex-shrink-0"
         onClick={(e) => e.stopPropagation()}
@@ -221,7 +215,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
           <h2 className="text-sm sm:text-base font-bold text-slate-900">Energy Input & Output</h2>
         </div>
 
-        {/* Time Range Selector - Centered */}
+        {}
         <div className="flex justify-center">
           <div
             className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
@@ -258,7 +252,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         </div>
       </div>
 
-      {/* Arrows SVG - Hidden on mobile */}
+      {}
       {!isMobile && (
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -296,7 +290,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
         </svg>
       )}
 
-      {/* Content */}
+      {}
       <div
         className="relative flex-1 flex flex-col justify-between min-h-0 overflow-hidden"
         style={{
@@ -306,7 +300,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
           gap: isExpanded ? 24 : 3,
         }}
       >
-        {/* Top Row - Energy Sources */}
+        {}
         <div className="flex flex-col md:flex-row justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0 gap-3 md:gap-4">
           <ValueBlock refEl={solarRef} scaled={displayData.pv} color={COLOR.solar} isExpanded={isExpanded}>
             <SolarSvg style={{ fill: COLOR.solar }} /> solar cells
@@ -319,7 +313,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
           </ValueBlock>
         </div>
 
-        {/* Building Image */}
+        {}
         <div className="flex justify-center items-center" style={{ margin: 'clamp(1rem, 3vh, 1.5rem) 0 clamp(0.25rem, 2vh, 0.75rem) 0' }}>
           <img
             ref={buildingRef}
@@ -330,7 +324,7 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
           />
         </div>
 
-        {/* Bottom Row - Usage & Export */}
+        {}
         <div className="flex flex-col sm:flex-row justify-between items-center mx-auto w-full max-w-[560px] flex-shrink-0 gap-3 md:gap-8">
           <ValueBlock refEl={usageRef} scaled={displayData.load} color={COLOR.usage} isExpanded={isExpanded}>
             <OutletSvg style={{ fill: COLOR.usage }} /> usage
@@ -344,22 +338,21 @@ export default function EnergyInOutWidget({ data, isExpanded = false }) {
   );
 }
 
-/* ---------- Value Block Component ---------- */
 function ValueBlock({ refEl, scaled, color, children, isExpanded = false }) {
   const valueFontSize = isExpanded ? 'clamp(1.125rem, 2cqh, 1.5rem)' : 'clamp(0.85rem, 1.5cqh, 1rem)';
   const unitFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.6rem, 1.1cqh, 0.7rem)';
   const labelFontSize = isExpanded ? 'clamp(0.75rem, 1.4cqh, 0.875rem)' : 'clamp(0.65rem, 1.2cqh, 0.75rem)';
-  
+
   return (
-    <div 
-      ref={refEl} 
+    <div
+      ref={refEl}
       className="flex flex-col items-center text-center justify-center"
-      style={{ 
-        color, 
+      style={{
+        color,
         minHeight: isExpanded ? '60px' : '40px'
       }}
     >
-      {/* Value */}
+      {}
       <span
         style={{
           fontSize: valueFontSize,
@@ -381,7 +374,7 @@ function ValueBlock({ refEl, scaled, color, children, isExpanded = false }) {
         </span>
       </span>
 
-      {/* Icon + Label */}
+      {}
       <div
         className="flex items-center justify-center gap-1"
         style={{

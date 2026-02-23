@@ -12,7 +12,7 @@ export function normalizeOneCallWeather(data) {
   const main = data?.current?.weather?.[0]?.main || null;
 
   return {
-    main, // <-- ADD
+    main,
     current: Math.round(data?.current?.temp),
     min: Math.round(data?.daily?.[0]?.temp?.min),
     max: Math.round(data?.daily?.[0]?.temp?.max),

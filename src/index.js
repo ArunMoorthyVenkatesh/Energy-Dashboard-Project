@@ -1,10 +1,8 @@
-// src/index.js
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import './index.css';
 
-// 🧙‍♂️ 1. Color utility for console output
 const color = {
   cyan: (t) => `\x1b[36m${t}\x1b[0m`,
   green: (t) => `\x1b[32m${t}\x1b[0m`,
@@ -13,7 +11,6 @@ const color = {
   gray: (t) => `\x1b[90m${t}\x1b[0m`,
 };
 
-// 🧭 2. Safe environment loading with fallbacks
 const ENV = {
   API_URL: process.env.REACT_APP_API_URL || "https://api-semply.semply.cloud/api/v1/iot",
   WS_URL: process.env.REACT_APP_WEBSOCKET_URL || "wss://api-semply.semply.cloud/api/v1/iot/realtime",
@@ -23,7 +20,6 @@ const ENV = {
   PUBLIC_URL: process.env.PUBLIC_URL || "/",
 };
 
-// 🚀 3. Startup banner
 console.log(`
 ${color.cyan("============================================")}
 ${color.green("🚀 PROJECT 1 Development Server")}
@@ -36,7 +32,6 @@ ${color.cyan("============================================")}
 ${color.cyan("============================================")}
 `);
 
-// 📦 4. Environment Summary Table
 console.table({
   "API URL": ENV.API_URL,
   "WebSocket URL": ENV.WS_URL,
@@ -45,10 +40,8 @@ console.table({
   "Public URL": ENV.PUBLIC_URL,
 });
 
-// ✅ Note: WebSocket connection test removed - let HomePage handle the actual connection
 console.log(color.gray("✨ All systems nominal. WebSocket will connect when dashboard loads."));
 
-// 🧩 5. Mount the App
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>

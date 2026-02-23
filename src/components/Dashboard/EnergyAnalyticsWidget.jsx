@@ -6,19 +6,11 @@ import { formatWithCommas } from '../../utils/FormatUtil';
 import { fetchSiteGanttChart } from '../../api/ganttApi';
 import { mapGanttToTimelineData, resolveGranularity, todayIsoDate } from '../../mappers/ganttMapper';
 
-/* ---------------------------
- * CONSTANTS
- * --------------------------- */
-
 const TIME_OPTIONS = [
   { value: 'day', label: 'Day' },
   { value: 'month', label: 'Month' },
   { value: 'lifetime', label: 'Lifetime' },
 ];
-
-/* ---------------------------
- * HELPERS
- * --------------------------- */
 
 function safeNumber(v, fallback = 0) {
   const n = Number(v);
@@ -33,11 +25,10 @@ function safePercent(numerator, denominator, decimals = 2) {
   return Number.isFinite(pct) ? pct.toFixed(decimals) : '0.00';
 }
 
-// Auto-scale energy values (kW -> MW -> GW)
 function autoScaleEnergy(value) {
   const numValue = parseFloat(value);
   if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
-  
+
   const absValue = Math.abs(numValue);
   if (absValue >= 1000000) {
     return { value: formatWithCommas(numValue / 1000000), unit: 'GW' };
@@ -47,10 +38,6 @@ function autoScaleEnergy(value) {
   return { value: formatWithCommas(numValue), unit: 'kW' };
 }
 
-/* ---------------------------
- * COMPONENT
- * --------------------------- */
-
 export default function EnergyAnalyticsWidget({ wsData, siteId }) {
   const [timeRange, setTimeRange] = useState('day');
   const [usageGraphData, setUsageGraphData] = useState([]);
@@ -58,9 +45,6 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
   const [loadingGantt, setLoadingGantt] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  /* ---------------------------
-   * GANTT DATA LOAD
-   * --------------------------- */
   const loadGanttData = useCallback(async (signal) => {
     const granularity = resolveGranularity(timeRange);
     const date = todayIsoDate();
@@ -105,9 +89,6 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
     }
   }
 
-  /* ---------------------------
-   * ENERGY BUCKET SELECTION
-   * --------------------------- */
   useEffect(() => {
     if (!wsData?.energyData) {
       setEnergyBucket(null);
@@ -119,9 +100,6 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
     else setEnergyBucket(null);
   }, [timeRange, wsData]);
 
-  /* ---------------------------
-   * DERIVED ENERGY VALUES (memoized)
-   * --------------------------- */
   const { load, gridPct, bessPct, pvPct, pieData, scaledValues } = useMemo(() => {
     const load = safeNumber(energyBucket?.load, 0);
     const pv = safeNumber(energyBucket?.pv, 0);
@@ -132,7 +110,6 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
     const bessPct = safePercent(bess, load);
     const pvPct = load > 0 ? (100 - Number(gridPct)).toFixed(2) : '0.00';
 
-    // Scale all values
     const scaledPv = autoScaleEnergy(pv);
     const scaledGrid = autoScaleEnergy(gridImport);
     const scaledBess = autoScaleEnergy(bess);
@@ -144,11 +121,11 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
       { label: 'From battery', value: bess, unit: scaledBess.unit, color: '#10B981' },
     ];
 
-    return { 
-      load, 
-      gridPct, 
-      bessPct, 
-      pvPct, 
+    return {
+      load,
+      gridPct,
+      bessPct,
+      pvPct,
       pieData,
       scaledValues: {
         pv: scaledPv,
@@ -161,12 +138,9 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
 
   const hasGraph = Array.isArray(usageGraphData) && usageGraphData.length > 0;
 
-  /* ---------------------------
-   * RENDER
-   * --------------------------- */
   return (
     <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 h-full flex flex-col">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-200/60 flex-shrink-0">
         <div className="bg-gradient-to-br from-indigo-100 to-purple-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-indigo-200/60">
           <TrendingUp className="w-5 h-5 text-indigo-600" />
@@ -184,10 +158,10 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
         </button>
       </div>
 
-      {/* Time Range Selector */}
-      <div 
+      {}
+      <div
         className="flex justify-center mb-4 flex-shrink-0"
-        onClick={(e) => e.stopPropagation()} // Prevent expansion when clicking toggles
+        onClick={(e) => e.stopPropagation()}
       >
         <div
           className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60"
@@ -221,7 +195,7 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
         </div>
       </div>
 
-      {/* Usage Graph */}
+      {}
       <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border-2 border-slate-200/60 mb-3 sm:mb-4 p-2 sm:p-4 flex-shrink-0" style={{ minHeight: 'min(300px, 50vh)' }}>
         {loadingGantt ? (
           <div className="flex items-center justify-center h-[200px] sm:h-[280px] text-slate-400">
@@ -253,34 +227,34 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
         )}
       </div>
 
-      {/* Usage Breakdown Section */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 flex-1 min-h-0">
-        {/* Breakdown list */}
+        {}
         <div className="flex flex-col">
           <h3 className="text-sm font-bold text-slate-900 mb-3">Electric Usage Breakdown</h3>
           <div className="space-y-2.5 flex-1">
             {[
-              { 
-                gradient: 'from-blue-500 to-indigo-600', 
-                label: 'Solar Cells', 
-                scaled: scaledValues.pv, 
-                pct: pvPct 
+              {
+                gradient: 'from-blue-500 to-indigo-600',
+                label: 'Solar Cells',
+                scaled: scaledValues.pv,
+                pct: pvPct
               },
-              { 
-                gradient: 'from-amber-500 to-orange-600', 
-                label: 'Power Grid', 
-                scaled: scaledValues.grid, 
-                pct: gridPct 
+              {
+                gradient: 'from-amber-500 to-orange-600',
+                label: 'Power Grid',
+                scaled: scaledValues.grid,
+                pct: gridPct
               },
-              { 
-                gradient: 'from-green-500 to-emerald-600', 
-                label: 'Battery', 
-                scaled: scaledValues.bess, 
-                pct: bessPct 
+              {
+                gradient: 'from-green-500 to-emerald-600',
+                label: 'Battery',
+                scaled: scaledValues.bess,
+                pct: bessPct
               },
             ].map((item) => (
-              <div 
-                key={item.label} 
+              <div
+                key={item.label}
                 className="bg-gradient-to-r from-slate-50 to-white rounded-lg p-3 border border-slate-200/60 hover:border-slate-300 hover:shadow-sm transition-all duration-200"
               >
                 <div className="flex items-center justify-between">
@@ -313,7 +287,7 @@ export default function EnergyAnalyticsWidget({ wsData, siteId }) {
           </div>
         </div>
 
-        {/* Pie Chart */}
+        {}
         <div className="flex items-center justify-center">
           {load > 0 ? (
             <div className="w-full max-w-[220px]">

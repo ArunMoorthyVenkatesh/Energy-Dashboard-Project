@@ -25,7 +25,7 @@ export default function SolarPanelWidget({ data }) {
 
   return (
     <div className="h-full flex items-center gap-3 px-2">
-      {/* Solar Panel Image with Status Badge - Left Side */}
+      {}
       <div className="flex-shrink-0 flex items-center justify-center relative">
         <img
           src="solar_panel.png"
@@ -43,7 +43,7 @@ export default function SolarPanelWidget({ data }) {
             </svg>
           </div>
         </div>
-        {/* Status Badge */}
+        {}
         <div
           className="absolute -top-1 -right-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-xs shadow-md border-2"
           style={{
@@ -60,7 +60,7 @@ export default function SolarPanelWidget({ data }) {
         </div>
       </div>
 
-      {/* Metrics - Stacked Vertically on Right */}
+      {}
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
         <InfoMetric
           title="Today"

@@ -16,7 +16,6 @@ function SolarBatteryWidget({ solarData = [], batteryData = [] }) {
   const [activeTab, setActiveTab] = useState('solar');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Auto-switch if one dataset is missing
   useEffect(() => {
     const hasSolar = (solarData?.length ?? 0) > 0;
     const hasBattery = (batteryData?.length ?? 0) > 0;
@@ -25,7 +24,6 @@ function SolarBatteryWidget({ solarData = [], batteryData = [] }) {
     if (activeTab === 'battery' && !hasBattery && hasSolar) setActiveTab('solar');
   }, [solarData, batteryData, activeTab]);
 
-  // Close modal on ESC
   useEffect(() => {
     if (!isExpanded) return;
     const onKeyDown = (e) => {
@@ -56,10 +54,6 @@ function SolarBatteryWidget({ solarData = [], batteryData = [] }) {
     </div>
   );
 
-  /**
-   * ✅ Render BOTH widgets and hide/show via CSS
-   * This prevents unmount flicker + blinking.
-   */
   const Panels = () => (
     <div className={styles.body}>
       <div className={`${styles.panel} ${activeTab === 'solar' ? styles.show : styles.hide}`}>
@@ -74,7 +68,7 @@ function SolarBatteryWidget({ solarData = [], batteryData = [] }) {
 
   return (
     <>
-      {/* ================= MINIMISED (GRID) ================= */}
+      {}
       <div className={styles.container}>
         <button
           className={styles.expandBtn}
@@ -94,7 +88,7 @@ function SolarBatteryWidget({ solarData = [], batteryData = [] }) {
         <Panels />
       </div>
 
-      {/* ================= EXPANDED (MODAL) ================= */}
+      {}
       {isExpanded && (
         <div
           className={styles.modalOverlay}

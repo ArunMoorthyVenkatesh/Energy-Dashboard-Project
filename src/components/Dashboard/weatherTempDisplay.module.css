@@ -34,7 +34,6 @@
   flex-shrink: 0;
 }
 
-/* Responsive Design */
 @media (max-width: 767px) {
   .weatherBox {
     gap: 6px;

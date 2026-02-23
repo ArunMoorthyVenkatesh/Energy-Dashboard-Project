@@ -3,44 +3,32 @@ import { createPortal } from 'react-dom';
 import { niceScale } from '../../utils/GraphUtil';
 import styles from './doublelinegraph.module.css';
 
-/**
- * @param {string} yAxisLabel
- * @param {Array} upperData
- * @param {Array} lowerData
- * @param {Function} onRefresh - Optional callback function to fetch new data
- * @param {number} refreshInterval - Refresh interval in milliseconds (default: 60000 = 1 minute)
- * @param {string} viewMode - 'day', 'month', or 'lifetime' to determine range filter labels
- * @param {Function} onRangeChange - Optional callback when range filter changes: (startIndex, endIndex) => void
- */
 export default function DoubleLineGraph({
   yAxisLabel,
   upperData,
   lowerData,
   onRefresh,
-  refreshInterval = 60000, // 1 minute default
-  viewMode = 'day', // 'day', 'month', or 'lifetime'
+  refreshInterval = 60000,
+  viewMode = 'day',
   onRangeChange,
 }) {
   const [hoverIndex, setHoverIndex] = useState(null);
   const [tooltipPos, setTooltipPos] = useState(null);
   const chartRef = useRef(null);
   const tooltipRef = useRef(null);
-  
-  // Range filter state
+
   const totalDataPoints = upperData[0]?.data.length ?? 0;
   const [rangeStart, setRangeStart] = useState(0);
   const [rangeEnd, setRangeEnd] = useState(totalDataPoints - 1);
-  const [isDragging, setIsDragging] = useState(null); // 'start' or 'end'
+  const [isDragging, setIsDragging] = useState(null);
   const sliderRef = useRef(null);
 
-  // Update rangeEnd when data changes
   useEffect(() => {
     if (totalDataPoints > 0) {
       setRangeEnd(totalDataPoints - 1);
     }
   }, [totalDataPoints]);
 
-  // Auto-refresh effect
   useEffect(() => {
     if (!onRefresh) return;
 
@@ -48,18 +36,15 @@ export default function DoubleLineGraph({
       onRefresh();
     }, refreshInterval);
 
-    // Cleanup on unmount
     return () => clearInterval(intervalId);
   }, [onRefresh, refreshInterval]);
 
-  // Notify parent of range changes
   useEffect(() => {
     if (onRangeChange && rangeEnd !== null) {
       onRangeChange(rangeStart, rangeEnd);
     }
   }, [rangeStart, rangeEnd, onRangeChange]);
 
-  // Range slider handlers
   function handleSliderMouseDown(e, handle) {
     e.preventDefault();
     setIsDragging(handle);
@@ -84,7 +69,6 @@ export default function DoubleLineGraph({
     setIsDragging(null);
   }
 
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleSliderMove);
@@ -95,9 +79,7 @@ export default function DoubleLineGraph({
       };
     }
   }, [isDragging, rangeStart, rangeEnd, totalDataPoints]);
-  /* eslint-enable react-hooks/exhaustive-deps */
 
-  // Get range label based on view mode
   function getRangeLabel(index) {
     const originalData = upperData[0]?.data ?? [];
     const dataPoint = originalData[index];
@@ -107,26 +89,26 @@ export default function DoubleLineGraph({
     const mode = (viewMode || '').toLowerCase();
 
     if (mode === 'day') {
-      // Keys are hours (0-23) → format as "00:00" to "23:00"
+
       const hour = parseInt(key, 10);
       if (!isNaN(hour)) {
         return `${String(hour).padStart(2, '0')}:00`;
       }
     } else if (mode === 'month') {
-      // Keys are day numbers or dates → format as "dd/mm"
+
       const now = new Date();
       const dayNum = parseInt(key, 10);
       if (!isNaN(dayNum)) {
         return `${String(dayNum).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}`;
       }
     } else if (mode === 'lifetime') {
-      // Keys are month numbers or year-month → format as "mm/yyyy"
+
       const num = parseInt(key, 10);
       const now = new Date();
       if (!isNaN(num) && num >= 1 && num <= 12) {
         return `${String(num).padStart(2, '0')}/${now.getFullYear()}`;
       }
-      // Handle "2024-01" format
+
       if (typeof key === 'string' && key.includes('-')) {
         const parts = key.split('-');
         if (parts.length >= 2) {
@@ -138,7 +120,6 @@ export default function DoubleLineGraph({
     return key;
   }
 
-  // Filter data based on range
   const filteredUpperData = upperData.map(ds => ({
     ...ds,
     data: ds.data.slice(rangeStart, rangeEnd + 1)
@@ -196,31 +177,26 @@ export default function DoubleLineGraph({
     const values = datasets.map(ds => ds.data[index]?.value ?? 0);
     const highestValue = Math.max(...values);
 
-    // Calculate x position
     const xPercent = xTicks.length > 1 ? (index / (xTicks.length - 1)) * 100 : 50;
     let xPos = chartRect.left + (chartRect.width * xPercent / 100);
 
-    // Calculate y position (at the highest data point)
     const yPercent = svgY(highestValue);
     let yPos = chartRect.top + (chartRect.height * yPercent / 100);
 
-    // Adjust position to prevent cutoff
-    const tooltipWidth = 220; // Approximate tooltip width
-    const tooltipHeight = 150; // Approximate tooltip height
+    const tooltipWidth = 220;
+    const tooltipHeight = 150;
     const padding = 16;
 
-    // Prevent horizontal cutoff
     if (xPos - tooltipWidth / 2 < padding) {
       xPos = padding + tooltipWidth / 2;
     } else if (xPos + tooltipWidth / 2 > window.innerWidth - padding) {
       xPos = window.innerWidth - padding - tooltipWidth / 2;
     }
 
-    // Prevent vertical cutoff at top
     if (yPos - tooltipHeight - padding < 0) {
-      yPos = yPos + tooltipHeight + 24; // Show below instead of above
+      yPos = yPos + tooltipHeight + 24;
     } else {
-      yPos = yPos - 12; // Normal offset above
+      yPos = yPos - 12;
     }
 
     setTooltipPos({
@@ -235,7 +211,6 @@ export default function DoubleLineGraph({
     setTooltipPos(null);
   }
 
-  // Tooltip component rendered in portal
   const tooltip = hoverIndex !== null && tooltipPos && (
     <div
       ref={tooltipRef}
@@ -276,8 +251,8 @@ export default function DoubleLineGraph({
     <div className={styles.container}>
       <div className={styles.topSection}>
         <span className={styles.yAxisLabel}>{yAxisLabel}</span>
-        
-        {/* Range Filter */}
+
+        {}
         <div className={styles.rangeFilterContainer}>
           <div className={styles.rangeLabels}>
             <span className={styles.rangeLabel}>
@@ -288,10 +263,10 @@ export default function DoubleLineGraph({
               {getRangeLabel(rangeEnd)}
             </span>
           </div>
-          
+
           <div className={styles.sliderContainer} ref={sliderRef}>
             <div className={styles.sliderTrack} />
-            <div 
+            <div
               className={styles.sliderRange}
               style={{
                 left: `${startPercent}%`,
@@ -315,7 +290,7 @@ export default function DoubleLineGraph({
       <div className={styles.middleSection}>
         <div className={styles.leftSection}>
           <div className={styles.yAxis}>
-            {/* ✅ FIX: Reverse the ticks so highest values are at top */}
+            {}
             {[...ticks].reverse().map((t, i) => (
               <div key={i} className={styles.yTickWrapper}>
                 <span className={styles.yLabel}>
@@ -328,7 +303,7 @@ export default function DoubleLineGraph({
 
         <div className={styles.rightSection}>
           <div className={styles.chartArea} ref={chartRef}>
-            {/* GRID */}
+            {}
             <div className={styles.gridLines}>
               {ticks.map((t, i) => (
                 <div
@@ -340,7 +315,7 @@ export default function DoubleLineGraph({
               ))}
             </div>
 
-            {/* LINES */}
+            {}
             <svg
               className={styles.lineSvg}
               viewBox="0 0 100 100"
@@ -358,7 +333,7 @@ export default function DoubleLineGraph({
               ))}
             </svg>
 
-            {/* DATA POINT DOTS */}
+            {}
             {hoverIndex !== null && (
               <svg
                 className={styles.lineSvg}
@@ -388,7 +363,7 @@ export default function DoubleLineGraph({
               </svg>
             )}
 
-            {/* HOVER BARS */}
+            {}
             <div
               className={styles.bars}
               style={{
@@ -406,7 +381,7 @@ export default function DoubleLineGraph({
             </div>
           </div>
 
-          {/* X AXIS */}
+          {}
           <div
             className={styles.xAxis}
             style={{
@@ -423,7 +398,7 @@ export default function DoubleLineGraph({
         </div>
       </div>
 
-      {/* LEGEND */}
+      {}
       <div className={styles.bottomSection}>
         <div className={styles.legendGrp}>
           <span className={styles.legendTitle}>Input sources:</span>
@@ -451,7 +426,7 @@ export default function DoubleLineGraph({
         </div>
       </div>
 
-      {/* TOOLTIP PORTAL - Render outside of chart container to avoid overflow issues */}
+      {}
       {typeof document !== 'undefined' && createPortal(
         tooltip,
         document.body

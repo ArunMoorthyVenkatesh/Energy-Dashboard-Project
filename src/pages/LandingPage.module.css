@@ -1,9 +1,6 @@
-/* LandingPage.module.css */
-
-/* Main container */
 .container {
   min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  min-height: 100dvh;
   background: linear-gradient(135deg, #f3e7ff 0%, #dbeafe 50%, #cffafe 100%);
   display: flex;
   align-items: center;
@@ -13,7 +10,6 @@
   padding: clamp(0.75rem, 2vw, 1.5rem);
 }
 
-/* Animated background blobs */
 .background {
   position: absolute;
   inset: 0;
@@ -59,7 +55,6 @@
   animation-delay: 6s;
 }
 
-/* Content container */
 .content {
   position: relative;
   z-index: 10;
@@ -69,7 +64,6 @@
   padding: clamp(0.5rem, 3vw, 1.5rem);
 }
 
-/* Logo container */
 .logoContainer {
   margin-bottom: 0;
   animation: fadeInUp 0.8s ease-out forwards;
@@ -91,7 +85,6 @@
   transform: scale(1.05);
 }
 
-/* Welcome section */
 .welcomeSection {
   margin-top: 0;
   margin-bottom: clamp(1rem, 4vw, 2.5rem);
@@ -119,7 +112,6 @@
   line-height: 1.4;
 }
 
-/* Progress section */
 .progressSection {
   width: 100%;
   max-width: clamp(280px, 90vw, 400px);
@@ -164,7 +156,6 @@
   margin-top: clamp(0.5rem, 2vw, 0.75rem);
 }
 
-/* Dots animation */
 .dotsContainer {
   display: flex;
   justify-content: center;
@@ -196,7 +187,6 @@
   animation-delay: 0.4s;
 }
 
-/* Animations */
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -229,7 +219,6 @@
   }
 }
 
-/* Tablet styles */
 @media (min-width: 768px) {
   .container {
     padding: 2rem;
@@ -252,7 +241,6 @@
   }
 }
 
-/* Desktop styles */
 @media (min-width: 1024px) {
   .container {
     padding: 3rem;
@@ -263,7 +251,6 @@
   }
 }
 
-/* Small mobile optimization */
 @media (max-width: 480px) {
   .container {
     padding: 0.75rem;
@@ -294,7 +281,6 @@
   }
 }
 
-/* Extra small screens */
 @media (max-width: 360px) {
   .container {
     padding: 0.5rem;
@@ -324,7 +310,6 @@
   }
 }
 
-/* Landscape mobile fix */
 @media (max-height: 600px) and (orientation: landscape) {
   .container {
     padding: 0.5rem;
@@ -376,7 +361,6 @@
   }
 }
 
-/* Very wide screens */
 @media (min-width: 1440px) {
   .content {
     max-width: 700px;
@@ -391,7 +375,6 @@
   }
 }
 
-/* Ultra-wide screens */
 @media (min-width: 1920px) {
   .content {
     max-width: 800px;
@@ -414,7 +397,6 @@
   }
 }
 
-/* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   .blob,
   .dot,
@@ -435,7 +417,6 @@
   }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   .title {
     background: none;

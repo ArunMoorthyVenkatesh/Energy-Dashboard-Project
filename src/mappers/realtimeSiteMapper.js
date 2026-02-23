@@ -1,9 +1,3 @@
-/**
- * Map a site_realtime_state WebSocket event into dashboard view models without computing new values.
- * This mapper handles site-level data since individual device data comes from the API fetch.
- * @param {any} event
- * @returns {import("./viewModels.js").SiteRealtimeViewModel|null}
- */
 export function mapSiteRealtimeEvent(event) {
   if (!event || event.type !== "site_realtime_state") return null;
 
@@ -12,14 +6,12 @@ export function mapSiteRealtimeEvent(event) {
   const energySaving = payload.energy_saving || {};
   const carbonCredit = payload.carbon_credit || {};
 
-  // ✅ Helper to safely convert watts to kW
   const toKw = (value) => {
     if (value === null || value === undefined) return 0;
     const num = Number(value);
     return Number.isFinite(num) ? num / 1000 : 0;
   };
 
-  // ✅ Helper to convert watts to MWh (for display)
   const toMWh = (value) => {
     if (value === null || value === undefined) return 0;
     const num = Number(value);
@@ -68,8 +60,6 @@ export function mapSiteRealtimeEvent(event) {
     };
   };
 
-  // ✅ Create site-level solar data that can be used to update individual devices
-  // This will be merged with fetched device data in HomePage
   const siteLevelSolarData = {
     power: {
       now: {
@@ -77,18 +67,17 @@ export function mapSiteRealtimeEvent(event) {
         solar: toKw(power.now?.solar),
       },
       day: {
-        import_kwh: toMWh(power.day?.solar), // Convert to MWh
+        import_kwh: toMWh(power.day?.solar),
       },
       month: {
-        import_kwh: toMWh(power.month?.solar), // Convert to MWh
+        import_kwh: toMWh(power.month?.solar),
       },
       lifetime: {
-        import_kwh: toMWh(power.lifetime?.solar), // Convert to MWh
+        import_kwh: toMWh(power.lifetime?.solar),
       }
     }
   };
 
-  // ✅ Map individual solar panels if they exist in payload
   const solarPanels = Array.isArray(payload.solar_panels)
     ? payload.solar_panels.map((panel) => ({
         id: panel.id ?? panel.deviceId ?? null,
@@ -114,7 +103,6 @@ export function mapSiteRealtimeEvent(event) {
       }))
     : [];
 
-  // ✅ Map individual batteries if they exist in payload
   const batteries = Array.isArray(payload.batteries)
     ? payload.batteries.map((batt) => ({
         id: batt.id ?? batt.deviceId ?? null,
@@ -177,9 +165,9 @@ export function mapSiteRealtimeEvent(event) {
         lifetime_ratio: (power.year?.solar / (power.year?.solar + power.year?.grid_import)) || 0
       }
     },
-    // ✅ Return combined array if individual devices exist, otherwise return site-level data for merging
+
     batteryData: [...solarPanels, ...batteries],
-    // ✅ Include site-level solar data for merging with fetched devices
+
     siteLevelSolarData: siteLevelSolarData,
   };
 }

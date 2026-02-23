@@ -102,7 +102,7 @@ export default function GroupManagementPage() {
         const cfg = await loadRuntimeConfig();
         if (cfg?.SITE_ID) setSiteId(cfg.SITE_ID);
       } catch {
-        // use default siteId
+
       }
     })();
   }, []);
@@ -253,7 +253,7 @@ export default function GroupManagementPage() {
 
   return (
     <div className="p-3 sm:p-6 lg:p-10 min-h-screen">
-      {/* Header */}
+      {}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -287,7 +287,7 @@ export default function GroupManagementPage() {
         </motion.button>
       </motion.div>
 
-      {/* Groups List */}
+      {}
       <motion.div initial="hidden" animate="visible" custom={2} variants={fadeIn}>
         <h2 className="text-lg font-extrabold text-emerald-950 flex items-center gap-2.5 mb-6">
           <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl shadow-sm">
@@ -299,7 +299,7 @@ export default function GroupManagementPage() {
           </span>
         </h2>
 
-        {/* Group Search */}
+        {}
         <div className="relative mb-5">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
           <input
@@ -365,7 +365,7 @@ export default function GroupManagementPage() {
                 >
                   <div className={`h-0.5 transition-all duration-300 ${isExpanded ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400' : 'bg-transparent'}`} />
 
-                  {/* Group Header */}
+                  {}
                   <button
                     onClick={() => toggleGroup(group.id)}
                     className="w-full flex items-center justify-between p-6 text-left hover:bg-emerald-50/30 transition-colors group"
@@ -420,7 +420,7 @@ export default function GroupManagementPage() {
                     </motion.div>
                   </button>
 
-                  {/* Expanded Group Details */}
+                  {}
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
@@ -431,7 +431,7 @@ export default function GroupManagementPage() {
                         className="overflow-hidden"
                       >
                         <div className="border-t border-emerald-100 p-3 sm:p-6 bg-gradient-to-b from-emerald-50/40 via-white/60 to-white/40 space-y-5 sm:space-y-7">
-                          {/* Device Search within Group */}
+                          {}
                           <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
                             <input
@@ -444,7 +444,7 @@ export default function GroupManagementPage() {
                             />
                           </div>
 
-                          {/* Devices grouped by type */}
+                          {}
                           {devicesByType.length > 0 && devicesByType.map((entry, typeIdx) => {
                             const filteredEntryDevices = entry.devices.filter((dev) => {
                               if (!groupDeviceSearchQuery) return true;
@@ -511,7 +511,7 @@ export default function GroupManagementPage() {
                                 })}
                               </div>
 
-                              {/* Expanded device detail panel */}
+                              {}
                               <AnimatePresence>
                                 {filteredEntryDevices.some((dev) => expandedDevice === dev.deviceId) && (
                                   <motion.div
@@ -753,7 +753,7 @@ export default function GroupManagementPage() {
                             );
                           })}
 
-                          {/* Gantt Chart Data */}
+                          {}
                           <motion.div
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}

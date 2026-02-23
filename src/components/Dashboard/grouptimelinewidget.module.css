@@ -16,7 +16,7 @@
 .title {
   color: var(--primary-gray);
   font-weight: 500;
-  /* font-size: 80%; */
+
   font-size: 1.4cqh;
 }
 
@@ -31,9 +31,6 @@
   min-height: 0;
 }
 
-/* ===== Responsive Design ===== */
-
-/* Mobile: Smaller text and padding for buttons */
 @media (max-width: 767px) {
   .container {
     padding: 12px;

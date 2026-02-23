@@ -14,12 +14,10 @@ export default function DashboardLayout() {
     setActivePage(location.pathname);
   }, [location.pathname]);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Auto-collapse sidebar on tablet/small screens
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024 && window.innerWidth >= 768) {
@@ -38,7 +36,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50">
-      {/* Mobile Menu Button - Only visible on mobile */}
+      {}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-slate-700 hover:bg-slate-50"
@@ -51,37 +49,37 @@ export default function DashboardLayout() {
         )}
       </button>
 
-      {/* Mobile Overlay */}
+      {}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* Premium Sidebar */}
-      <div 
+      {}
+      <div
         className={`
           ${isCollapsed ? "lg:w-20" : "lg:w-72"}
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           fixed lg:relative
           inset-y-0 left-0
           w-72 max-w-[80vw]
-          bg-white/60 backdrop-blur-xl 
-          border-r border-slate-200/60 
-          flex flex-col 
-          transition-all duration-300 
-          shadow-xl 
+          bg-white/60 backdrop-blur-xl
+          border-r border-slate-200/60
+          flex flex-col
+          transition-all duration-300
+          shadow-xl
           z-40
         `}
       >
-        {/* Refined Header with Logo */}
+        {}
         <div className="h-24 lg:h-32 border-b border-slate-200/60 flex items-center justify-center px-4 lg:px-6 relative flex-shrink-0">
           {!isCollapsed && (
             <div className="flex items-center justify-center flex-1">
-              <img 
+              <img
                 src={`${process.env.PUBLIC_URL}/semply-logo.jpg`}
-                alt="SEMPLY" 
+                alt="SEMPLY"
                 className="h-16 lg:h-24 w-auto object-contain opacity-90 mix-blend-multiply"
                 onError={(e) => {
                   console.error('Logo failed to load from:', e.target.src);
@@ -90,8 +88,8 @@ export default function DashboardLayout() {
               />
             </div>
           )}
-          
-          {/* Elegant Toggle Button - Hidden on mobile */}
+
+          {}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={`hidden lg:block p-2.5 hover:bg-slate-100 rounded-xl transition-all duration-300 text-slate-600 hover:text-slate-900 shadow-sm hover:shadow-md group ${
@@ -107,9 +105,9 @@ export default function DashboardLayout() {
           </button>
         </div>
 
-        {/* Refined Navigation */}
+        {}
         <nav className="flex-1 p-3 lg:p-4 space-y-2 overflow-y-auto">
-          {/* Home Button */}
+          {}
           <button
             onClick={() => onClickPage("/iot-dashboard")}
             className={`w-full flex items-center ${
@@ -121,11 +119,11 @@ export default function DashboardLayout() {
             }`}
             title={isCollapsed ? "Home" : ""}
           >
-            {/* Hover effect overlay */}
+            {}
             {!(activePage === "/iot-dashboard" || activePage === "/iot-dashboard/") && (
               <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
             )}
-            
+
             <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
               <Home className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
                 activePage === "/iot-dashboard" || activePage === "/iot-dashboard/" ? "" : "group-hover:text-white"
@@ -140,7 +138,7 @@ export default function DashboardLayout() {
             </div>
           </button>
 
-          {/* Device Management Button */}
+          {}
           <button
             onClick={() => onClickPage("/iot-dashboard/devices")}
             className={`w-full flex items-center ${
@@ -152,11 +150,11 @@ export default function DashboardLayout() {
             }`}
             title={isCollapsed ? "Device Management" : ""}
           >
-            {/* Hover effect overlay */}
+            {}
             {!(activePage === "/iot-dashboard/devices" || activePage === "/iot-dashboard/devices/") && (
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
             )}
-            
+
             <div className={`relative flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 lg:gap-4"} w-full`}>
               <Settings className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
                 activePage === "/iot-dashboard/devices" || activePage === "/iot-dashboard/devices/" ? "" : "group-hover:text-white"
@@ -171,7 +169,7 @@ export default function DashboardLayout() {
             </div>
           </button>
 
-          {/* Site Management Button */}
+          {}
           <button
             onClick={() => onClickPage("/iot-dashboard/sites")}
             className={`w-full flex items-center ${
@@ -200,7 +198,7 @@ export default function DashboardLayout() {
             </div>
           </button>
 
-          {/* Group Management Button */}
+          {}
           <button
             onClick={() => onClickPage("/iot-dashboard/groups")}
             className={`w-full flex items-center ${
@@ -229,7 +227,7 @@ export default function DashboardLayout() {
             </div>
           </button>
 
-          {/* CCTV Management Button */}
+          {}
           <button
             onClick={() => onClickPage("/iot-dashboard/cctv")}
             className={`w-full flex items-center ${
@@ -259,10 +257,10 @@ export default function DashboardLayout() {
           </button>
         </nav>
 
-        {/* Premium User Profile Section */}
+        {}
         <div className="p-3 lg:p-4 border-t border-slate-200/60 bg-gradient-to-br from-white/50 to-slate-50/30 flex-shrink-0">
           {isCollapsed ? (
-            <div 
+            <div
               className="w-12 h-12 mx-auto bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-110 shadow-lg"
               title="User Profile"
             >
@@ -282,7 +280,7 @@ export default function DashboardLayout() {
         </div>
       </div>
 
-      {/* Main Content Area with refined background */}
+      {}
       <div className="flex-1 w-full lg:w-auto overflow-auto pt-16 lg:pt-0">
         <Outlet context={{ setTopbarTitle }} />
       </div>

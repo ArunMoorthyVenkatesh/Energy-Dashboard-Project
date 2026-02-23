@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// ✅ FIX: Use REACT_APP_ prefix for Create React App
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api/v1/iot";
 const API_KEY = process.env.REACT_APP_API_KEY || "dev-ws-key";
 
@@ -43,7 +42,6 @@ const API = () => {
     },
   });
 
-  // --- retries ---
   instance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -55,7 +53,6 @@ const API = () => {
 
       config.__retryCount = (config.__retryCount || 0) + 1;
 
-      // retry only for network / 5xx
       if (!error.response || error.response.status >= 500) {
         return instance(config);
       }

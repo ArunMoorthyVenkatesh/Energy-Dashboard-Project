@@ -8,10 +8,9 @@
   flex-direction: column;
   gap: 8px;
 
-  min-height: 0; /* critical for charts in flex layouts */
+  min-height: 0;
 }
 
-/* ===== Header row ===== */
 .titleSection {
   display: flex;
   justify-content: space-between;
@@ -20,7 +19,6 @@
   flex-shrink: 0;
 }
 
-/* ===== Title ===== */
 .title {
   color: var(--primary-gray);
   font-weight: 600;
@@ -32,7 +30,6 @@
   text-overflow: ellipsis;
 }
 
-/* ===== Right side slot container (dropdowns/buttons) ===== */
 .dropdowns {
   display: flex;
   align-items: center;
@@ -41,7 +38,6 @@
   flex-shrink: 0;
 }
 
-/* ===== Graph wrapper ===== */
 .graphSection {
   flex: 1;
   min-height: 0;
@@ -50,7 +46,6 @@
   display: flex;
 }
 
-/* ===== Empty state ===== */
 .placeholder {
   flex: 1;
 
@@ -63,7 +58,6 @@
   text-align: center;
 }
 
-/* Responsive Design */
 @media (max-width: 767px) {
   .titleSection {
     flex-direction: column;

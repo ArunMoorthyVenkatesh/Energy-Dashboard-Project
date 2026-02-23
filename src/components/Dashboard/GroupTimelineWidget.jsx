@@ -31,10 +31,10 @@ export default function GroupTimelineWidget({ data }) {
 
   const updateSourceData = useCallback(async () => {
     if (selectedGrp === null) return;
-    
+
     const granularity = resolveGranularity(timeRange);
     const date = todayIsoDate();
-    
+
     if (!granularity || !date) {
       setSourceData([]);
       setConsumptionData([]);
@@ -49,9 +49,9 @@ export default function GroupTimelineWidget({ data }) {
         date,
         tz: 'Asia/Ho_Chi_Minh',
       });
-      
+
       const mapped = mapGroupGanttSeries(raw || []);
-      
+
       const upper = [
         {
           id: 'grid',
@@ -72,7 +72,7 @@ export default function GroupTimelineWidget({ data }) {
           data: mapped.bess || [],
         },
       ];
-      
+
       setSourceData(upper);
       setConsumptionData([
         {
@@ -102,7 +102,7 @@ export default function GroupTimelineWidget({ data }) {
 
   async function handleRefresh() {
     if (isRefreshing || loading) return;
-    
+
     setIsRefreshing(true);
     try {
       await updateSourceData();
@@ -125,7 +125,7 @@ export default function GroupTimelineWidget({ data }) {
 
   return (
     <div className="p-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 mb-6">
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-br from-violet-100 to-purple-100 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-violet-200/60">
@@ -134,8 +134,8 @@ export default function GroupTimelineWidget({ data }) {
           <h2 className="text-lg font-bold text-slate-900">
             Group Energy Supply / Consumption Timeline
           </h2>
-          
-          {/* Refresh Button */}
+
+          {}
           <button
             onClick={handleRefresh}
             disabled={isRefreshing || loading}
@@ -143,18 +143,18 @@ export default function GroupTimelineWidget({ data }) {
             title="Refresh data"
             aria-label="Refresh data"
           >
-            <RefreshCw 
+            <RefreshCw
               className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
             />
           </button>
         </div>
 
-        {/* Toggle Buttons - wrapped with onClick stopPropagation */}
+        {}
         <div
           className="flex flex-col md:flex-row md:items-center gap-3"
-          onClick={(e) => e.stopPropagation()} // Prevent expansion when clicking toggles
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* Group Selection */}
+          {}
           {grpDropdownOptions.length > 0 && (
             <div className="w-full md:w-auto overflow-x-auto">
               <div
@@ -190,7 +190,7 @@ export default function GroupTimelineWidget({ data }) {
             </div>
           )}
 
-          {/* Time Range Selection */}
+          {}
           <div className="w-full md:w-auto overflow-x-auto">
             <div
               className="inline-flex items-center gap-0.5 rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 p-0.5 shadow-md border border-slate-200/60 min-w-max"
@@ -226,7 +226,7 @@ export default function GroupTimelineWidget({ data }) {
         </div>
       </div>
 
-      {/* Graph Area - Much Larger */}
+      {}
       <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg border-2 border-slate-200/60 p-6" style={{ minHeight: '450px' }}>
         {loading ? (
           <div className="flex items-center justify-center h-[450px] text-slate-400">
@@ -253,7 +253,7 @@ export default function GroupTimelineWidget({ data }) {
         )}
       </div>
 
-      {/* Legend */}
+      {}
       {hasData && !loading && (
         <div className="mt-4 flex flex-wrap gap-4 justify-center">
           {[
@@ -263,8 +263,8 @@ export default function GroupTimelineWidget({ data }) {
             { color: '#EF4444', name: 'Internal Load' },
           ].map((item) => (
             <div key={item.name} className="flex items-center gap-2">
-              <div 
-                className="w-4 h-1 rounded-full shadow-sm" 
+              <div
+                className="w-4 h-1 rounded-full shadow-sm"
                 style={{ backgroundColor: item.color }}
               />
               <span className="text-xs font-semibold text-slate-700">{item.name}</span>

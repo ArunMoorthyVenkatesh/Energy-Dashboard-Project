@@ -28,7 +28,6 @@ const ICON = {
   meter: <ElectricMeterSvg />,
 };
 
-// Auto-scale energy values (kWh -> MWh -> GWh)
 function autoScaleEnergy(value) {
   const absValue = Math.abs(value);
   if (absValue >= 1000000) {
@@ -41,18 +40,18 @@ function autoScaleEnergy(value) {
 
 export default function UsageGraph({ data }) {
   const totalUsage = data.reduce((sum, d) => sum + (Number.isFinite(d.usage) ? d.usage : 0), 0);
-  
+
   return (
     <div className="flex flex-col w-full h-full">
-      {/* Header */}
+      {}
       <div className="grid grid-cols-[2fr_3fr_2fr] gap-4 px-4 py-3 bg-slate-50/50 rounded-lg border border-slate-200/60 mb-3">
         <div className="text-xs font-bold text-slate-700">Group</div>
         <div className="text-xs font-bold text-slate-700">Energy usage</div>
         <div className="text-xs font-bold text-slate-700">IoT devices</div>
       </div>
-      
-      {/* Content */}
-      <div className="flex flex-col gap-3 overflow-y-auto pr-1" style={{ 
+
+      {}
+      <div className="flex flex-col gap-3 overflow-y-auto pr-1" style={{
         scrollbarWidth: 'thin',
         scrollbarColor: '#cbd5e1 #f1f5f9'
       }}>
@@ -68,7 +67,7 @@ function Row({ data, totalUsage }) {
   const barRef = useRef(null);
   const percentRef = useRef(null);
   const [percentOutside, setPercentOutside] = useState(false);
-  
+
   useEffect(() => {
     const checkFit = () => {
       if (barRef.current && percentRef.current) {
@@ -87,7 +86,7 @@ function Row({ data, totalUsage }) {
   const denominator = totalUsage > 0 ? totalUsage : 1;
   const percentage = ((usageValue / denominator) * 100).toFixed(2);
   const scaled = autoScaleEnergy(usageValue);
-  
+
   const [overlayPos, setOverlayPos] = useState(null);
   const [hoveredDevice, setHoveredDevice] = useState(null);
 
@@ -107,12 +106,12 @@ function Row({ data, totalUsage }) {
 
   return (
     <div className="grid grid-cols-[2fr_3fr_2fr] gap-4 items-center px-4 py-2 hover:bg-slate-50/50 rounded-lg transition-colors">
-      {/* Group name */}
+      {}
       <div className="text-sm font-semibold text-slate-900 truncate">
         {data.name}
       </div>
-      
-      {/* Usage bar */}
+
+      {}
       <div className="flex items-center">
         <div className="relative w-full">
           <div
@@ -123,8 +122,8 @@ function Row({ data, totalUsage }) {
             <span
               ref={percentRef}
               className={`text-xs font-bold whitespace-nowrap ${
-                percentOutside 
-                  ? 'absolute left-full ml-2 text-slate-900' 
+                percentOutside
+                  ? 'absolute left-full ml-2 text-slate-900'
                   : 'ml-auto text-white'
               }`}
             >
@@ -136,8 +135,8 @@ function Row({ data, totalUsage }) {
           </div>
         </div>
       </div>
-      
-      {/* Devices */}
+
+      {}
       <div className="flex items-center gap-1 flex-wrap">
         {Object.values(
           (data.devices || []).reduce((acc, device) => {
@@ -170,8 +169,8 @@ function Row({ data, totalUsage }) {
               createPortal(
                 <div
                   className="absolute z-[9999] bg-white rounded-lg shadow-lg border border-slate-200 p-3 max-w-xs max-h-[300px] overflow-y-auto"
-                  style={{ 
-                    top: overlayPos.top - 10, 
+                  style={{
+                    top: overlayPos.top - 10,
                     left: overlayPos.left,
                     transform: 'translate(-50%, -100%)',
                     scrollbarWidth: 'thin',

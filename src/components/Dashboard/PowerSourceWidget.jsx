@@ -45,13 +45,13 @@ export default function PowerSourceWidget({ devices = [], isExpanded = false }) 
 
   return (
     <div className={`h-full flex flex-col overflow-hidden ${isExpanded ? 'pt-4' : ''}`} aria-label="Battery & Power Sources">
-      {/* Header with Dropdown - Show in compact view only */}
+      {}
       {!isExpanded && (
         <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 flex-shrink-0 bg-gradient-to-r from-slate-50 to-white">
           <div className="bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg p-1.5 flex-shrink-0">
             <Icon className="w-4 h-4 text-emerald-600" />
           </div>
-          
+
           {deviceOptions.length > 0 && (
             <div className="relative flex-1 min-w-0">
               <select
@@ -80,7 +80,7 @@ export default function PowerSourceWidget({ devices = [], isExpanded = false }) 
         </div>
       )}
 
-      {/* Compact dropdown for expanded view - positioned to avoid close button */}
+      {}
       {isExpanded && deviceOptions.length > 1 && (
         <div className="flex items-center gap-2 px-4 pb-4 flex-shrink-0">
           <select
@@ -104,7 +104,7 @@ export default function PowerSourceWidget({ devices = [], isExpanded = false }) 
         </div>
       )}
 
-      {/* Content */}
+      {}
       <div className="flex-1 min-h-0 overflow-auto p-4">
         {safeDevices.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">

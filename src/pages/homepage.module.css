@@ -1,9 +1,3 @@
-/* ===========================
-   RESPONSIVE HOMEPAGE STYLES
-   Mobile-First Approach
-   =========================== */
-
-/* Page Container */
 .pageContainer {
   min-height: 100vh;
   width: 100%;
@@ -28,7 +22,6 @@
   }
 }
 
-/* Header Section */
 .header {
   padding: 16px;
   background: rgba(255, 255, 255, 0.6);
@@ -82,7 +75,6 @@
   }
 }
 
-/* Main Grid - Mobile First */
 .mainGrid {
   display: grid;
   gap: 12px;
@@ -90,7 +82,6 @@
   grid-auto-rows: minmax(280px, auto);
 }
 
-/* Tablet: 2 columns */
 @media (min-width: 768px) {
   .mainGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -98,7 +89,6 @@
   }
 }
 
-/* Desktop: 6 columns like original */
 @media (min-width: 1280px) {
   .mainGrid {
     grid-template-columns: repeat(6, 1fr);
@@ -108,7 +98,6 @@
   }
 }
 
-/* Grid Item Base */
 .gridItem {
   min-height: 280px;
   overflow: hidden;
@@ -120,7 +109,6 @@
   }
 }
 
-/* Specific Widget Positioning - Mobile (all stack) */
 .realtimeKpi,
 .energyInOut,
 .carbonCredit,
@@ -129,7 +117,6 @@
   grid-column: 1;
 }
 
-/* Tablet: 2 column layout */
 @media (min-width: 768px) {
   .realtimeKpi {
     grid-column: 1;
@@ -157,7 +144,6 @@
   }
 }
 
-/* Desktop: Original 6 column grid layout */
 @media (min-width: 1280px) {
   .realtimeKpi {
     grid-column: 1 / span 2;
@@ -185,7 +171,6 @@
   }
 }
 
-/* Widget Wrapper Styles */
 .widgetWrapper {
   height: 100%;
   width: 100%;
@@ -263,14 +248,12 @@
   }
 }
 
-/* Plain Widget (no wrapper styling) */
 .plainWidget {
   height: 100%;
   width: 100%;
   padding: 4px;
 }
 
-/* Full Width Sections */
 .fullWidthSection {
   flex-shrink: 0;
   min-height: 400px;
@@ -289,7 +272,6 @@
   }
 }
 
-/* Timeline Widget Specific */
 .timelineWidget {
   height: 100%;
   width: 100%;
@@ -338,7 +320,6 @@
   }
 }
 
-/* Modal Styles */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -447,7 +428,6 @@
   border-radius: 10px;
 }
 
-/* Responsive utility classes */
 .hideOnMobile {
   display: none;
 }
@@ -468,7 +448,6 @@
   }
 }
 
-/* Loading/Error States */
 .loadingState,
 .errorState {
   display: flex;

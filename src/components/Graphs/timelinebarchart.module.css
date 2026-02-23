@@ -6,7 +6,6 @@
   gap: 5px;
 }
 
-/* yaxis label + range filter */
 .topSection {
   width: 100%;
   display: flex;
@@ -20,7 +19,6 @@
   color: var(--secondary-gray);
 }
 
-/* Refresh Button Styles */
 .refreshButton {
   display: flex;
   align-items: center;
@@ -53,7 +51,6 @@
   opacity: 0.6;
 }
 
-/* Range Filter Styles */
 .rangeFilterContainer {
   display: flex;
   flex-direction: column;
@@ -126,14 +123,12 @@
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
 }
 
-/* axis + yaxis + bars */
 .bottomSection {
   display: flex;
   gap: 5px;
   height: 100%;
 }
 
-/* bottom left, yaxis tick labels */
 .leftSection {
   display: flex;
   flex-direction: column;
@@ -159,7 +154,6 @@
   color: var(--secondary-gray);
 }
 
-/* bottom right, xaxis + bars */
 .rightSection {
   height: 100%;
   display: flex;
@@ -238,9 +232,6 @@
   margin-top: 6px;
 }
 
-/* ===== Responsive Design ===== */
-
-/* Mobile: Stack controls vertically */
 @media (max-width: 767px) {
   .topSection {
     flex-direction: column;
@@ -266,7 +257,6 @@
     font-size: 10px;
   }
 
-  /* Show every other x-axis label to prevent overlap */
   .label:nth-child(2n) {
     display: none;
   }
@@ -281,7 +271,6 @@
   }
 }
 
-/* Tablet: Reduce slider width */
 @media (min-width: 768px) and (max-width: 1023px) {
   .sliderContainer {
     width: 160px;

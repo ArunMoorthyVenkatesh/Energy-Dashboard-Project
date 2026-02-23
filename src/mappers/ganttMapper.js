@@ -1,10 +1,3 @@
-/**
- * Map a backend gantt series array to a simple number[] by preferred key.
- * No aggregation; preserves backend ordering.
- * @param {Array<{key: string, value: Array<{key: string, value: number}>}>} series
- * @param {string[]} preferredKeys ordered list of keys to select
- * @returns {number[]}
- */
 export function mapGanttToNumberArray(series, preferredKeys = []) {
   if (!Array.isArray(series) || !preferredKeys.length) return [];
   const lowered = preferredKeys.map((k) => String(k).toLowerCase());
@@ -28,12 +21,6 @@ export function mapGanttToTimelineData(series, preferredKeys) {
   }));
 }
 
-/**
- * Map group gantt series into categorized arrays for UI consumption.
- * Keys mapped deterministically: grid -> grid, load -> home_load, battery -> bess, meter/solar -> pv.
- * @param {Array<{key: string, value: Array<{key: string, value: number}>}>} series
- * @returns {{ grid: Array<{key: string, value: number}>, pv: Array<{key: string, value: number}>, bess: Array<{key: string, value: number}>, home_load: Array<{key: string, value: number}> }}
- */
 export function mapGroupGanttSeries(series) {
   const mapped = { grid: [], pv: [], bess: [], home_load: [] };
   if (!Array.isArray(series)) return mapped;
@@ -56,9 +43,6 @@ export function mapGroupGanttSeries(series) {
   return mapped;
 }
 
-/**
- * Resolve gantt granularity from UI time range.
- */
 export function resolveGranularity(timeRange) {
   const range = String(timeRange || "").toLowerCase();
   if (range === "month") return "day";
@@ -67,9 +51,6 @@ export function resolveGranularity(timeRange) {
   return null;
 }
 
-/**
- * Get an ISO date string for today (YYYY-MM-DD) to use as anchor.
- */
 export function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }

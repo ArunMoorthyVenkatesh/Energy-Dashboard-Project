@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import styles from './piegraph.module.css';
 
-// Svg helpers
 function describeArc(x, y, radius, startAngle, endAngle) {
   const start = polarToCartesian(x, y, radius, endAngle);
   const end = polarToCartesian(x, y, radius, startAngle);
   const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
   const d = [
-    `M ${x} ${y}`, // Move to center
-    `L ${start.x} ${start.y}`, // Line to start of arc
-    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`, // Arc
-    'Z', // Close path
+    `M ${x} ${y}`,
+    `L ${start.x} ${start.y}`,
+    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+    'Z',
   ].join(' ');
   return d;
 }
@@ -23,57 +22,46 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
   };
 }
 
-// Auto-scale energy values for display
 function autoScaleEnergy(value) {
   const numValue = parseFloat(value);
   if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kW' };
-  
+
   const absValue = Math.abs(numValue);
   if (absValue >= 1000000) {
-    return { 
-      value: (numValue / 1000000).toFixed(2), 
-      unit: 'GW' 
+    return {
+      value: (numValue / 1000000).toFixed(2),
+      unit: 'GW'
     };
   } else if (absValue >= 1000) {
-    return { 
-      value: (numValue / 1000).toFixed(2), 
-      unit: 'MW' 
+    return {
+      value: (numValue / 1000).toFixed(2),
+      unit: 'MW'
     };
   }
-  return { 
-    value: numValue.toFixed(2), 
-    unit: 'kW' 
+  return {
+    value: numValue.toFixed(2),
+    unit: 'kW'
   };
 }
 
-// Clean label helper - removes "From" prefix and cleans up text
 function cleanLabel(label) {
   return label
-    .replace(/^from\s+/i, '') // Remove "From" prefix
-    .replace(/cells?$/i, 'Cells') // Normalize "cells" to "Cells"
-    .replace(/grid$/i, 'Grid') // Normalize "grid" to "Grid"
-    .replace(/battery$/i, 'Battery'); // Normalize "battery" to "Battery"
+    .replace(/^from\s+/i, '')
+    .replace(/cells?$/i, 'Cells')
+    .replace(/grid$/i, 'Grid')
+    .replace(/battery$/i, 'Battery');
 }
 
-/**
- * @param {object} data
- * @param {string | number} line1 - line 1 text in center
- * @param {string | number} line2 - line 2 text in center
- * @param {string | number} line3 - line 3 text in center
- * @param {function} onRefresh - callback function to refresh data
- */
 export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  // Auto-refresh every 5 minutes
   useEffect(() => {
     if (!onRefresh) return;
 
     const intervalId = setInterval(() => {
       onRefresh();
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    }, 5 * 60 * 1000);
 
-    // Cleanup on unmount
     return () => clearInterval(intervalId);
   }, [onRefresh]);
 
@@ -87,8 +75,8 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
     return { ...item, startAngle, angle, percentage };
   });
 
-  const radius = 50; // 50% of viewBox
-  const center = 50; // center of viewBox
+  const radius = 50;
+  const center = 50;
   const fullCircleSlice = pieData.find((slice) => slice.angle >= 359.9);
 
   return (
@@ -100,7 +88,7 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
       </div>
       <svg width='100%' height='100%' viewBox='0 0 100 100'>
         <defs>
-          {/* Gradient definitions for each slice */}
+          {}
           <linearGradient id="gradient-blue" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#60a5fa" />
             <stop offset="100%" stopColor="#3b82f6" />
@@ -113,8 +101,8 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
             <stop offset="0%" stopColor="#34d399" />
             <stop offset="100%" stopColor="#10b981" />
           </linearGradient>
-          
-          {/* Shadow filter */}
+
+          {}
           <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
             <feOffset dx="0" dy="1" result="offsetblur"/>
@@ -129,7 +117,7 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
         </defs>
 
         {fullCircleSlice ? (
-          // Show single circle if one slice is 100%
+
           <circle
             cx={center}
             cy={center}
@@ -138,7 +126,7 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
             stroke='#fff'
             strokeWidth='2'
             filter="url(#shadow)"
-            style={{ 
+            style={{
               cursor: 'pointer',
               opacity: hoveredIndex === null || hoveredIndex === 0 ? 1 : 0.6,
               transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -151,14 +139,14 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
             onTouchEnd={() => setHoveredIndex(null)}
           />
         ) : (
-          // Show pie chart slices
+
           pieData.map((slice, i) => {
-            const gradientId = slice.label.includes('solar') 
-              ? 'gradient-blue' 
-              : slice.label.includes('grid') 
-                ? 'gradient-amber' 
+            const gradientId = slice.label.includes('solar')
+              ? 'gradient-blue'
+              : slice.label.includes('grid')
+                ? 'gradient-amber'
                 : 'gradient-green';
-            
+
             return (
               <path
                 key={`path-${i}`}
@@ -190,7 +178,7 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
         )}
       </svg>
 
-      {/* Tooltip */}
+      {}
       {hoveredIndex !== null && (
         <div
           style={{
@@ -213,19 +201,19 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
             animation: 'pieTooltipFadeIn 0.2s ease-out',
           }}
         >
-          <div style={{ 
-            fontSize: '10px', 
-            marginBottom: '8px', 
-            fontWeight: '700', 
+          <div style={{
+            fontSize: '10px',
+            marginBottom: '8px',
+            fontWeight: '700',
             color: '#94a3b8',
             textTransform: 'uppercase',
             letterSpacing: '1px'
           }}>
             {cleanLabel(pieData[hoveredIndex].label)}
           </div>
-          <div style={{ 
-            fontSize: '24px', 
-            fontWeight: '900', 
+          <div style={{
+            fontSize: '24px',
+            fontWeight: '900',
             marginBottom: '6px',
             color: '#ffffff',
             lineHeight: '1',
@@ -235,8 +223,8 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
               return `${scaled.value} ${scaled.unit}`;
             })()}
           </div>
-          <div style={{ 
-            fontSize: '13px', 
+          <div style={{
+            fontSize: '13px',
             color: '#cbd5e1',
             fontWeight: '600'
           }}>
@@ -244,7 +232,7 @@ export default function PieGraph({ data, line1, line2, line3, onRefresh }) {
           </div>
         </div>
       )}
-      
+
       <style>{`
         @keyframes pieTooltipFadeIn {
           from {

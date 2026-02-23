@@ -2,13 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { niceScale } from '../../utils/GraphUtil';
 import styles from './timelinebarchart.module.css';
 
-/**
- * @param {string} yAxisLabel - label for y-axis
- * @param {Array} data - array of objects with key and value properties
- * @param {string} viewMode - 'day' | 'month' | 'lifetime'
- * @param {function} tooltipFormatter - optional formatter for tooltip values
- * @param {function} onRangeChange - callback when range changes: (startIndex, endIndex) => void
- */
 export default function TimelineBarchart({
   yAxisLabel,
   data = [],
@@ -18,28 +11,24 @@ export default function TimelineBarchart({
 }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  // Range filter state
   const totalDataPoints = data.length;
   const [rangeStart, setRangeStart] = useState(0);
   const [rangeEnd, setRangeEnd] = useState(totalDataPoints - 1);
-  const [isDragging, setIsDragging] = useState(null); // 'start' or 'end'
+  const [isDragging, setIsDragging] = useState(null);
   const sliderRef = useRef(null);
 
-  // Update rangeEnd when data changes
   useEffect(() => {
     if (totalDataPoints > 0) {
       setRangeEnd(totalDataPoints - 1);
     }
   }, [totalDataPoints]);
 
-  // Notify parent of range changes
   useEffect(() => {
     if (onRangeChange && rangeEnd !== null) {
       onRangeChange(rangeStart, rangeEnd);
     }
   }, [rangeStart, rangeEnd, onRangeChange]);
 
-  // Range slider handlers
   function handleSliderMouseDown(e, handle) {
     e.preventDefault();
     setIsDragging(handle);
@@ -64,7 +53,6 @@ export default function TimelineBarchart({
     setIsDragging(null);
   }
 
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleSliderMove);
@@ -75,9 +63,7 @@ export default function TimelineBarchart({
       };
     }
   }, [isDragging, rangeStart, rangeEnd, totalDataPoints]);
-  /* eslint-enable react-hooks/exhaustive-deps */
 
-  // Get range label based on view mode
   function getRangeLabel(index) {
     const dataPoint = data[index];
     if (!dataPoint) return index;
@@ -86,26 +72,26 @@ export default function TimelineBarchart({
     const mode = (viewMode || '').toLowerCase();
 
     if (mode === 'day') {
-      // Keys are hours (0-23) → format as "00:00" to "23:00"
+
       const hour = parseInt(key, 10);
       if (!isNaN(hour)) {
         return `${String(hour).padStart(2, '0')}:00`;
       }
     } else if (mode === 'month') {
-      // Keys are day numbers or dates → format as "dd/mm"
+
       const now = new Date();
       const dayNum = parseInt(key, 10);
       if (!isNaN(dayNum)) {
         return `${String(dayNum).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}`;
       }
     } else if (mode === 'lifetime') {
-      // Keys are month numbers or year-month → format as "mm/yyyy"
+
       const num = parseInt(key, 10);
       const now = new Date();
       if (!isNaN(num) && num >= 1 && num <= 12) {
         return `${String(num).padStart(2, '0')}/${now.getFullYear()}`;
       }
-      // Handle "2024-01" format
+
       if (typeof key === 'string' && key.includes('-')) {
         const parts = key.split('-');
         if (parts.length >= 2) {
@@ -117,8 +103,6 @@ export default function TimelineBarchart({
     return key;
   }
 
-
-  // Filter data based on range
   const filteredData = data.slice(rangeStart, rangeEnd + 1);
 
   const xTicks = filteredData.map(item => item.key);
@@ -149,17 +133,17 @@ export default function TimelineBarchart({
     <div className={styles.container} style={{ position: 'relative' }}>
       <div className={styles.topSection}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className={styles.yAxisLabel} style={{ 
-            fontSize: '0.75rem', 
-            fontWeight: '700', 
+          <span className={styles.yAxisLabel} style={{
+            fontSize: '0.75rem',
+            fontWeight: '700',
             color: '#475569',
             letterSpacing: '0.025em'
           }}>
             {yAxisLabel}
           </span>
         </div>
-        
-        {/* Range Filter */}
+
+        {}
         <div className={styles.rangeFilterContainer}>
           <div className={styles.rangeLabels}>
             <span className={styles.rangeLabel}>
@@ -170,10 +154,10 @@ export default function TimelineBarchart({
               {getRangeLabel(rangeEnd)}
             </span>
           </div>
-          
+
           <div className={styles.sliderContainer} ref={sliderRef}>
             <div className={styles.sliderTrack} />
-            <div 
+            <div
               className={styles.sliderRange}
               style={{
                 left: `${startPercent}%`,
@@ -214,8 +198,8 @@ export default function TimelineBarchart({
           <div className={styles.chartArea}>
             <div className={styles.gridLines}>
               {yTicks.map((_, i) => (
-                <div 
-                  key={`grid-line-${i}`} 
+                <div
+                  key={`grid-line-${i}`}
                   className={styles.gridLine}
                   style={{
                     borderTop: '1px solid rgba(148, 163, 184, 0.15)',
@@ -230,21 +214,21 @@ export default function TimelineBarchart({
               {filteredData.map((y, i) => {
                 const barHeight = ((y?.value || 0) / niceMaximum) * 100;
                 const isHovered = hoveredIndex === i;
-                
+
                 return (
                   <div
                     key={i}
                     className={styles.bar}
                     style={{
                       height: `${barHeight}%`,
-                      background: isHovered 
+                      background: isHovered
                         ? 'linear-gradient(180deg, #6366f1 0%, #4f46e5 100%)'
                         : 'linear-gradient(180deg, #818cf8 0%, #6366f1 100%)',
                       opacity: hoveredIndex === null || isHovered ? 1 : 0.4,
                       transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer',
                       transform: isHovered ? 'scaleY(1.02) scaleX(1.05)' : 'scaleY(1)',
-                      boxShadow: isHovered 
+                      boxShadow: isHovered
                         ? '0 4px 12px rgba(99, 102, 241, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1)'
                         : '0 2px 4px rgba(99, 102, 241, 0.1)',
                       borderRadius: '4px 4px 0 0',
@@ -258,7 +242,7 @@ export default function TimelineBarchart({
               })}
             </div>
 
-            {/* Tooltip - positioned relative to chartArea */}
+            {}
             {hoveredIndex !== null && (
               <div
                 style={{
@@ -298,7 +282,7 @@ export default function TimelineBarchart({
               const tickLabel = xTicks[i];
               return (
                 <div key={`x-tick-${i}`} className={styles.tickWrapper}>
-                  {tickLabel && <div className={styles.tick} style={{ 
+                  {tickLabel && <div className={styles.tick} style={{
                     backgroundColor: '#94a3b8',
                     width: '1px',
                     height: '4px'
@@ -316,7 +300,7 @@ export default function TimelineBarchart({
           </div>
         </div>
       </div>
-      
+
       <style>{`
         @keyframes tooltipFadeIn {
           from {

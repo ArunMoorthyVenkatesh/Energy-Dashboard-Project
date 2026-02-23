@@ -5,26 +5,17 @@ import WeatherTempDisplay from './WeatherTempDisplay';
 import { WeatherAPI } from '../../api/WeatherAPI';
 import { normalizeOneCallWeather } from '../../utils/WeatherUtil';
 
-/* ---------------------------
- * CONSTANTS
- * --------------------------- */
-
 const STORAGE_KEY = 'data_weather_one_call_storage';
-
-/* ---------------------------
- * HELPERS
- * --------------------------- */
 
 function safeNumber(v, fallback = 0) {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
 }
 
-// Auto-scale energy values (kWh -> MWh -> GWh)
 function autoScaleEnergy(value) {
   const numValue = parseFloat(value);
   if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'kWh' };
-  
+
   const absValue = Math.abs(numValue);
   if (absValue >= 1000000) {
     return { value: formatWithCommas(numValue / 1000000), unit: 'GWh' };
@@ -34,11 +25,10 @@ function autoScaleEnergy(value) {
   return { value: formatWithCommas(numValue), unit: 'kWh' };
 }
 
-// Auto-scale currency values (Baht -> KBaht -> MBaht)
 function autoScaleBaht(value) {
   const numValue = parseFloat(value);
   if (!Number.isFinite(numValue)) return { value: '0.00', unit: 'Baht' };
-  
+
   const absValue = Math.abs(numValue);
   if (absValue >= 1000000) {
     return { value: formatWithCommas(numValue / 1000000), unit: 'MBaht' };
@@ -47,10 +37,6 @@ function autoScaleBaht(value) {
   }
   return { value: formatWithCommas(numValue), unit: 'Baht' };
 }
-
-/* ---------------------------
- * COMPONENT
- * --------------------------- */
 
 export default function RealTimeKPIWidget({ wsData, siteInfo }) {
   const [weather, setWeather] = useState(null);
@@ -67,11 +53,11 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
     const monthSaving = safeNumber(wsData?.summary?.saving_summary?.month_saving, 0);
     const avgSaving = safeNumber(wsData?.summary?.saving_summary?.today_saving, 0);
     const electricUsage = safeNumber(wsData?.houseLoad?.daily, 0);
-    
+
     const scaledMonthSaving = autoScaleBaht(monthSaving);
     const scaledAvgSaving = autoScaleBaht(avgSaving);
     const scaledUsage = autoScaleEnergy(electricUsage);
-    
+
     return {
       monthSaving,
       avgSaving,
@@ -82,9 +68,6 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
     };
   }, [wsData]);
 
-  /* ---------------------------
-   * WEATHER FETCH
-   * --------------------------- */
   useEffect(() => {
     if (!Number.isFinite(coords.lat) || !Number.isFinite(coords.lon)) return;
 
@@ -127,12 +110,9 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
 
   const toyotaLogoSrc = `${process.env.PUBLIC_URL}/toyota-logo.png`;
 
-  /* ---------------------------
-   * RENDER
-   * --------------------------- */
   return (
     <div className="p-6">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between pb-6 border-b border-slate-200/60 mb-6">
         <div className="flex items-center gap-4">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-slate-200/60">
@@ -143,9 +123,9 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
         </div>
       </div>
 
-      {/* KPI Grid */}
+      {}
       <div className="grid grid-cols-2 gap-4">
-        {/* Monthly Saved */}
+        {}
         <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-violet-100 rounded-lg p-4 border-2 border-blue-300/60 hover:border-blue-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
@@ -161,7 +141,7 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
           </div>
         </div>
 
-        {/* Avg Saved */}
+        {}
         <div className="bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100 rounded-lg p-4 border-2 border-emerald-300/60 hover:border-emerald-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
@@ -177,7 +157,7 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
           </div>
         </div>
 
-        {/* Temperature */}
+        {}
         <div className="bg-gradient-to-br from-orange-100 via-amber-100 to-yellow-100 rounded-lg p-4 border-2 border-orange-300/60 hover:border-orange-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">
@@ -196,7 +176,7 @@ export default function RealTimeKPIWidget({ wsData, siteInfo }) {
           </div>
         </div>
 
-        {/* Current Usage */}
+        {}
         <div className="bg-gradient-to-br from-purple-100 via-fuchsia-100 to-pink-100 rounded-lg p-4 border-2 border-purple-300/60 hover:border-purple-400 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-white/90 rounded-lg shadow-sm">

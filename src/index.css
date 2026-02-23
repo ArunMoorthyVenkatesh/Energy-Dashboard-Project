@@ -2,35 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Root color system (for JS variables and CSS overrides) */
 :root {
   --primary-blue: #1f6eff;
   --primary-orange: #f09c37;
   --primary-green: #67ae5b;
   --primary-gray: #606060;
   --secondary-gray: #808080;
-  
-  /* Enhanced responsive spacing variables */
+
   --spacing-mobile: 0.75rem;
   --spacing-tablet: 1.5rem;
   --spacing-desktop: 2rem;
   --spacing-xl: 2.5rem;
-  
-  /* Responsive container widths */
+
   --container-sm: 640px;
   --container-md: 768px;
   --container-lg: 1024px;
   --container-xl: 1280px;
   --container-2xl: 1536px;
-  
-  /* Responsive border radius */
+
   --radius-mobile: 12px;
   --radius-tablet: 16px;
   --radius-desktop: 20px;
   --radius-xl: 24px;
 }
 
-/* Global reset with enhanced mobile support */
 html, body {
   margin: 0;
   padding: 0;
@@ -42,15 +37,14 @@ html, body {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Prevent pull-to-refresh on mobile */
+
   overscroll-behavior-y: contain;
-  /* Prevent text size adjustment on orientation change */
+
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-/* Responsive font sizing with smoother transitions */
 @media (max-width: 640px) {
   html {
     font-size: 14px;
@@ -84,7 +78,6 @@ html, body {
   color: inherit;
 }
 
-/* SVG icon baseline color with responsive sizing */
 svg {
   fill: var(--primary-gray);
   max-width: 100%;
@@ -92,14 +85,12 @@ svg {
   flex-shrink: 0;
 }
 
-/* Responsive image utility */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Enhanced responsive container utility classes */
 .container-responsive {
   width: 100%;
   margin: 0 auto;
@@ -141,7 +132,6 @@ img {
   }
 }
 
-/* Enhanced responsive grid utilities */
 .grid-responsive {
   display: grid;
   grid-template-columns: 1fr;
@@ -159,7 +149,7 @@ img {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
-  
+
   .grid-responsive-md {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -170,7 +160,7 @@ img {
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
   }
-  
+
   .grid-responsive-lg {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -182,7 +172,6 @@ img {
   }
 }
 
-/* Responsive flex utilities */
 .flex-responsive {
   display: flex;
   flex-direction: column;
@@ -207,7 +196,6 @@ img {
   }
 }
 
-/* Enhanced hide/show utilities for different screen sizes */
 .mobile-only {
   display: block;
 }
@@ -224,7 +212,7 @@ img {
   .mobile-only {
     display: none;
   }
-  
+
   .tablet-up {
     display: block;
   }
@@ -234,13 +222,12 @@ img {
   .desktop-up {
     display: block;
   }
-  
+
   .tablet-only {
     display: none;
   }
 }
 
-/* Flex variants for show/hide */
 .mobile-only-flex {
   display: flex;
 }
@@ -253,31 +240,29 @@ img {
   .mobile-only-flex {
     display: none;
   }
-  
+
   .tablet-up-flex {
     display: flex;
   }
 }
 
-/* Dark mode (system preference) */
 @media (prefers-color-scheme: dark) {
   :root {
     --primary-gray: #e6edf3;
     background-color: #0d1117;
     color: #e6edf3;
   }
-  
+
   svg {
     fill: #d0d0d0;
   }
-  
+
   body {
     background-color: #0d1117;
     color: #e6edf3;
   }
 }
 
-/* Reusable animation classes */
 .animate-pulse-slow {
   animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -310,7 +295,6 @@ img {
   }
 }
 
-/* Enhanced responsive text utilities */
 .text-responsive-xs {
   font-size: 0.75rem;
 }
@@ -343,27 +327,27 @@ img {
   .text-responsive-xs {
     font-size: 0.875rem;
   }
-  
+
   .text-responsive-sm {
     font-size: 1rem;
   }
-  
+
   .text-responsive-base {
     font-size: 1.125rem;
   }
-  
+
   .text-responsive-lg {
     font-size: 1.25rem;
   }
-  
+
   .text-responsive-xl {
     font-size: 1.5rem;
   }
-  
+
   .text-responsive-2xl {
     font-size: 1.875rem;
   }
-  
+
   .text-responsive-3xl {
     font-size: 2.25rem;
   }
@@ -373,40 +357,36 @@ img {
   .text-responsive-xl {
     font-size: 1.875rem;
   }
-  
+
   .text-responsive-2xl {
     font-size: 2.25rem;
   }
-  
+
   .text-responsive-3xl {
     font-size: 3rem;
   }
 }
 
-/* Prevent horizontal scroll on mobile */
 body {
   overflow-x: hidden;
 }
 
-/* Touch-friendly sizing for mobile with improved targets */
 @media (max-width: 767px) {
-  button, 
-  a, 
-  input, 
+  button,
+  a,
+  input,
   select,
   .clickable {
     min-height: 44px;
     min-width: 44px;
   }
-  
-  /* Slightly larger padding for better touch */
+
   button,
   .btn {
     padding: 12px 16px;
   }
 }
 
-/* Custom scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -426,13 +406,11 @@ body {
   background: #64748b;
 }
 
-/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
   scrollbar-color: #94a3b8 #f1f5f9;
 }
 
-/* Enhanced card component with responsive border radius */
 .card-responsive {
   background: white;
   border-radius: var(--radius-mobile);
@@ -455,7 +433,6 @@ body {
   }
 }
 
-/* Responsive spacing utilities */
 .spacing-responsive {
   padding: var(--spacing-mobile);
 }
@@ -510,21 +487,19 @@ body {
   }
 }
 
-/* Safe area insets for iOS notches and home indicators */
 @supports (padding: max(0px)) {
   body {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
     padding-bottom: max(0px, env(safe-area-inset-bottom));
   }
-  
+
   .safe-area-padding {
     padding-left: max(1rem, env(safe-area-inset-left));
     padding-right: max(1rem, env(safe-area-inset-right));
   }
 }
 
-/* Prevent text selection on mobile for better UX */
 .no-select-mobile {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -539,7 +514,6 @@ body {
   }
 }
 
-/* Accessibility: Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -551,45 +525,41 @@ body {
   }
 }
 
-/* Print styles */
 @media print {
   body {
     background: white;
     color: black;
   }
-  
+
   .no-print {
     display: none !important;
   }
-  
+
   .print-only {
     display: block !important;
   }
 }
 
-/* Focus visible for keyboard navigation */
 *:focus-visible {
   outline: 2px solid var(--primary-blue);
   outline-offset: 2px;
 }
 
-/* Hover effects - only on devices that support hover */
 @media (hover: hover) and (pointer: fine) {
   .hover-lift:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
-  
+
   .hover-scale:hover {
     transform: scale(1.02);
   }
-  
+
   .hover-brightness:hover {
     filter: brightness(1.1);
   }
 }
 
-/* Responsive aspect ratios */
 .aspect-square {
   aspect-ratio: 1 / 1;
 }
@@ -602,7 +572,6 @@ body {
   aspect-ratio: 4 / 3;
 }
 
-/* Mobile-first breakpoint helpers */
 .w-full-mobile {
   width: 100%;
 }
@@ -613,7 +582,6 @@ body {
   }
 }
 
-/* Truncate text with responsive handling */
 .truncate-responsive {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -626,7 +594,6 @@ body {
   }
 }
 
-/* Enhanced gap utilities for responsive layouts */
 .gap-responsive {
   gap: 0.75rem;
 }
