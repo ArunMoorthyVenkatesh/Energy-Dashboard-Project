@@ -250,7 +250,7 @@ export default function SiteManagementPage() {
           </span>
         </h2>
         {groups.length > 0 ? (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {groups.map((group, idx) => {
               const totalDevices = group.devices?.length || 0;
               return (
@@ -262,19 +262,19 @@ export default function SiteManagementPage() {
                   whileHover={{ y: -2, scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() =>
-                    navigate('/groups', {
+                    navigate('/iot-dashboard/groups', {
                       state: { groupId: group.id },
                     })
                   }
-                                    className="w-full rounded-2xl border p-5 text-left bg-white border-emerald-100 hover:shadow-lg hover:border-emerald-200 shadow-sm transition-all duration-200 flex items-center justify-between group"
+                  className="w-full rounded-2xl border p-3 sm:p-4 lg:p-5 text-left bg-white border-emerald-100 hover:shadow-lg hover:border-emerald-200 shadow-sm transition-all duration-200 flex items-center justify-between group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md flex-shrink-0">
                       {group.id || 'G'}
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-emerald-900">{group.name || `Group ${group.id}`}</p>
-                      <p className="text-[11px] text-teal-500 mt-0.5 font-semibold">
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-bold text-emerald-900 truncate">{group.name || `Group ${group.id}`}</p>
+                      <p className="text-[10px] sm:text-[11px] text-teal-500 mt-0.5 font-semibold">
                         {totalDevices} device{totalDevices !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -335,7 +335,7 @@ export default function SiteManagementPage() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {filteredDevices.map((dev, devIdx) => {
               const isOnline = dev.power?.now?.online;
               const isDevExpanded = expandedDevice === (dev.deviceId || dev.id);
@@ -390,18 +390,18 @@ export default function SiteManagementPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-5 bg-white rounded-2xl border border-emerald-200/50 p-6 shadow-lg shadow-emerald-50/50"
+              className="mt-5 bg-white rounded-2xl border border-emerald-200/50 p-4 sm:p-6 shadow-lg shadow-emerald-50/50"
             >
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between mb-4 sm:mb-6 gap-3">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   <motion.div
                     whileHover={{ rotate: 10, scale: 1.05 }}
-                    className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-emerald-300/30"
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-xl shadow-emerald-300/30 flex-shrink-0"
                   >
-                    <Cpu className="w-5.5 h-5.5" />
+                    <Cpu className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
                   </motion.div>
-                  <div>
-                    <h5 className="text-base font-bold text-emerald-950">{dev.name || `Device ${dev.deviceId || dev.id}`}</h5>
+                  <div className="min-w-0">
+                    <h5 className="text-sm sm:text-base font-bold text-emerald-950 truncate">{dev.name || `Device ${dev.deviceId || dev.id}`}</h5>
                     <div className="flex items-center gap-2 text-xs mt-1 flex-wrap">
                       <span className="font-mono bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-[11px] font-bold border border-emerald-100">
                         {dev.deviceId || dev.id}
@@ -425,7 +425,7 @@ export default function SiteManagementPage() {
                 </motion.button>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                 <DataTile
                   label="Status"
                   value={
