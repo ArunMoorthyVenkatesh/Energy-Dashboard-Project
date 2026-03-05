@@ -1,4 +1,4 @@
-# SEMPLY - Energy Management & IoT Dashboard
+# Energy Management & IoT Dashboard
 
 A real-time energy monitoring and IoT management dashboard built with React. Designed for facility-level energy visibility, the platform connects to live IoT devices via WebSocket and REST APIs to deliver actionable insights across energy consumption, solar generation, battery storage, carbon credits, and device control.
 
@@ -23,7 +23,7 @@ A real-time energy monitoring and IoT management dashboard built with React. Des
 
 ## Overview
 
-SEMPLY is an IoT energy management platform built for industrial and commercial facilities. It provides a unified dashboard to monitor energy flow in real time, manage connected devices, track carbon credit generation, and analyze historical energy trends — all from a responsive, glassmorphic UI.
+This is an IoT energy management platform built for industrial and commercial facilities. It provides a unified dashboard to monitor energy flow in real time, manage connected devices, track carbon credit generation, and analyze historical energy trends — all from a responsive, glassmorphic UI.
 
 The system is configured for **Toyota HQ (TKKHEAD01)** as the default site and connects to the SEMPLY cloud backend.
 
@@ -361,3 +361,4 @@ Serve the `build/` directory with any static file server. Inject `public/runtime
 ## License
 
 Private — All rights reserved. Built and maintained by the SEMPLY team.
+
